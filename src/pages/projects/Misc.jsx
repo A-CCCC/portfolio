@@ -1,0 +1,35 @@
+// src/pages/projects/Misc.jsx
+import useFadeIn from '../../hooks/useFadeIn'
+import { TYPE } from '../../styles/type'
+import Carousel from '../../components/Carousel'
+import { misc as projects } from '../../data/projects'
+
+export default function Misc() {
+  const titleOpacity = useFadeIn(100)
+  const carouselOpacity = useFadeIn(600)
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      fontFamily: 'system-ui',
+      padding: '120px 0 80px',
+      textAlign: 'center',
+    }}>
+      <h1 style={{
+        fontSize: TYPE.pageTitle,
+        fontWeight: 'bold',
+        marginBottom: 48,
+        opacity: titleOpacity,
+        transition: 'opacity 1.5s ease',
+      }}>
+        Miscellaneous Projects
+      </h1>
+      <div style={{
+        opacity: carouselOpacity,
+        transition: 'opacity 1.5s ease',
+      }}>
+        <Carousel items={projects} />
+      </div>
+    </div>
+  )
+}

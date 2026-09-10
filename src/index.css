@@ -1,0 +1,684 @@
+/* NAVBAR GRADIENTS*/
+
+:root {
+  --nav-gradient-light: linear-gradient(to bottom,
+    rgba(255,255,255,0.7) 0%,
+    rgba(255,255,255,0.65) 20%,
+    rgba(255,255,255,0.5) 40%,
+    rgba(255,255,255,0.3) 60%,
+    rgba(255,255,255,0.12) 80%,
+    rgba(255,255,255,0) 100%
+  );
+  --nav-gradient-dark: linear-gradient(to bottom,
+    rgba(26,25,21,0.7) 0%,
+    rgba(26,25,21,0.65) 20%,
+    rgba(26,25,21,0.5) 40%,
+    rgba(26,25,21,0.3) 60%,
+    rgba(26,25,21,0.12) 80%,
+    rgba(26,25,21,0) 100%
+  );
+}
+
+.nav-layer-light,
+.nav-layer-dark {
+  position: absolute;
+  inset: 0;
+  /* Same clock as everything else, so the bar does not settle ahead of the
+     page beneath it. */
+  transition: opacity var(--theme-fade) var(--theme-ease);
+  /* Own compositing layer, so crossfading these does not force the blurred
+     backdrop behind them to be re-rasterised every frame. */
+  will-change: opacity;
+}
+
+.nav-layer-light { background: var(--nav-gradient-light); opacity: 1; }
+.nav-layer-dark  { background: var(--nav-gradient-dark);  opacity: 0; }
+
+/* Forced dark */
+:root[data-theme='dark'] .nav-layer-light { opacity: 0; }
+:root[data-theme='dark'] .nav-layer-dark  { opacity: 1; }
+
+/* Auto + OS dark, and the same before the app has set the attribute */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] .nav-layer-light,
+  :root:not([data-theme]) .nav-layer-light { opacity: 0; }
+  :root[data-theme='auto'] .nav-layer-dark,
+  :root:not([data-theme]) .nav-layer-dark  { opacity: 1; }
+}
+
+
+
+/* LIGHT — the default, and explicitly when data-theme="light" */
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --text: #000000;
+  --text-body: #555555;
+  --text-muted: #888888;
+  --border: #dddddd;
+  --hover: rgba(0, 0, 0, 0.08);
+  --panel: rgba(255, 255, 255, 0.95);
+
+  /* Carousel card tints — cycled by index */
+  --card-1a: #eaf1fb;  --card-1b: #d5e4f6;
+  --card-2a: #fdf1e2;  --card-2b: #f7e1c6;
+  --card-3a: #e8f4ea;  --card-3b: #d3e8d9;
+  --card-4a: #fbeaee;  --card-4b: #f4d7de;
+  --card-5a: #f0eafa;  --card-5b: #e0d6f3;
+  --card-6a: #e4f2f2;  --card-6b: #cee6e6;
+  --card-shadow-ink: rgba(0, 0, 0, 0.13);
+
+  /* Ground in the two hidden games: Clash Royale's chequered grass, which is
+     two greens and nothing else. */
+  --grass-a: #7cc242;  --grass-b: #6cb139;
+
+  /* And the sky behind them, off the promotional art: saturated cyan going pale
+     towards the horizon, with flat white cloud. */
+  --sky-high: #3fa4dd;  --sky-low: #b3e2f6;  --cloud: rgba(255, 255, 255, 0.95);
+  --cloud-shade: rgba(186, 214, 236, 0.95);
+
+  /* Caption sitting inside the wheelchair-storage render. Softened off-black
+     rather than pure black, with neutral shadows matched to the render's own
+     cool grey shading, so it belongs to the scene rather than reading as flat
+     text pasted on top. */
+  --caption-ink: #222426;
+
+  --band-bg: #000000;
+  --band-ink: #f5f5f7;
+  --band-body: #a8a8ad;
+  --band-hover: rgba(255, 255, 255, 0.16);
+  --caption-glow: rgba(255, 255, 255, 0.6);
+  --caption-shade-1: rgba(60, 66, 74, 0.12);
+  --caption-shade-2: rgba(60, 66, 74, 0.13);
+}
+
+/* DARK — the shared dark values, used by both forced-dark and auto-dark */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #1a1915;
+  --text: #f2f2f2;
+  --text-body: #b0b0b0;
+  --text-muted: #808080;
+  --border: #333333;
+  --hover: rgba(255, 255, 255, 0.12);
+  --panel: rgba(38, 36, 31, 0.95);
+
+  --card-1a: #24313f;  --card-1b: #1a232e;
+  --card-2a: #362a1c;  --card-2b: #271e14;
+  --card-3a: #1f3226;  --card-3b: #16241b;
+  --card-4a: #3a2229;  --card-4b: #29181e;
+  --card-5a: #2a2239;  --card-5b: #1e1929;
+  --card-6a: #193030;  --card-6b: #122323;
+  --card-shadow-ink: rgba(0, 0, 0, 0.5);
+
+  /* Grass has to sit on a near-black page without glowing, so the same two
+     greens taken well down rather than a different colour. */
+  --grass-a: #3c6626;  --grass-b: #325820;
+
+  /* The same sky after dark, rather than a different idea of one. */
+  --sky-high: #101f33;  --sky-low: #24405d;  --cloud: rgba(196, 214, 232, 0.30);
+  --cloud-shade: rgba(120, 146, 176, 0.26);
+  --caption-ink: #eef0f2;
+
+  --band-bg: #f2f2f2;
+  --band-ink: #14130f;
+  --band-body: #55555a;
+  --band-hover: rgba(0, 0, 0, 0.10);
+  --caption-glow: rgba(0, 0, 0, 0.3);
+  --caption-shade-1: rgba(0, 0, 0, 0.3);
+  --caption-shade-2: rgba(0, 0, 0, 0.34);
+}
+
+/* AUTO — follow the OS, but only when not manually overridden.
+   `:not([data-theme])` covers the moment before the app has run: the attribute
+   is set by JavaScript, and until it exists the light block above would be the
+   only match, so a dark machine got a white page for a frame and then watched it
+   fade to dark on every reload. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'],
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --bg: #1a1915;
+    --text: #f2f2f2;
+    --text-body: #b0b0b0;
+    --text-muted: #808080;
+    --border: #333333;
+    --hover: rgba(255, 255, 255, 0.12);
+    --panel: rgba(38, 36, 31, 0.95);
+
+    --card-1a: #24313f;  --card-1b: #1a232e;
+    --card-2a: #362a1c;  --card-2b: #271e14;
+    --card-3a: #1f3226;  --card-3b: #16241b;
+    --card-4a: #3a2229;  --card-4b: #29181e;
+    --card-5a: #2a2239;  --card-5b: #1e1929;
+    --card-6a: #193030;  --card-6b: #122323;
+    --card-shadow-ink: rgba(0, 0, 0, 0.5);
+    --grass-a: #3c6626;  --grass-b: #325820;
+    --sky-high: #101f33;  --sky-low: #24405d;  --cloud: rgba(196, 214, 232, 0.30);
+    --cloud-shade: rgba(120, 146, 176, 0.26);
+    --caption-ink: #eef0f2;
+
+    --band-bg: #f2f2f2;
+    --band-ink: #14130f;
+    --band-body: #55555a;
+    --band-hover: rgba(0, 0, 0, 0.10);
+    --caption-glow: rgba(0, 0, 0, 0.3);
+    --caption-shade-1: rgba(0, 0, 0, 0.3);
+    --caption-shade-2: rgba(0, 0, 0, 0.34);
+  }
+}
+
+/* CAROUSEL CARDS */
+
+.carousel-card {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.carousel-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--card-shadow);
+}
+
+.carousel-card img {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.carousel-card:hover img {
+  transform: scale(1.04);
+}
+
+/* Hide the scrollbar while keeping the track scrollable */
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* HOME-PAGE PROJECT BUBBLES */
+
+@keyframes bubble-float {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(var(--drift-x), var(--drift-y), 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* Uses the standalone `scale` property rather than a scale() inside the
+   transform above: they are independent properties, so the two animations can
+   run at different durations. Folding both into `transform` would force one
+   shared timeline and the drift and the pulse would peak together, which reads
+   as mechanical. Off-tempo, they drift in and out of phase. */
+@keyframes bubble-pulse {
+  0%   { scale: 1; }
+  50%  { scale: var(--pulse); }
+  100% { scale: 1; }
+}
+
+.bubble {
+  animation-name: bubble-float, bubble-pulse;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.4s ease, filter 0.4s ease;
+}
+
+/* Hold still while it's being aimed at, so it's easy to click */
+.bubble:hover {
+  animation-play-state: paused;
+  box-shadow: var(--card-shadow);
+  filter: brightness(1.06);
+}
+
+.bubble:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
+
+/* The renders leave generous empty margin around the model, so even at
+   object-fit: cover the subject only reaches about half the circle. Scaling
+   past cover crops that margin away.
+
+   Measured alpha bounds: Skeleton Barrel spans 16.5%–87.1% of its frame
+   vertically, Elixir Collector 17.1%–84.2%. Filling the circle (~1.35x) leaves
+   the model touching the edge, so this sits well below that to keep a visible
+   ring of tint around the subject. Raise or lower the two values together. */
+.bubble img {
+  transform: scale(1.07);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bubble:hover img {
+  transform: scale(1.11);
+}
+
+/* Photo thumbnails keep their background, so a hard circular crop leaves a
+   visible disc of photo sitting on the tint. Masking with a radial gradient
+   fades the edges out instead, so the photo dissolves into the bubble's colour.
+   Transparent renders do not need this — it would only eat their edges — so it
+   is opt-in per project via `photo: true` in the catalogue. */
+.bubble-photo img {
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 48%, rgba(0, 0, 0, 0.6) 68%, transparent 82%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 48%, rgba(0, 0, 0, 0.6) 68%, transparent 82%);
+}
+
+/* No room left for a bubble beside the fixed-width title */
+@media (max-width: 900px) {
+  .bubble-flank { display: none; }
+}
+
+/* Too cramped alongside the hero text on phones */
+@media (max-width: 720px) {
+  .bubble-layer { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble { animation: none; }
+}
+
+/* PAGE INTRO LINE */
+
+/* The line under a page title. Wide enough that a description of a dozen or so
+   words stays on one line, rather than the 560px that broke the longer ones in
+   two. Not `nowrap`: a longer line than these should still wrap rather than run
+   off the side of the window, and 92vw keeps it inside a narrow one. */
+.page-intro-line {
+  max-width: min(92vw, 780px);
+}
+
+/* VIDEO SCRUBBER */
+
+/* A range input rather than a hand-rolled bar: dragging, clicking anywhere along
+   it, and arrow keys all come for free, and it is announced properly to a screen
+   reader. Everything below is just making it thin and quiet — the track carries
+   the played portion as a gradient, and the handle stays hidden until the
+   pointer is on it, so at rest it reads as a hairline rule rather than a
+   control competing with the video. */
+.video-scrubber {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  /* A 4px bar is hard to hit, so the input is taller than it looks and the
+     track sits in the middle of it. */
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.video-scrubber::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background:
+    linear-gradient(to right,
+      rgba(0, 0, 0, 0.55) calc(var(--played, 0) * 100%),
+      rgba(0, 0, 0, 0.16) calc(var(--played, 0) * 100%));
+}
+
+.video-scrubber::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.video-scrubber::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.video-scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 11px;
+  margin-top: -3.5px;      /* centres the handle on a 4px track */
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.75);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.video-scrubber::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.75);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.video-scrubber:hover::-webkit-slider-thumb,
+.video-scrubber:focus-visible::-webkit-slider-thumb { opacity: 1; }
+
+.video-scrubber:hover::-moz-range-thumb,
+.video-scrubber:focus-visible::-moz-range-thumb { opacity: 1; }
+
+/* HUB COUNT LINK */
+
+/* "2 solutions →" is the way into a category, so it has to look like a control
+   rather than a caption. On hover it takes a soft pill of its own colour and the
+   arrow steps forward. The tint comes from --count-hover, which each band sets
+   to suit the colour it is painted — a mix from currentColor looked neater but
+   resolved to fully transparent, so the highlight never showed. */
+.count-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  /* Padded outward by the same amount it is inset, so the pill sits around the
+     text without moving it out of line with the paragraph above. */
+  padding: 10px 16px;
+  margin: -10px -16px;
+  border-radius: 999px;
+  transition: background-color 0.25s ease;
+}
+
+.count-link:hover,
+.count-link:focus-visible {
+  background-color: var(--count-hover);
+}
+
+.count-link .count-arrow {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.count-link:hover .count-arrow,
+.count-link:focus-visible .count-arrow {
+  transform: translateX(4px);
+}
+
+/* NAV LABELS */
+
+/* Menu labels turn bold when hovered, and bold is wider than regular — enough
+   to push a long label like "Backup Camera Wiper" onto a second line, which
+   moves every item below it. The label reserves its bold width from the start:
+   the copy in ::after is laid out bold but hidden and zero-height, so the link
+   is always as wide as its bold self and hovering changes the weight and
+   nothing else. `nowrap` covers the same ground from the other side, keeping a
+   long label on one line whatever the panel does. */
+.nav-label {
+  white-space: nowrap;
+  /* The reserved bold width is wider than the label at rest, and the spare room
+     would otherwise all sit on one side, so the text appears to grow rightwards
+     when it bolds. Centred, it grows evenly from the middle instead. */
+  display: inline-block;
+  text-align: center;
+}
+
+/* In a dropdown the labels are stacked in a column, where centring leaves both
+   edges ragged. They line up on the left instead — the reserved bold width still
+   applies, so the row still does not move when one bolds. */
+.nav-menu .nav-label {
+  text-align: left;
+}
+
+.nav-label::after {
+  content: attr(data-label);
+  display: block;
+  font-weight: 600;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* HUB CATEGORY LINKS */
+
+/* The category headings on the Projects and Solutions hubs are links, which is
+   not obvious from a big heading alone. The underline is always present but
+   transparent, so hovering fades it in rather than making the text jump — and
+   the reserved space means the layout never shifts. */
+.hub-link {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.14em;
+  transition: text-decoration-color 0.3s ease;
+}
+
+.hub-link:hover,
+.hub-link:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+/* SLIDE-IN CAPTION */
+
+/* Sits in the open middle of a product render, so it wants to read as part of
+   that scene rather than as a label over it: softened ink instead of pure
+   black, a hairline light edge along the top like a lit surface, and two soft
+   shadows — one tight for contact, one wide and diffuse to match the render's
+   own ambient shadow. The tint follows the render, so it is neutral grey while
+   the model is; a warmer render wants warmer values. */
+.slide-caption {
+  color: var(--caption-ink);
+  text-shadow: var(--caption-shadow);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+canvas {
+  background: transparent !important;
+}
+
+/* Theme crossfade.
+
+   The switch is animated once, on the variables themselves, rather than on the
+   elements that use them. Transitioning elements could not be made to move
+   together, for two reasons that pull in opposite directions:
+
+   - `color` is inherited, so when an ancestor animates it every descendant's
+     colour changes frame by frame as a result. A descendant carrying its own
+     `color` transition treats each of those frames as a fresh change to animate
+     towards, and ends up chasing the ancestor a whole duration behind — the
+     subheadings that only began to change once the background had finished.
+
+   - An inline `transition` replaces the stylesheet's, it does not add to it. So
+     every element with an inline fade-in — which is most headings and paragraphs
+     on the site — quietly lost its theme transition and snapped instead.
+
+   Animating registered custom properties sidesteps both. The values are what
+   move; each element simply paints whatever the variable currently holds, on the
+   same clock, whether or not it has transitions of its own. Registration via
+   @property is what makes this possible: an ordinary custom property is just a
+   string to the browser and flips from one value to the other, while one
+   declared as <color> can be interpolated.
+
+   Anything below that is not a plain colour — the card gradients, the shadows —
+   still changes at once, since neither can be interpolated this way. */
+@property --bg          { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --text        { syntax: "<color>"; inherits: true; initial-value: #000000; }
+@property --text-body   { syntax: "<color>"; inherits: true; initial-value: #555555; }
+@property --text-muted  { syntax: "<color>"; inherits: true; initial-value: #888888; }
+@property --border      { syntax: "<color>"; inherits: true; initial-value: #dddddd; }
+@property --hover       { syntax: "<color>"; inherits: true; initial-value: rgba(0, 0, 0, 0.08); }
+@property --panel       { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.95); }
+@property --caption-ink { syntax: "<color>"; inherits: true; initial-value: #222426; }
+
+/* The alternating band on the hub pages: the opposite of the page it sits on,
+   so it flips with the theme rather than being black in both. */
+@property --band-bg   { syntax: "<color>"; inherits: true; initial-value: #000000; }
+@property --band-ink  { syntax: "<color>"; inherits: true; initial-value: #f5f5f7; }
+@property --band-body  { syntax: "<color>"; inherits: true; initial-value: #a8a8ad; }
+@property --band-hover { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.16); }
+
+/* A gradient cannot be interpolated as one value, so the card tints are built
+   from stops that can be. Same for the shadows: the geometry is shared between
+   the themes and only the colour differs, so that is the part that moves. */
+@property --card-1a { syntax: "<color>"; inherits: true; initial-value: #eaf1fb; }
+@property --card-1b { syntax: "<color>"; inherits: true; initial-value: #d5e4f6; }
+@property --card-2a { syntax: "<color>"; inherits: true; initial-value: #fdf1e2; }
+@property --card-2b { syntax: "<color>"; inherits: true; initial-value: #f7e1c6; }
+@property --card-3a { syntax: "<color>"; inherits: true; initial-value: #e8f4ea; }
+@property --card-3b { syntax: "<color>"; inherits: true; initial-value: #d3e8d9; }
+@property --card-4a { syntax: "<color>"; inherits: true; initial-value: #fbeaee; }
+@property --card-4b { syntax: "<color>"; inherits: true; initial-value: #f4d7de; }
+@property --card-5a { syntax: "<color>"; inherits: true; initial-value: #f0eafa; }
+@property --card-5b { syntax: "<color>"; inherits: true; initial-value: #e0d6f3; }
+@property --card-6a { syntax: "<color>"; inherits: true; initial-value: #e4f2f2; }
+@property --card-6b { syntax: "<color>"; inherits: true; initial-value: #cee6e6; }
+@property --grass-a { syntax: "<color>"; inherits: true; initial-value: #7cc242; }
+@property --grass-b { syntax: "<color>"; inherits: true; initial-value: #6cb139; }
+@property --sky-high { syntax: "<color>"; inherits: true; initial-value: #3fa4dd; }
+@property --sky-low { syntax: "<color>"; inherits: true; initial-value: #b3e2f6; }
+@property --cloud { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.95); }
+@property --cloud-shade { syntax: "<color>"; inherits: true; initial-value: rgba(186, 214, 236, 0.95); }
+@property --card-shadow-ink  { syntax: "<color>"; inherits: true; initial-value: rgba(0, 0, 0, 0.13); }
+@property --caption-glow     { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.6); }
+@property --caption-shade-1  { syntax: "<color>"; inherits: true; initial-value: rgba(60, 66, 74, 0.12); }
+@property --caption-shade-2  { syntax: "<color>"; inherits: true; initial-value: rgba(60, 66, 74, 0.13); }
+
+:root {
+  /* Paced against the machine rather than picked for its own sake. macOS
+     crossfades a snapshot of the whole screen when the appearance changes,
+     which is why switching the system while this site is on auto looks smooth:
+     the OS dissolve covers ours whatever ours is doing. Switching the site on
+     its own runs this transition alone, so for the two to feel alike this has
+     to be about as long as that dissolve — and at 0.4s it was visibly quicker.
+     Not a documented figure, so it is one number here to adjust by eye. */
+  --theme-fade: 0.9s;
+  /* Symmetric, because a dissolve has no reason to rush its start: plain `ease`
+     front-loads the change and then crawls, which reads as a faster switch with
+     a slow tail rather than an even fade. */
+  --theme-ease: ease-in-out;
+
+  transition:
+    --bg var(--theme-fade) var(--theme-ease),
+    --text var(--theme-fade) var(--theme-ease),
+    --text-body var(--theme-fade) var(--theme-ease),
+    --text-muted var(--theme-fade) var(--theme-ease),
+    --border var(--theme-fade) var(--theme-ease),
+    --hover var(--theme-fade) var(--theme-ease),
+    --panel var(--theme-fade) var(--theme-ease),
+    --caption-ink var(--theme-fade) var(--theme-ease),
+    --card-1a var(--theme-fade) var(--theme-ease),
+    --card-1b var(--theme-fade) var(--theme-ease),
+    --card-2a var(--theme-fade) var(--theme-ease),
+    --card-2b var(--theme-fade) var(--theme-ease),
+    --card-3a var(--theme-fade) var(--theme-ease),
+    --card-3b var(--theme-fade) var(--theme-ease),
+    --card-4a var(--theme-fade) var(--theme-ease),
+    --card-4b var(--theme-fade) var(--theme-ease),
+    --card-5a var(--theme-fade) var(--theme-ease),
+    --card-5b var(--theme-fade) var(--theme-ease),
+    --card-6a var(--theme-fade) var(--theme-ease),
+    --card-6b var(--theme-fade) var(--theme-ease),
+    --grass-a var(--theme-fade) var(--theme-ease),
+    --grass-b var(--theme-fade) var(--theme-ease),
+    --sky-high var(--theme-fade) var(--theme-ease),
+    --sky-low var(--theme-fade) var(--theme-ease),
+    --cloud var(--theme-fade) var(--theme-ease),
+    --cloud-shade var(--theme-fade) var(--theme-ease),
+    --card-shadow-ink var(--theme-fade) var(--theme-ease),
+    --caption-glow var(--theme-fade) var(--theme-ease),
+    --caption-shade-1 var(--theme-fade) var(--theme-ease),
+    --caption-shade-2 var(--theme-fade) var(--theme-ease),
+    --band-bg var(--theme-fade) var(--theme-ease),
+    --band-ink var(--theme-fade) var(--theme-ease),
+    --band-body var(--theme-fade) var(--theme-ease),
+    --band-hover var(--theme-fade) var(--theme-ease);
+
+  /* Shapes, defined once. Only the stop colours above differ between themes,
+     so switching moves the gradient rather than replacing it — a gradient
+     cannot be interpolated as a single value, but its stops can. */
+  --card-1: linear-gradient(165deg, var(--card-1a) 0%, var(--card-1b) 100%);
+  --card-2: linear-gradient(165deg, var(--card-2a) 0%, var(--card-2b) 100%);
+  --card-3: linear-gradient(165deg, var(--card-3a) 0%, var(--card-3b) 100%);
+  --card-4: linear-gradient(165deg, var(--card-4a) 0%, var(--card-4b) 100%);
+  --card-5: linear-gradient(165deg, var(--card-5a) 0%, var(--card-5b) 100%);
+  --card-6: linear-gradient(165deg, var(--card-6a) 0%, var(--card-6b) 100%);
+  --card-shadow: 0 18px 40px var(--card-shadow-ink);
+  --caption-shadow:
+    0 1px 0 var(--caption-glow),
+    0 1px 3px var(--caption-shade-1),
+    0 8px 20px var(--caption-shade-2);
+}
+/* Games page: the card lifts a little on hover, so it reads as a control
+   without needing a border or a button around it. */
+.game-card {
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.game-card:hover { transform: translateY(-6px); }
+.game-card:hover h2 { text-decoration: underline; text-underline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  .game-card { transition: none; }
+  .game-card:hover { transform: none; }
+}
+
+/* The way back to the top, in the middle of the navbar. Fades rather than
+   appears, since it comes and goes with the scroll and a control that pops in
+   catches the eye harder than one that arrives. */
+.nav-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: opacity 0.45s ease, color 0.25s ease, border-color 0.25s ease,
+    background 0.25s ease, transform 0.25s ease;
+}
+.nav-top:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+  background: var(--hover);
+  transform: translate(-50%, -50%) translateY(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-top { transition: opacity 0.45s ease; }
+  .nav-top:hover { transform: translate(-50%, -50%); }
+}
+
+/* The inverted copy of the navbar carries the tint the panel behind it would
+   have, in place of the one the real bar wears. Always the opposite of the
+   page, since these panels always are. */
+.nav-ghost-tint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: -32px;
+  background: var(--nav-gradient-dark);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+:root[data-theme='dark'] .nav-ghost-tint { background: var(--nav-gradient-light); }
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] .nav-ghost-tint,
+  :root:not([data-theme]) .nav-ghost-tint { background: var(--nav-gradient-light); }
+}
+
+/* The play button on the build videos. Its background moves to the stylesheet so
+   hovering can lift it: a control sitting on top of a video has nothing around
+   it to react, and without some answer to the pointer it reads as part of the
+   picture rather than as something to press. */
+.video-button {
+  background: rgba(0, 0, 0, 0.5);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.video-button:hover {
+  background: rgba(0, 0, 0, 0.68);
+  transform: scale(1.06);
+}
+.video-button:active { transform: scale(0.97); }
+@media (prefers-reduced-motion: reduce) {
+  .video-button { transition: background 0.2s ease; }
+  .video-button:hover,
+  .video-button:active { transform: none; }
+}

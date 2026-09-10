@@ -1,0 +1,52 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Full-res render frames kept locally as the source for public/*-anim
+# (regenerate optimised frames from these; too large to commit)
+source-frames
+
+# Working folders kept locally: raw exports and originals that the optimised
+# assets in public/ are generated from, plus the alternate frame set
+source-photos
+source-thumbnails
+skeleton-barrel-anim-alt
+*.psd
+
+# Fusion/render exports
+elixir collector build
+skeleton barrel build
+
+# Source 3D models, kept locally rather than shipped with the site
+source-models
+
+# Source recordings and the previous build video
+source-videos
+
+# Screen recordings the build videos are made from
+cannon cart build
+mortar build
+
+# Blender's automatic backups: a stale copy of the .blend beside it
+*.blend1

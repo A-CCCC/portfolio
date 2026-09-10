@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alex's Design Portfolio</title>
+    <script>
+      // Runs before anything is painted, so the page opens in the right theme
+      // instead of starting light and fading. React sets the same value once it
+      // mounts, which is then no change at all — and so no transition.
+      try {
+        var saved = localStorage.getItem('theme')
+        document.documentElement.setAttribute(
+          'data-theme',
+          saved === 'light' || saved === 'dark' || saved === 'auto' ? saved : 'auto',
+        )
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'auto')
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -i '' -e 's|/solutions/|/projects/|g' -e 's|pages/solutions/|pages/projects/|g' src/pages/projects/*.jsx)",
+      "Bash(sed -i '' -e 's/Clash Royale Solutions/Clash Royale Projects/' -e 's/^const solutions = \\\\[/const projects = [/' -e 's/items={solutions}/items={projects}/' src/pages/projects/ClashRoyale.jsx)",
+      "Bash(sed -i '' 's/Miscellaneous Solutions/Miscellaneous Projects/' src/pages/projects/Misc.jsx)",
+      "Bash(npx vite *)",
+      "Bash(npx eslint *)",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --hide-scrollbars --screenshot=conv-light.png --window-size=1440,1000 --virtual-time-budget=4000 \"http://localhost:4319/solutions/convenience\")",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --hide-scrollbars --screenshot=cr-light.png --window-size=1440,1000 --virtual-time-budget=5000 \"http://localhost:4319/projects/clash-royale\")",
+      "Bash(pkill -f \"vite preview --port 4319\")",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --hide-scrollbars --screenshot=before-end.png --window-size=1440,900 --virtual-time-budget=4000 \"http://localhost:4320/solutions/convenience\")",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --hide-scrollbars --screenshot=narrow.png --window-size=900,760 --virtual-time-budget=4000 \"http://localhost:4320/projects/clash-royale\")",
+      "Bash(pkill -f \"serve -s . -l 4320\")",
+      "Bash(\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --hide-scrollbars --screenshot=hittest.png --window-size=1440,900 --virtual-time-budget=6000 \"http://localhost:4322/\")",
+      "Bash(pkill -f \"serve -s . -l 4323\")",
+      "Bash(pkill -f \"serve -s . -l 4324\")",
+      "Bash(pkill -f \"vite preview --port 4329\")",
+      "Bash(pkill -f \"vite preview --port 4330\")"
+    ]
+  }
+}
