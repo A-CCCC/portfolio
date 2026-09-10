@@ -34,8 +34,11 @@ import ScrollToTop from './components/ScrollToTop'
 import ThemeToggle from './components/ThemeToggle'
 
 export default function App() {
+  // Under a subfolder, /solutions is really /Portfolio/solutions. Vite puts the
+  // subfolder in BASE_URL at build time and the router takes it from there; at a
+  // domain root it is '/' and nothing changes.
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Navbar />
       <ScrollToTop />
       <ThemeToggle />

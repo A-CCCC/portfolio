@@ -10,6 +10,7 @@ import { TYPE } from '../styles/type'
 import drawGrass from './grass'
 import drawSky from './sky'
 import { playOver, preload } from './sound'
+import asset from '../lib-asset'
 
 // The play area's own coordinates. Portrait, where the runner is landscape:
 // flappy games are about vertical room, not the ground ahead. The canvas is
@@ -184,7 +185,7 @@ export default function BarrelDrop() {
   useEffect(() => {
     preload()
     const img = new Image()
-    img.src = '/game/skeleton-barrel.png'
+    img.src = asset('/game/skeleton-barrel.png')
     barrel.current = img
   }, [])
 

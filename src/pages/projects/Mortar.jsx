@@ -6,6 +6,7 @@ import PageIntro from '../../components/PageIntro'
 import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
 import ScrollHint from '../../components/ScrollHint'
+import asset from '../../lib-asset'
 
 const DESCRIPTION = 'A model combining extruded and mirrored geometry around an angled barrel.'
 
@@ -47,7 +48,7 @@ export default function Mortar() {
               overflow: 'hidden',
             }}>
               <img
-                src={`/mortar-anim/${String(frameIndex).padStart(4, '0')}.webp`}
+                src={asset(`/mortar-anim/${String(frameIndex).padStart(4, '0')}.webp`)}
                 /* Measured against the panel rather than the window: vh is the
                    window's height whether or not it is all on screen, so with
                    any browser chrome the frame stood taller than its room and
@@ -93,7 +94,7 @@ export default function Mortar() {
           {/* TODO: how this one was built, as on the Skeleton Barrel page. */}
         </div>
 
-        <BuildVideo src="/videos/mortar-build.mp4" label="Mortar build" />
+        <BuildVideo src={asset("/videos/mortar-build.mp4")} label="Mortar build" />
       </div>
 
     </div>

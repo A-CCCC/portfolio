@@ -3,6 +3,7 @@ import useFadeIn from '../hooks/useFadeIn'
 import { TYPE } from '../styles/type'
 import CategoryBand from '../components/CategoryBand'
 import { accessibility, convenience } from '../data/projects'
+import asset from '../lib-asset'
 
 const TITLE = 'Solutions'
 const SUBTITLE = 'Problems worth solving, in two kinds.'
@@ -16,7 +17,7 @@ const SECTIONS = [
     // Draft copy — a line on what the category covers.
     blurb: 'Designs for people whose daily routines are made harder by injury or '
       + 'disability, built around how the person actually moves.',
-    cover: '/thumbnails/wheelchair-storage.webp',
+    cover: asset('/thumbnails/wheelchair-storage.webp'),
   },
   {
     label: 'Convenience',
@@ -24,7 +25,7 @@ const SECTIONS = [
     items: convenience,
     blurb: 'Small fixes for the everyday annoyances most people simply put up with — '
       + 'a wiper, a holder, a container that finally fits.',
-    cover: '/thumbnails/backup-camera-wiper.webp',
+    cover: asset('/thumbnails/backup-camera-wiper.webp'),
   },
 ]
 

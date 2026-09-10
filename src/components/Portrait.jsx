@@ -1,7 +1,8 @@
 // src/components/Portrait.jsx
 import { useState } from 'react'
+import asset from '../lib-asset'
 
-const SRC = '/photos/about/profile.jpg'
+const SRC = asset('/photos/about/profile.jpg')
 
 // Shown in place of the photo if it ever fails to load, so neither about section
 // can end up rendering a broken image.

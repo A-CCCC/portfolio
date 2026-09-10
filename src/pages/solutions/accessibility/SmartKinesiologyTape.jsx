@@ -4,11 +4,12 @@ import { TYPE } from '../../../styles/type'
 import pagePhotos from '../../../data/pagePhotos'
 import useFadeIn from '../../../hooks/useFadeIn'
 import PhotoSection, { FeatureImage, SectionTitle, SplitRow } from '../../../components/PhotoStory'
+import asset from '../../../lib-asset'
 
 // Every photo in public/photos/smart-kinesiology-tape/, in filename order. The
 // folder is read at build time (see scripts/photo-manifest.mjs), so adding a
 // photo is a matter of dropping the file in — there is no list here to update.
-const PHOTOS = pagePhotos['smart-kinesiology-tape'] ?? []
+const PHOTOS = (pagePhotos['smart-kinesiology-tape'] ?? []).map(asset)
 const named = (prefix) =>
   PHOTOS.filter((p) => p.split('/').pop().toLowerCase().startsWith(prefix))
 

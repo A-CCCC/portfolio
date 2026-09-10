@@ -10,6 +10,7 @@ import { TYPE } from '../styles/type'
 import drawGrass from './grass'
 import drawSky from './sky'
 import { playStart, preload } from './sound'
+import asset from '../lib-asset'
 
 // The play area's own coordinates. The canvas is scaled to fit its column, so
 // everything below can be written in these units and stay put at any size.
@@ -75,11 +76,11 @@ const FORGIVENESS = 0.06   // shaves the log's radius so a graze is not a hit
 // The log spins, so a circle is the only hitbox that stays honest as it turns.
 
 const SPRITES = {
-  log: '/game/log.png',
-  'cannon-cart': '/game/cannon-cart.png',
-  mortar: '/game/mortar.png',
-  'elixir-collector': '/game/elixir-collector.png',
-  'skeleton-barrel': '/game/skeleton-barrel.png',
+  log: asset('/game/log.png'),
+  'cannon-cart': asset('/game/cannon-cart.png'),
+  mortar: asset('/game/mortar.png'),
+  'elixir-collector': asset('/game/elixir-collector.png'),
+  'skeleton-barrel': asset('/game/skeleton-barrel.png'),
 }
 
 // The three that sit on the ground. Sizes are half the sprite's own, which is

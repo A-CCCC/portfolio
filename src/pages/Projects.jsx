@@ -3,6 +3,7 @@ import useFadeIn from '../hooks/useFadeIn'
 import { TYPE } from '../styles/type'
 import CategoryBand from '../components/CategoryBand'
 import { clashRoyale, misc } from '../data/projects'
+import asset from '../lib-asset'
 
 const TITLE = 'Projects'
 const SUBTITLE = 'Models and builds made for their own sake.'
@@ -16,7 +17,7 @@ const SECTIONS = [
     // Draft copy — a line on what the category covers.
     blurb: 'Models rebuilt from the game using reference images, where I push my '
       + 'modelling and animation the furthest.',
-    cover: '/thumbnails/skeleton-barrel.webp',
+    cover: asset('/thumbnails/skeleton-barrel.webp'),
     // Clicking the barrel is the only way to the games page. The box is where
     // the barrel actually sits in its render — left, top, width, height, as
     // percentages — so the rest of the frame stays as unclickable as every
@@ -30,7 +31,7 @@ const SECTIONS = [
     items: misc,
     blurb: 'One-off builds and repairs that belong to no category — cardboard '
       + 'costumes, replacement parts, whatever needed making.',
-    cover: '/thumbnails/halloween-helmets.webp',
+    cover: asset('/thumbnails/halloween-helmets.webp'),
   },
 ]
 

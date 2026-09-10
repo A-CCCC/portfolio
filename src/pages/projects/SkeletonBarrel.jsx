@@ -8,13 +8,14 @@ import ScrollHint from '../../components/ScrollHint'
 import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
 import pagePhotos from '../../data/pagePhotos'
+import asset from '../../lib-asset'
 
 const TOTAL_FRAMES = 457
 
 // Whatever is in public/photos/skeleton-barrel/, in filename order. One picture
 // sits beside the note, several become a stack to turn through, and none leaves
 // the note centred on its own.
-const INSPIRATION = pagePhotos['skeleton-barrel'] ?? []
+const INSPIRATION = (pagePhotos['skeleton-barrel'] ?? []).map(asset)
 
 // The animation was rendered across the full 1920-wide frame, so the model
 // spends its opening moments outside the window: the frame box is wider than
@@ -205,7 +206,7 @@ export default function SkeletonBarrel() {
             }}>
               <img
                 ref={frameBoxRef}
-                src={`/skeleton-barrel-anim/${String(frameIndex).padStart(4, '0')}.webp`}
+                src={asset(`/skeleton-barrel-anim/${String(frameIndex).padStart(4, '0')}.webp`)}
                 /* The crop was taken at x=682 y=18, 1238x978, out of 1920x1080.
                    Scaled by 90vh/1080 those become the offsets and size below,
                    putting the model back exactly where it sat in the full frame. */
@@ -284,7 +285,7 @@ export default function SkeletonBarrel() {
           </p>
         </div>
 
-        <BuildVideo src="/videos/skeleton-barrel-build.mp4" label="Skeleton Barrel build" />
+        <BuildVideo src={asset("/videos/skeleton-barrel-build.mp4")} label="Skeleton Barrel build" />
       </div>
     </div>
   )

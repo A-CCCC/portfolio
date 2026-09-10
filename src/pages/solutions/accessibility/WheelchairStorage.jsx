@@ -5,6 +5,7 @@ import useFadeIn from '../../../hooks/useFadeIn'
 import useScrollProgress from '../../../hooks/useScrollProgress'
 import PhotoSection, { SectionTitle } from '../../../components/PhotoStory'
 import ScrollHint from '../../../components/ScrollHint'
+import asset from '../../../lib-asset'
 
 const SLIDE_ASSET = '/wheelchair-storage.webp'
 
@@ -33,7 +34,7 @@ const easeOut = (t) => 1 - Math.pow(1 - t, 3)
 //
 // `photos` are filenames inside public/photos/wheelchair-storage/, so renaming a
 // file means changing it here and nowhere else.
-const PHOTO_DIR = '/photos/wheelchair-storage'
+const PHOTO_DIR = asset('/photos/wheelchair-storage')
 
 const PHOTO_SECTIONS = [
   {

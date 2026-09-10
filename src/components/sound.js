@@ -10,6 +10,8 @@
 //     public/game/barrel-pop.<ext>
 // in any of the formats below, and they are picked up on the next load.
 
+import asset from '../lib-asset'
+
 const KINDS = {
   start: 'log-start',
   over: 'barrel-pop',
@@ -25,7 +27,7 @@ const find = (kind) => {
   clips[kind] = null                        // looking
   const tryNext = (i) => {
     if (i >= FORMATS.length) { clips[kind] = false; return }
-    const el = new Audio(`/game/${KINDS[kind]}.${FORMATS[i]}`)
+    const el = new Audio(asset(`/game/${KINDS[kind]}.${FORMATS[i]}`))
     el.preload = 'auto'
     el.addEventListener('canplaythrough', () => { clips[kind] = el }, { once: true })
     el.addEventListener('error', () => tryNext(i + 1), { once: true })

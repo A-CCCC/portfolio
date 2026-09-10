@@ -6,6 +6,7 @@ import useFadeInOnScroll from '../../hooks/useFadeInOnScroll'
 import ScrollHint from '../../components/ScrollHint'
 import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
+import asset from '../../lib-asset'
 
 export default function ElixirCollector() {
   const [sectionRef, frameIndex, scrubProgress] = useScrollFrames(201, 0)
@@ -73,7 +74,7 @@ export default function ElixirCollector() {
             justifyContent: 'center',
           }}>
             <img
-              src={`/elixir-collector-anim/${String(frameIndex).padStart(4, '0')}.webp`}
+              src={asset(`/elixir-collector-anim/${String(frameIndex).padStart(4, '0')}.webp`)}
               style={{ height: '77vh', maxWidth: '100%', objectFit: 'contain' }}
               alt=""
             />
@@ -153,7 +154,7 @@ export default function ElixirCollector() {
           </p>
         </div>
 
-        <BuildVideo src="/videos/elixir-collector-build.mp4" label="Elixir Collector build" />
+        <BuildVideo src={asset("/videos/elixir-collector-build.mp4")} label="Elixir Collector build" />
       </div>
 
     </div>

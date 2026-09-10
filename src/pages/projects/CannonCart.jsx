@@ -6,6 +6,7 @@ import PageIntro from '../../components/PageIntro'
 import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
 import ScrollHint from '../../components/ScrollHint'
+import asset from '../../lib-asset'
 
 const DESCRIPTION = 'My first detailed model, combining revolve, sweep, and extrude.'
 
@@ -47,7 +48,7 @@ export default function CannonCart() {
               overflow: 'hidden',
             }}>
               <img
-                src={`/cannon-cart-anim/${String(frameIndex).padStart(4, '0')}.webp`}
+                src={asset(`/cannon-cart-anim/${String(frameIndex).padStart(4, '0')}.webp`)}
                 /* Measured against the panel rather than the window: vh is the
                    window's height whether or not it is all on screen, so with
                    any browser chrome the frame stood taller than its room and
@@ -93,7 +94,7 @@ export default function CannonCart() {
           {/* TODO: how this one was built, as on the Skeleton Barrel page. */}
         </div>
 
-        <BuildVideo src="/videos/cannon-cart-build.mp4" label="Cannon Cart build" />
+        <BuildVideo src={asset("/videos/cannon-cart-build.mp4")} label="Cannon Cart build" />
       </div>
 
     </div>

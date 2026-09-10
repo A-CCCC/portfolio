@@ -21,5 +21,11 @@ const photoManifest = () => ({
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Where the site will be served from. '/' for a domain root — which is what
+  // dev and any normal host want — and something like '/Portfolio/' for a
+  // GitHub project page, which serves out of a subfolder. Everything that
+  // reaches for a file in public/ goes through src/lib-asset.js, which reads
+  // this back at runtime.
+  base: process.env.VITE_BASE || '/',
   plugins: [photoManifest(), react()],
 })

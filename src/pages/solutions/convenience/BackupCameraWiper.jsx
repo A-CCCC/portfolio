@@ -4,6 +4,7 @@ import useFadeInOnScroll from '../../../hooks/useFadeInOnScroll'
 import useScrollFrames from '../../../hooks/useScrollFrames'
 import PageIntro from '../../../components/PageIntro'
 import ScrollHint from '../../../components/ScrollHint'
+import asset from '../../../lib-asset'
 
 // One line on what this is. Fill it in and the page reads like the finished
 // ones; the note stays until the page itself is built out.
@@ -80,7 +81,7 @@ export default function BackupCameraWiper() {
               overflow: 'hidden',
             }}>
               <img
-                src={`/backup-camera-wiper-anim/${String(frameIndex).padStart(4, '0')}.webp`}
+                src={asset(`/backup-camera-wiper-anim/${String(frameIndex).padStart(4, '0')}.webp`)}
                 style={{
                   height: '86%',
                   maxWidth: '100%',

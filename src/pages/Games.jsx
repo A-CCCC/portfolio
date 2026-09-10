@@ -5,6 +5,7 @@
 import { Link } from 'react-router-dom'
 import useFadeIn from '../hooks/useFadeIn'
 import { TYPE } from '../styles/type'
+import asset from '../lib-asset'
 
 const GAMES = [
   {
@@ -12,14 +13,14 @@ const GAMES = [
     path: '/log',
     blurb: 'The Log rolls, everything else comes at it. Jump the ones on the '
       + 'ground, duck the barrels overhead.',
-    image: '/thumbnails/the-log.webp',
+    image: asset('/thumbnails/the-log.webp'),
   },
   {
     title: 'Flappy Barrel',
     path: '/barrel',
     blurb: 'Keep the Skeleton Barrel in the air and thread the columns. '
       + 'Gravity never lets up.',
-    image: '/game/skeleton-barrel.png',
+    image: asset('/game/skeleton-barrel.png'),
   },
 ]
 

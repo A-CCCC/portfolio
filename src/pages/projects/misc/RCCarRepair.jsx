@@ -3,6 +3,7 @@ import pagePhotos from '../../../data/pagePhotos'
 import useFadeInOnScroll from '../../../hooks/useFadeInOnScroll'
 import PageIntro from '../../../components/PageIntro'
 import { PhotoGroup } from '../../../components/PhotoStory'
+import asset from '../../../lib-asset'
 
 // One line on what this is. The note below it clears itself once there are
 // photos in the folder — see src/assets/photos/README.md.
@@ -11,7 +12,7 @@ const DESCRIPTION = 'Custom parts to bring a broken RC car back to life.'
 // Every photo in public/photos/rc-car-repair/, in filename order. The folder is
 // read at build time (see scripts/photo-manifest.mjs), so adding a photo is a
 // matter of dropping the file in.
-const PHOTOS = pagePhotos['rc-car-repair'] ?? []
+const PHOTOS = (pagePhotos['rc-car-repair'] ?? []).map(asset)
 
 export default function RCCarRepair() {
   const [photosRef, photosOpacity] = useFadeInOnScroll(0)
