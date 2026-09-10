@@ -197,7 +197,11 @@ export default function WheelchairStorage() {
                   Drop the render at public{SLIDE_ASSET} to replace this placeholder.
                 </div>
               : <img
-                  src={SLIDE_ASSET}
+                  // Through asset(), like everything else in public/: this one
+                  // sits at the top of the folder rather than in photos/, and
+                  // was the single path left naming the domain root — so hosted
+                  // under /Portfolio/ it 404'd and fell back to the note above.
+                  src={asset(SLIDE_ASSET)}
                   alt="Wheelchair storage model"
                   onError={() => setAssetMissing(true)}
                   // The render's subject fills only ~45% of its frame height, so

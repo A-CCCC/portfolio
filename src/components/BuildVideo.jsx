@@ -95,9 +95,13 @@ export default function BuildVideo({ src, label = 'Build timelapse' }) {
           rather than being flattened into the page. */}
       <div style={{
         position: 'relative',
-        width: '100%',
+        // Fits the video rather than the row it sits in. At full width the video
+        // was letterboxed inside a wider box whenever its height was capped, and
+        // the rounding then belonged to the box — cutting corners off empty
+        // space while the picture kept its square ones.
+        width: 'fit-content',
+        maxWidth: '100%',
         display: 'flex',
-        justifyContent: 'center',
         borderRadius: 16,
         overflow: 'hidden',
         isolation: 'isolate',
@@ -115,9 +119,10 @@ export default function BuildVideo({ src, label = 'Build timelapse' }) {
           const { currentTime, duration } = e.currentTarget
           if (duration) setPlayed(currentTime / duration)
         }}
-        style={{ width: '100%', maxHeight: '80vh', objectFit: 'contain', borderRadius: 16 }}
+        // Its own size, within what the page allows: no stretching to a width
+        // it then has to letterbox itself back out of.
+        style={{ maxWidth: '100%', maxHeight: '80vh', width: 'auto', height: 'auto', display: 'block' }}
       />
-      </div>
 
       {/* A range input, so dragging, clicking along it and arrow keys all work
           and it is announced properly. The styling that makes it a hairline is
@@ -174,7 +179,8 @@ export default function BuildVideo({ src, label = 'Build timelapse' }) {
           : isPlaying
             ? <Pause size={ICON} strokeWidth={2.25} fill="currentColor" />
             : <Play size={ICON} strokeWidth={2.25} fill="currentColor" style={{ marginLeft: 1 }} />}
-      </button>
+        </button>
+      </div>
     </div>
   )
 }
