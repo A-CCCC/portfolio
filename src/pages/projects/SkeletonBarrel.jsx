@@ -83,8 +83,8 @@ export default function SkeletonBarrel() {
     setStartFrame(ENTRY_FRAME[Math.max(0, Math.min(ENTRY_FRAME.length - 1, step))])
   }, [box])
 
-  const [sectionRef, frameIndex, scrubProgress] =
-    useScrollFrames(TOTAL_FRAMES - startFrame + 1, startFrame)
+  const [sectionRef, , scrubProgress, frameSrc] =
+    useScrollFrames(TOTAL_FRAMES - startFrame + 1, startFrame, 'skeleton-barrel-anim')
 
   const [titleOpacity, setTitleOpacity] = useState(0)
   // Second, so the line under the title arrives after it rather than with it.
@@ -206,7 +206,7 @@ export default function SkeletonBarrel() {
             }}>
               <img
                 ref={frameBoxRef}
-                src={asset(`/skeleton-barrel-anim/${String(frameIndex).padStart(4, '0')}.webp`)}
+                src={frameSrc}
                 /* The crop was taken at x=682 y=18, 1238x978, out of 1920x1080.
                    Scaled by 90vh/1080 those become the offsets and size below,
                    putting the model back exactly where it sat in the full frame. */

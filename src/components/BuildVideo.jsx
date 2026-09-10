@@ -87,6 +87,21 @@ export default function BuildVideo({ src, label = 'Build timelapse' }) {
       justifyContent: 'center',
       position: 'relative',
     }}>
+      {/* The rounding lives on this, not on the video. A <video> is painted by
+          the browser's own decoder, and several of them ignore a radius set on
+          the element itself and hand back square corners — which is what the
+          hosted site was showing. A wrapper that clips its contents is obeyed,
+          and the isolation makes sure it gets its own layer to clip within
+          rather than being flattened into the page. */}
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        borderRadius: 16,
+        overflow: 'hidden',
+        isolation: 'isolate',
+      }}>
       <video
         ref={videoRef}
         src={src}
@@ -102,6 +117,7 @@ export default function BuildVideo({ src, label = 'Build timelapse' }) {
         }}
         style={{ width: '100%', maxHeight: '80vh', objectFit: 'contain', borderRadius: 16 }}
       />
+      </div>
 
       {/* A range input, so dragging, clicking along it and arrow keys all work
           and it is announced properly. The styling that makes it a hairline is

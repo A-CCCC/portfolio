@@ -4,7 +4,6 @@ import useFadeInOnScroll from '../../../hooks/useFadeInOnScroll'
 import useScrollFrames from '../../../hooks/useScrollFrames'
 import PageIntro from '../../../components/PageIntro'
 import ScrollHint from '../../../components/ScrollHint'
-import asset from '../../../lib-asset'
 
 // One line on what this is. Fill it in and the page reads like the finished
 // ones; the note stays until the page itself is built out.
@@ -23,7 +22,7 @@ const FRAME_COUNT = 0
 const HEADING = 'Wiping the Lens'
 
 export default function BackupCameraWiper() {
-  const [sectionRef, frameIndex, scrubProgress] = useScrollFrames(Math.max(FRAME_COUNT, 1), 1)
+  const [sectionRef, , scrubProgress, frameSrc] = useScrollFrames(Math.max(FRAME_COUNT, 1), 1, 'backup-camera-wiper-anim')
   const [headingRef, headingOpacity] = useFadeInOnScroll(0)
 
   return (
@@ -81,7 +80,7 @@ export default function BackupCameraWiper() {
               overflow: 'hidden',
             }}>
               <img
-                src={asset(`/backup-camera-wiper-anim/${String(frameIndex).padStart(4, '0')}.webp`)}
+                src={frameSrc}
                 style={{
                   height: '86%',
                   maxWidth: '100%',

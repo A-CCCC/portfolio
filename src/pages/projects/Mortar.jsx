@@ -16,7 +16,7 @@ const DESCRIPTION = 'A model combining extruded and mirrored geometry around an 
 const FRAME_COUNT = 0
 
 export default function Mortar() {
-  const [sectionRef, frameIndex, scrubProgress] = useScrollFrames(Math.max(FRAME_COUNT, 1), 1)
+  const [sectionRef, , scrubProgress, frameSrc] = useScrollFrames(Math.max(FRAME_COUNT, 1), 1, 'mortar-anim')
   const [buildRef, buildOpacity] = useFadeInOnScroll(0)
 
   return (
@@ -48,7 +48,7 @@ export default function Mortar() {
               overflow: 'hidden',
             }}>
               <img
-                src={asset(`/mortar-anim/${String(frameIndex).padStart(4, '0')}.webp`)}
+                src={frameSrc}
                 /* Measured against the panel rather than the window: vh is the
                    window's height whether or not it is all on screen, so with
                    any browser chrome the frame stood taller than its room and

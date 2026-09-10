@@ -9,7 +9,7 @@ import ContextNote from '../../components/ContextNote'
 import asset from '../../lib-asset'
 
 export default function ElixirCollector() {
-  const [sectionRef, frameIndex, scrubProgress] = useScrollFrames(201, 0)
+  const [sectionRef, , scrubProgress, frameSrc] = useScrollFrames(201, 0, 'elixir-collector-anim')
   const titleOpacity = useFadeIn(100)
   // Second, so the line under the title arrives after it rather than with it.
   const introOpacity = useFadeIn(600)
@@ -74,7 +74,7 @@ export default function ElixirCollector() {
             justifyContent: 'center',
           }}>
             <img
-              src={asset(`/elixir-collector-anim/${String(frameIndex).padStart(4, '0')}.webp`)}
+              src={frameSrc}
               style={{ height: '77vh', maxWidth: '100%', objectFit: 'contain' }}
               alt=""
             />

@@ -283,7 +283,10 @@ export default function BarrelDrop() {
       })
     }
 
-    const step = () => {
+    // `tick` is how many sixtieths of a second the last frame took. Everything
+    // moves by that rather than by a fixed step, or a 120Hz screen falls twice
+    // as fast and the columns come at twice the rate.
+    const step = (tick) => {
       const g = game.current
       if (stateRef.current !== 'running') {
         g.bob += 0.05                       // a gentle hover while waiting
@@ -311,18 +314,18 @@ export default function BarrelDrop() {
 
       const speed = speedFor(g.score)
 
-      g.vy = Math.min(TERMINAL, g.vy + GRAVITY)
-      g.y += g.vy
+      g.vy = Math.min(TERMINAL, g.vy + GRAVITY * tick)
+      g.y += g.vy * tick
 
       // The lean follows the fall, and only ever downwards from here: nothing in
       // the loop lifts the nose, which is the flap's job alone.
       const want = TILT_DOWN * Math.min(1, Math.max(0, g.vy) / TERMINAL)
-      if (want > g.tilt) g.tilt += (want - g.tilt) * TILT_RATE
+      if (want > g.tilt) g.tilt += (want - g.tilt) * Math.min(1, TILT_RATE * tick)
 
-      g.scroll += speed
-      g.next -= speed
+      g.scroll += speed * tick
+      g.next -= speed * tick
       if (g.next <= 0) addColumn()
-      g.columns.forEach((c) => { c.x -= speed })
+      g.columns.forEach((c) => { c.x -= speed * tick })
       g.columns = g.columns.filter((c) => c.x + COLUMN_W > -20)
 
       // Off the top counts, or a barrel could sit above the columns and idle.
@@ -404,9 +407,19 @@ export default function BarrelDrop() {
       ctx.restore()
     }
 
-    const loop = () => {
+    let last = 0
+    const loop = (now) => {
       if (!running) return
-      if (!document.hidden) { step(); draw() }
+      if (document.hidden) {
+        last = 0                    // a hidden tab is not time the barrel spent flying
+      } else {
+        // Capped, so returning to a long-forgotten tab does not advance the
+        // whole run in a single frame.
+        const tick = last ? Math.min(3, ((now - last) * 60) / 1000) : 1
+        last = now
+        step(tick)
+        draw()
+      }
       frame = requestAnimationFrame(loop)
     }
     draw()

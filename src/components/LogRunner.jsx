@@ -357,17 +357,21 @@ export default function LogRunner() {
       g.nextSpawn = w + reach * (gap + Math.random() * jitter)
     }
 
-    const step = () => {
+    // `tick` is how many sixtieths of a second have passed since the last
+    // frame. Everything below moves by that much rather than by a fixed step,
+    // because a screen that refreshes 120 times a second gets twice as many
+    // frames and the whole game ran at double speed on one.
+    const step = (tick) => {
       const g = game.current
       if (stateRef.current !== 'running') return
 
-      g.speed += ACCELERATION
-      g.spin += g.speed * 0.05
-      g.distance += g.speed
+      g.speed += ACCELERATION * tick
+      g.spin += g.speed * 0.05 * tick
+      g.distance += g.speed * tick
 
-      if (g.buffered > 0) g.buffered -= 1
-      g.vy += GRAVITY
-      g.y += g.vy                        // 0 is the ground; up is negative
+      if (g.buffered > 0) g.buffered -= tick
+      g.vy += GRAVITY * tick
+      g.y += g.vy * tick                 // 0 is the ground; up is negative
       if (g.y >= 0) {
         const landed = g.vy
         g.y = 0
@@ -381,9 +385,9 @@ export default function LogRunner() {
         }
       }
 
-      g.nextSpawn -= g.speed
+      g.nextSpawn -= g.speed * tick
       if (g.nextSpawn <= 0) spawn()
-      g.obstacles.forEach((o) => { o.x -= g.speed; o.bob += 0.06 })
+      g.obstacles.forEach((o) => { o.x -= g.speed * tick; o.bob += 0.06 * tick })
       g.obstacles = g.obstacles.filter((o) => o.x + o.w > -40)
 
       const log = logBody(g.y)
@@ -401,8 +405,9 @@ export default function LogRunner() {
         }
       }
 
-      g.score += g.speed * 0.06
-      if (Math.floor(g.score) !== Math.floor(g.score - g.speed * 0.06)) setScore(Math.floor(g.score))
+      const earned = g.speed * 0.06 * tick
+      g.score += earned
+      if (Math.floor(g.score) !== Math.floor(g.score - earned)) setScore(Math.floor(g.score))
     }
 
     const draw = () => {
@@ -439,9 +444,19 @@ export default function LogRunner() {
       })
     }
 
-    const loop = () => {
+    let last = 0
+    const loop = (now) => {
       if (!running) return
-      if (!paused()) { step(); draw() }
+      if (paused()) {
+        last = 0                         // a hidden tab is not time the log spent running
+      } else {
+        // Capped: coming back to a tab left open for a minute should not advance
+        // the game by a minute in one step.
+        const tick = last ? Math.min(3, ((now - last) * 60) / 1000) : 1
+        last = now
+        step(tick)
+        draw()
+      }
       frame = requestAnimationFrame(loop)
     }
     draw()
