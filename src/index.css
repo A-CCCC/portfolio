@@ -682,3 +682,20 @@ canvas {
   .video-button:hover,
   .video-button:active { transform: none; }
 }
+
+/* Under a project carousel: a hint that the row goes further right, since the
+   scrollbar itself is hidden and a card cut off at the edge reads as the end. */
+.carousel-bar {
+  width: min(260px, 55%);
+  height: 3px;
+  margin: -28px auto 0;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+.carousel-bar-thumb {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--text-muted);
+  /* No transition: it follows a finger or a wheel, and easing would lag it. */
+}

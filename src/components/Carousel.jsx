@@ -1,4 +1,5 @@
 // src/components/Carousel.jsx
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { TYPE } from '../styles/type'
 
@@ -13,8 +14,55 @@ const TINTS = ['var(--card-1)', 'var(--card-2)', 'var(--card-3)', 'var(--card-4)
 const EDGE = 32
 
 export default function Carousel({ items }) {
+  const trackRef = useRef(null)
+  const barRef = useRef(null)
+  const thumbRef = useRef(null)
+
+  // A row that scrolls sideways gives no sign that it does: the scrollbar is
+  // hidden, and a card cut off at the edge reads as the end of the set. The bar
+  // below says otherwise — it appears when there is more to reach, and stays
+  // away when the row already fits.
+  //
+  // Written straight onto the bar rather than held in state, because it follows
+  // a scroll and rendering the whole row again for every pixel would be absurd.
+  useEffect(() => {
+    const track = trackRef.current
+    const bar = barRef.current
+    const thumb = thumbRef.current
+    if (!track || !bar || !thumb) return undefined
+
+    const update = () => {
+      const hidden = track.scrollWidth - track.clientWidth
+      if (hidden <= 4) {
+        bar.style.visibility = 'hidden'
+        return
+      }
+      bar.style.visibility = 'visible'
+      const shown = track.clientWidth / track.scrollWidth
+      thumb.style.width = `${(shown * 100).toFixed(2)}%`
+      // How far the thumb may travel, counted in its own widths
+      const room = ((1 - shown) / shown) * 100
+      thumb.style.transform = `translateX(${((track.scrollLeft / hidden) * room).toFixed(2)}%)`
+    }
+
+    update()
+    track.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    // Cards arriving, or the column changing width, both change what fits
+    const watcher = new ResizeObserver(update)
+    watcher.observe(track)
+
+    return () => {
+      track.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+      watcher.disconnect()
+    }
+  }, [items.length])
+
   return (
-    <div
+    <div>
+      <div
+      ref={trackRef}
       className="carousel-track"
       style={{
         display: 'flex',
@@ -88,6 +136,13 @@ export default function Carousel({ items }) {
           </div>
         </Link>
       ))}
+      </div>
+
+      {/* Not a control: it says the row goes further right, and scrolling is
+          how you get there. */}
+      <div ref={barRef} className="carousel-bar" aria-hidden="true">
+        <div ref={thumbRef} className="carousel-bar-thumb" />
+      </div>
     </div>
   )
 }
