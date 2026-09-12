@@ -7,6 +7,7 @@ import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
 import ScrollHint from '../../components/ScrollHint'
 import asset from '../../lib-asset'
+import ScrubFrames from '../../components/ScrubFrames'
 
 const DESCRIPTION = 'A model combining extruded and mirrored geometry around an angled barrel.'
 
@@ -16,7 +17,7 @@ const DESCRIPTION = 'A model combining extruded and mirrored geometry around an 
 const FRAME_COUNT = 0
 
 export default function Mortar() {
-  const [sectionRef, , scrubProgress, frameSrc] = useScrollFrames(Math.max(FRAME_COUNT, 1), 1, 'mortar-anim')
+  const [sectionRef, frameRef, scrubProgress] = useScrollFrames(Math.max(FRAME_COUNT, 1), 1)
   const [buildRef, buildOpacity] = useFadeInOnScroll(0)
 
   return (
@@ -47,14 +48,13 @@ export default function Mortar() {
               justifyContent: 'center',
               overflow: 'hidden',
             }}>
-              <img
-                src={frameSrc}
-                /* Measured against the panel rather than the window: vh is the
-                   window's height whether or not it is all on screen, so with
-                   any browser chrome the frame stood taller than its room and
-                   lost its top and bottom. */
+              <ScrubFrames
+                folder="mortar-anim"
+                count={Math.max(FRAME_COUNT, 1)}
+                start={1}
+                frameRef={frameRef}
+                label="Mortar model, assembling"
                 style={{ height: '86%', maxWidth: '100%', objectFit: 'contain' }}
-                alt=""
               />
             </div>
 

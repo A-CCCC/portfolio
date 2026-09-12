@@ -7,9 +7,10 @@ import ScrollHint from '../../components/ScrollHint'
 import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
 import asset from '../../lib-asset'
+import ScrubFrames from '../../components/ScrubFrames'
 
 export default function ElixirCollector() {
-  const [sectionRef, , scrubProgress, frameSrc] = useScrollFrames(201, 0, 'elixir-collector-anim')
+  const [sectionRef, frameRef, scrubProgress] = useScrollFrames(201, 0)
   const titleOpacity = useFadeIn(100)
   // Second, so the line under the title arrives after it rather than with it.
   const introOpacity = useFadeIn(600)
@@ -73,11 +74,14 @@ export default function ElixirCollector() {
             display: 'flex',
             justifyContent: 'center',
           }}>
-            <img
-              src={frameSrc}
-              style={{ height: '77vh', maxWidth: '100%', objectFit: 'contain' }}
-              alt=""
-            />
+            <ScrubFrames
+                folder="elixir-collector-anim"
+                count={201}
+                start={0}
+                frameRef={frameRef}
+                label="Elixir Collector model, assembling"
+                style={{ height: '77vh', maxWidth: '100%', objectFit: 'contain' }}
+              />
           </div>
 
           {/* Right: text */}

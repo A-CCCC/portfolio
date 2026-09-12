@@ -7,6 +7,7 @@ import useScrollFrames from '../../hooks/useScrollFrames'
 import ScrollHint from '../../components/ScrollHint'
 import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
+import ScrubFrames from '../../components/ScrubFrames'
 import pagePhotos from '../../data/pagePhotos'
 import asset from '../../lib-asset'
 
@@ -88,8 +89,8 @@ export default function SkeletonBarrel() {
     setStartFrame(ENTRY_FRAME[Math.max(0, Math.min(ENTRY_FRAME.length - 1, step))])
   }, [box])
 
-  const [sectionRef, , scrubProgress, frameSrc] =
-    useScrollFrames(TOTAL_FRAMES - startFrame + 1, startFrame, 'skeleton-barrel-anim')
+  const [sectionRef, frameRef, scrubProgress] =
+    useScrollFrames(TOTAL_FRAMES - startFrame + 1, startFrame)
 
   const [titleOpacity, setTitleOpacity] = useState(0)
   // Second, so the line under the title arrives after it rather than with it.
@@ -209,12 +210,13 @@ export default function SkeletonBarrel() {
               ...(box ? { width: box.width, height: box.height }
                       : { height: '86%', aspectRatio: '1920 / 1080' }),
             }}>
-              <img
-                ref={frameBoxRef}
-                src={frameSrc}
-                /* The crop was taken at x=682 y=18, 1238x978, out of 1920x1080.
-                   Scaled by 90vh/1080 those become the offsets and size below,
-                   putting the model back exactly where it sat in the full frame. */
+              <ScrubFrames
+                innerRef={frameBoxRef}
+                folder="skeleton-barrel-anim"
+                count={TOTAL_FRAMES - startFrame + 1}
+                start={startFrame}
+                frameRef={frameRef}
+                label="Skeleton Barrel model, assembling"
                 /* As shares of the frame box, so the model sits where it did in
                    the full frame however the box is sized. The crop is
                    x 648 y 0, 1272x1032 of 1920x1080. */
@@ -225,7 +227,6 @@ export default function SkeletonBarrel() {
                   width: '66.250%',
                   height: '95.556%',
                 }}
-                alt=""
               />
             </div>
           </div>
