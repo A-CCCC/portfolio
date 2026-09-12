@@ -19,7 +19,9 @@ export default function Contact() {
   // not in this build — so it says it is coming rather than showing a
   // stripped-out version of itself. Below the hooks, which have to run
   // the same way on every render.
-  if (!isFullSite) return <PageIntro title="Contact" description="" comingSoon />
+  if (!isFullSite) {
+    return <PageIntro title="Contact" description="" comingSoon notice="(Not Available Here)" />
+  }
 
   return (
     <div style={{

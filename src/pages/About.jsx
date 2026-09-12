@@ -13,7 +13,9 @@ export default function About() {
   // not in this build — so it says it is coming rather than showing a
   // stripped-out version of itself. Below the hooks, which have to run
   // the same way on every render.
-  if (!isFullSite) return <PageIntro title="About Me" description="" comingSoon />
+  if (!isFullSite) {
+    return <PageIntro title="About Me" description="" comingSoon notice="(Not Available Here)" />
+  }
 
   return (
     <div style={{

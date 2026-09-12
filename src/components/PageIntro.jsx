@@ -8,7 +8,9 @@ import useFadeIn from '../hooks/useFadeIn'
 import { isFullSite } from '../data/site-copy'
 import { TYPE } from '../styles/type'
 
-export default function PageIntro({ title, description, comingSoon = false, full = true }) {
+export default function PageIntro({
+  title, description, comingSoon = false, full = true, notice = '(Coming Soon!)',
+}) {
   // A page with nothing to say about itself says it is coming instead — which in
   // public is every project still being kept back. One that has a description
   // does not need the note as well.
@@ -54,8 +56,14 @@ export default function PageIntro({ title, description, comingSoon = false, full
             <>
               {description ? ' ' : ''}
               {/* Quieter than the description, so it reads as a note about the
-                  page rather than as part of what the project is. */}
-              <span style={{ color: 'var(--text-muted)' }}>(Coming Soon!)</span>
+                  page rather than as part of what the project is.
+
+                  What it says depends on why there is nothing here. A project
+                  that has not been built yet is coming; a page that is finished
+                  but kept off this version of the site is not available *here*,
+                  which says it is this site that lacks it rather than the work
+                  being unfinished. */}
+              <span style={{ color: 'var(--text-muted)' }}>{notice}</span>
             </>
           )}
         </p>
