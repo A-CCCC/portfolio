@@ -53,6 +53,11 @@ const BOX_MAX_WIDTH = 1.70      // of the panel's width
 // there, so the model arrives on screen whole instead of off the right edge.
 const BOX_MAX_WIDTH_PHONE = 1
 const FRAME_RATIO = 1920 / 1080
+// The frames as they actually are: cropped to x 648 y 0, 1272x1032 of that
+// 1920x1080. A phone is shown this rather than the frame it was cut from —
+// there is no room for a box two thirds of which is empty and the model hung
+// off the right edge of it.
+const CROP_RATIO = 1272 / 1032
 
 export default function SkeletonBarrel() {
   const phone = useIsPhone()
@@ -70,12 +75,13 @@ export default function SkeletonBarrel() {
     const fit = () => {
       const panel = panelRef.current
       if (!panel || !panel.clientHeight) return
+      const ratio = phone ? CROP_RATIO : FRAME_RATIO
       let height = panel.clientHeight * BOX_HEIGHT
-      let width = height * FRAME_RATIO
+      let width = height * ratio
       const widest = panel.clientWidth * (phone ? BOX_MAX_WIDTH_PHONE : BOX_MAX_WIDTH)
       if (width > widest) {
         width = widest
-        height = width / FRAME_RATIO
+        height = width / ratio
       }
       setBox({ width, height })
     }
@@ -220,7 +226,7 @@ export default function SkeletonBarrel() {
                 : { right: '-12%', transform: 'translateY(-50%)' }),
               // Until the panel has been measured, the ratio alone will do
               ...(box ? { width: box.width, height: box.height }
-                      : { height: '86%', aspectRatio: '1920 / 1080' }),
+                      : { height: '86%', aspectRatio: phone ? '1272 / 1032' : '1920 / 1080' }),
             }}>
               <ScrubFrames
                 innerRef={frameBoxRef}
@@ -232,13 +238,17 @@ export default function SkeletonBarrel() {
                 /* As shares of the frame box, so the model sits where it did in
                    the full frame however the box is sized. The crop is
                    x 648 y 0, 1272x1032 of 1920x1080. */
-                style={{
-                  position: 'absolute',
-                  left: '33.750%',
-                  top: '0.000%',
-                  width: '66.250%',
-                  height: '95.556%',
-                }}
+                style={phone
+                  // The box is the crop itself here, so the frames simply fill
+                  // it: centred, whole, and inside the panel.
+                  ? { position: 'absolute', inset: 0, width: '100%', height: '100%' }
+                  : {
+                    position: 'absolute',
+                    left: '33.750%',
+                    top: '0.000%',
+                    width: '66.250%',
+                    height: '95.556%',
+                  }}
               />
             </div>
           </div>

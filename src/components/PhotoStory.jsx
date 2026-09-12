@@ -6,6 +6,7 @@
 // way rather than each growing its own copy of a carousel.
 import { useState } from 'react'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
+import useIsPhone from '../hooks/useIsPhone'
 import Reveal from './Reveal'
 import { TYPE } from '../styles/type'
 
@@ -65,6 +66,9 @@ const STACK_HEIGHT = 400
 // slide with `left` (or swapping its transform-origin) makes it jump between
 // states instead of gliding across.
 const STACK_SPREAD = 90
+// The same ring on a phone, gathered in. The photos are nearly the width of the
+// screen there, so neighbours thrown 90px either side hang off both edges of it.
+const STACK_SPREAD_PHONE = 46
 const STACK_TILT = 28      // deg of rotateY on the neighbours
 // Neighbours also sit higher than the active photo, and that lift — not the
 // sideways offset — is what keeps them visible: a wide landscape photo in front
@@ -76,6 +80,7 @@ const STACK_LIFT = 90
 const STACK_BACK_SCALE = 0.78   // how far the neighbours shrink behind the front one
 
 export function PhotoCarousel({ photos, heading }) {
+  const spread = useIsPhone() ? STACK_SPREAD_PHONE : STACK_SPREAD
 
   // `turn` counts the steps taken rather than naming the front photo, and it is
   // deliberately not wrapped back into range. The ring has to keep rotating the
@@ -100,7 +105,7 @@ export function PhotoCarousel({ photos, heading }) {
 
   return (
     <div style={{ position: 'relative' }}>
-      <div style={{
+      <div className="photo-stack" style={{
         position: 'relative',
         height: STACK_HEIGHT,
         // Perspective is what turns the rotateY below into a rotation rather
@@ -152,7 +157,7 @@ export function PhotoCarousel({ photos, heading }) {
                 // and the tilt follows it round in the same way. Both are sines
                 // of the angle, which keeps a neighbour at the same offset and
                 // angle it had before.
-                transform: `translate(calc(-50% + ${(STACK_SPREAD * Math.sin(angle)).toFixed(1)}px),`
+                transform: `translate(calc(-50% + ${(spread * Math.sin(angle)).toFixed(1)}px),`
                   + ` ${-(STACK_LIFT * Math.min(recess, 1.5)).toFixed(1)}px)`
                   + ` scale(${Math.max(0.3, 1 - (1 - STACK_BACK_SCALE) * recess).toFixed(3)})`
                   + ` rotateY(${(-STACK_TILT * Math.sin(angle)).toFixed(1)}deg)`,

@@ -298,6 +298,14 @@
     max-width: 100% !important;
     flex: 0 1 auto !important;
   }
+  /* A column of flex items is only as wide as what is inside it, and a photo
+     stack holds nothing but absolutely positioned pictures — nothing in flow to
+     give it a width. It measured zero, and every photo in it collapsed to
+     nothing with it. Pictures themselves are left out: they are sized by the
+     rule below, and a width forced on one fights the cap on its height. */
+  .split > *:not(img):not(video):not(canvas):not(.scroll-hint) {
+    width: 100% !important;
+  }
 
   /* The picture in a stacked row keeps its shape and leaves room for the words
      above it: half the screen at most, whichever way round it is shaped. */
@@ -308,6 +316,21 @@
     max-height: 46vh !important;
     width: auto !important;
     height: auto !important;
+  }
+
+  /* The photo stack is a ring of pictures that has to keep a common height —
+     a shorter one in the middle of it reads as a mistake — so it sizes its own
+     rather than taking the rule above, and clips whatever the gathered-in ring
+     still throws past its edges. */
+  .photo-stack {
+    height: 46vh !important;
+    overflow: hidden;
+  }
+  .photo-stack img {
+    height: 100% !important;
+    width: auto !important;
+    max-height: none !important;
+    max-width: 88% !important;
   }
 }
 
@@ -821,3 +844,12 @@ canvas {
 }
 .carousel-bar:hover .carousel-bar-thumb,
 .carousel-bar.is-dragging .carousel-bar-thumb { background: var(--text); }
+
+/* PHONE — the caption over the wheelchair render.
+   It is placed in the opening of the U the model makes, as a share of the
+   render's own width, so on a phone the opening is a couple of hundred pixels
+   across while the type was still set from the window. Sized from the window
+   here too, which keeps it in proportion to the thing it sits inside. */
+@media (max-width: 700px) {
+  .slide-caption { font-size: 3.7vw !important; }
+}
