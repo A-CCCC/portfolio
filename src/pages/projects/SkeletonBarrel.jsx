@@ -4,6 +4,7 @@ import { TYPE } from '../../styles/type'
 import useFadeIn from '../../hooks/useFadeIn'
 import useFadeInOnScroll from '../../hooks/useFadeInOnScroll'
 import useScrollFrames from '../../hooks/useScrollFrames'
+import useIsPhone from '../../hooks/useIsPhone'
 import ScrollHint from '../../components/ScrollHint'
 import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
@@ -47,9 +48,14 @@ const ENTRY_FRAME = [
 // and never so wide that the model runs off the panel's left edge.
 const BOX_HEIGHT = 0.86         // of the panel's height
 const BOX_MAX_WIDTH = 1.70      // of the panel's width
+// On a phone the text is above the animation rather than beside it, and the
+// overhang has nowhere to hang: the frame is fitted inside the panel and centred
+// there, so the model arrives on screen whole instead of off the right edge.
+const BOX_MAX_WIDTH_PHONE = 1
 const FRAME_RATIO = 1920 / 1080
 
 export default function SkeletonBarrel() {
+  const phone = useIsPhone()
   const panelRef = useRef(null)
   const frameBoxRef = useRef(null)
   const [box, setBox] = useState(null)
@@ -66,7 +72,7 @@ export default function SkeletonBarrel() {
       if (!panel || !panel.clientHeight) return
       let height = panel.clientHeight * BOX_HEIGHT
       let width = height * FRAME_RATIO
-      const widest = panel.clientWidth * BOX_MAX_WIDTH
+      const widest = panel.clientWidth * (phone ? BOX_MAX_WIDTH_PHONE : BOX_MAX_WIDTH)
       if (width > widest) {
         width = widest
         height = width / FRAME_RATIO
@@ -76,7 +82,7 @@ export default function SkeletonBarrel() {
     fit()
     window.addEventListener('resize', fit)
     return () => window.removeEventListener('resize', fit)
-  }, [])
+  }, [phone])
 
   // Which frame the model first appears in depends on how much of the box is on
   // screen, so this waits for the size above to settle.
@@ -112,7 +118,7 @@ export default function SkeletonBarrel() {
 
       {/* ---- SECTION 1: Intro ---- */}
       <div style={{
-        height: '100vh',
+        height: 'var(--screen)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -148,12 +154,13 @@ export default function SkeletonBarrel() {
         <div style={{
           position: 'sticky',
           top: 0,
-          height: '100vh',
+          height: 'var(--screen)',
           display: 'flex',
+          flexDirection: phone ? 'column' : 'row',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 64,
-          padding: '0 64px',
+          gap: phone ? 22 : 64,
+          padding: phone ? '86px var(--gutter) 22px' : '0 var(--gutter)',
           background: 'var(--bg)',
           // Nothing leaves this panel. The animation is deliberately wider than
           // the window, and without this the overhang widened the page itself:
@@ -167,8 +174,9 @@ export default function SkeletonBarrel() {
           <div
             ref={scrubTextRef}
             style={{
-              flex: '0 1 1',
-              maxWidth: 540,
+              flex: phone ? '0 0 auto' : '0 1 1',
+              maxWidth: phone ? '100%' : 540,
+              textAlign: phone ? 'center' : 'left',
               opacity: scrubTextOpacity,
               transition: 'opacity 1.5s ease',
             }}
@@ -182,7 +190,8 @@ export default function SkeletonBarrel() {
           {/* Right: scroll-scrubbed animation */}
           <div ref={panelRef} style={{
             flex: '1 1 0',
-            minWidth: 400,
+            minWidth: phone ? 0 : 400,
+            width: phone ? '100%' : undefined,
             position: 'relative',
             alignSelf: 'stretch',
             // Its own window onto the animation: the model runs off the right of
@@ -190,7 +199,7 @@ export default function SkeletonBarrel() {
             // negative margin takes that edge out to the window's own, so the
             // overhang still reaches the side of the screen.
             overflow: 'hidden',
-            marginRight: -64,
+            marginRight: phone ? 0 : -64,
           }}>
             {/* Stands in for the original uncropped 1920x1080 frame box. The
                 frames are now cropped to just the model to save bandwidth, so
@@ -206,8 +215,9 @@ export default function SkeletonBarrel() {
             <div style={{
               position: 'absolute',
               top: '50%',
-              right: '-12%',
-              transform: 'translateY(-50%)',
+              ...(phone
+                ? { left: '50%', transform: 'translate(-50%, -50%)' }
+                : { right: '-12%', transform: 'translateY(-50%)' }),
               // Until the panel has been measured, the ratio alone will do
               ...(box ? { width: box.width, height: box.height }
                       : { height: '86%', aspectRatio: '1920 / 1080' }),
@@ -248,13 +258,13 @@ export default function SkeletonBarrel() {
       </ContextNote>
 
       {/* ---- SECTION 3: Build video (auto-plays on scroll into view) ---- */}
-      <div style={{
-        minHeight: '100vh',
+      <div className="split" style={{
+        minHeight: 'var(--screen)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 64,
-        padding: '80px 64px',
+        padding: '80px var(--gutter)',
         background: 'var(--bg)',
       }}>
 

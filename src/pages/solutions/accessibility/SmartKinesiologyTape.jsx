@@ -169,7 +169,7 @@ export default function SmartKinesiologyTape() {
 
       {/* ---- Title ---- */}
       <div style={{
-        height: '100vh',
+        height: 'var(--screen)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

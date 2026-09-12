@@ -19,7 +19,7 @@ export default function About() {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: 'var(--screen)',
       fontFamily: 'system-ui',
       padding: '120px 24px 80px',
       display: 'flex',

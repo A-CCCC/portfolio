@@ -33,7 +33,7 @@ export default function RCCarRepair() {
         <div
           ref={photosRef}
           style={{
-            padding: '0 64px 96px',
+            padding: '0 var(--gutter) 96px',
             maxWidth: 1100,
             margin: '0 auto',
             opacity: photosOpacity,

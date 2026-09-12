@@ -31,7 +31,7 @@ export default function Games() {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: 'var(--screen)',
       background: 'var(--bg)',
       color: 'var(--text)',
       fontFamily: 'system-ui',

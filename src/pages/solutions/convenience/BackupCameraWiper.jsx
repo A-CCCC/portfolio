@@ -35,15 +35,15 @@ export default function BackupCameraWiper() {
       {/* ---- Scroll-scrubbed footage, once there are frames to scrub ---- */}
       {FRAME_COUNT > 0 && (
         <div ref={sectionRef} style={{ height: '400vh', position: 'relative' }}>
-          <div style={{
+          <div className="split" style={{
             position: 'sticky',
             top: 0,
-            height: '100vh',
+            height: 'var(--screen)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: 64,
-            padding: '0 64px',
+            padding: '0 var(--gutter)',
             background: 'var(--bg)',
           }}>
 

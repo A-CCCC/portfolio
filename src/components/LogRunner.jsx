@@ -11,6 +11,7 @@ import drawGrass from './grass'
 import drawSky from './sky'
 import { playStart, preload } from './sound'
 import asset from '../lib-asset'
+import { useIsTouch } from '../hooks/useIsPhone'
 
 // The play area's own coordinates. The canvas is scaled to fit its column, so
 // everything below can be written in these units and stay put at any size.
@@ -208,6 +209,7 @@ const readBest = () => {
 }
 
 export default function LogRunner() {
+  const touch = useIsTouch()
   const canvasRef = useRef(null)
   const [state, setState] = useState('ready')     // ready | running | over
   const [score, setScore] = useState(0)
@@ -470,14 +472,14 @@ export default function LogRunner() {
   }, [])
 
   const prompt = state === 'ready'
-    ? 'Press space to start'
+    ? (touch ? 'Tap to start' : 'Press space to start')
     : state === 'over'
-      ? 'Press space to run again'
+      ? (touch ? 'Tap to run again' : 'Press space to run again')
       : ''
 
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: 'var(--screen)',
       background: 'var(--bg)',
       color: 'var(--text)',
       fontFamily: 'system-ui',

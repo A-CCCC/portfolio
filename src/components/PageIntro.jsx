@@ -23,7 +23,7 @@ export default function PageIntro({
     <div style={{
       // A stub fills the screen; a page with content below it takes only the
       // room it needs, so the next section is not pushed out of sight.
-      height: full ? '100vh' : 'auto',
+      height: full ? 'var(--screen)' : 'auto',
       padding: full ? '0 24px' : '120px 24px 40px',
       display: 'flex',
       flexDirection: 'column',

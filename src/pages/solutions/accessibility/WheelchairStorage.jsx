@@ -132,7 +132,7 @@ export default function WheelchairStorage() {
 
       {/* ---- SECTION 1: Intro ---- */}
       <div style={{
-        height: '100vh',
+        height: 'var(--screen)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -168,7 +168,7 @@ export default function WheelchairStorage() {
         <div style={{
           position: 'sticky',
           top: 0,
-          height: '100vh',
+          height: 'var(--screen)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

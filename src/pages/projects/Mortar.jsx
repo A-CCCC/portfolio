@@ -29,15 +29,15 @@ export default function Mortar() {
       {/* ---- Scroll-scrubbed animation, once there are frames to scrub ---- */}
       {FRAME_COUNT > 0 && (
         <div ref={sectionRef} style={{ height: '400vh', position: 'relative' }}>
-          <div style={{
+          <div className="split" style={{
             position: 'sticky',
             top: 0,
-            height: '100vh',
+            height: 'var(--screen)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: 64,
-            padding: '0 64px',
+            padding: '0 var(--gutter)',
             background: 'var(--bg)',
           }}>
             <div style={{
@@ -69,13 +69,13 @@ export default function Mortar() {
       <ContextNote></ContextNote>
 
       {/* ---- Build video ---- */}
-      <div style={{
-        minHeight: '100vh',
+      <div className="split" style={{
+        minHeight: 'var(--screen)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 64,
-        padding: '80px 64px',
+        padding: '80px var(--gutter)',
         background: 'var(--bg)',
       }}>
 

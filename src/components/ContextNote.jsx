@@ -33,7 +33,9 @@ export default function ContextNote({ title, images = [], alt = '', children }) 
   if (!children) return null
 
   const picture = images.length ? (
-    <div style={{
+    // Side by side on a laptop; one above the other on a phone, where two of
+    // them share 375px and neither is worth looking at.
+    <div className="split" style={{
       flex: '1 1 420px',
       display: 'flex',
       alignItems: 'center',
@@ -94,6 +96,7 @@ export default function ContextNote({ title, images = [], alt = '', children }) 
   return (
     <div
       ref={ref}
+      className="split"
       style={{
         display: 'flex',
         justifyContent: 'center',

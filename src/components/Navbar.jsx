@@ -1,8 +1,9 @@
 // src/components/Navbar.jsx
 import { useEffect, useRef, useState } from 'react'
-import { ArrowUp } from 'lucide-react'
+import { ArrowUp, Menu, X } from 'lucide-react'
 import { TYPE } from '../styles/type'
 import { Link, useLocation } from 'react-router-dom'
+import useIsPhone from '../hooks/useIsPhone'
 
 // The way back up appears once the end of a page is in sight — near the bottom,
 // where the walk back is longest and there is nothing below to go on to.
@@ -127,6 +128,11 @@ const dropdownStyle = {
 
 export default function Navbar() {
   const [openTab, setOpenTab] = useState(null)
+  // A phone gets the same links behind a button. Hover is what opens the
+  // menus here, and a touch screen never hovers, so the tabs would be a row
+  // of dead ends even if they fitted.
+  const phone = useIsPhone()
+  const [menuOpen, setMenuOpen] = useState(false)
   const [openCategory, setOpenCategory] = useState(null)
   const [hovered, setHovered] = useState(null)
   const [nearBottom, setNearBottom] = useState(false)
@@ -162,6 +168,18 @@ export default function Navbar() {
       window.removeEventListener('resize', look)
     }
   }, [])
+
+  // A menu that is open is about where you are. Arriving somewhere new answers
+  // it, so it closes itself rather than hanging over the page you asked for.
+  useEffect(() => { setMenuOpen(false) }, [pathname])
+  useEffect(() => { if (!phone) setMenuOpen(false) }, [phone])
+
+  useEffect(() => {
+    if (!menuOpen) return undefined
+    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [menuOpen])
 
   // The bar is drawn twice. The one underneath is the real thing — links,
   // menus, the lot. The one on top is the same bar in the panel's colours,
@@ -209,7 +227,22 @@ export default function Navbar() {
           <ArrowUp size={17} strokeWidth={2} aria-hidden="true" />
         </button>
 
-        {/* Right side */}
+        {/* Right side. On a phone the whole of it folds into one button, and
+            the links are listed under the bar instead. */}
+        {phone ? (
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-label={menuOpen ? 'Close the menu' : 'Open the menu'}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((was) => !was)}
+            style={{ marginRight: -10 }}
+          >
+            {menuOpen
+              ? <X size={22} strokeWidth={2} aria-hidden="true" />
+              : <Menu size={22} strokeWidth={2} aria-hidden="true" />}
+          </button>
+        ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 
           {tabs.map((tab) => (
@@ -317,6 +350,7 @@ export default function Navbar() {
           </Link>
 
         </div>
+        )}
     </>
   )
 
@@ -391,7 +425,7 @@ export default function Navbar() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '12px 32px',
+      padding: phone ? '12px 20px' : '12px 32px',
       fontFamily: 'system-ui',
     }}>
 
@@ -436,7 +470,7 @@ export default function Navbar() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '12px 32px',
+            padding: phone ? '12px 20px' : '12px 32px',
             pointerEvents: 'none',
             // Always here, and showing nothing until there is something to show:
             // mounting it on the way past would cost a render exactly when the
@@ -453,6 +487,41 @@ export default function Navbar() {
         >
         {links(true)}
       </div>
+
+      {/* The links, listed. Only the real bar has it — the inverted copy is a
+          picture of the bar and has nothing to open. */}
+      {phone && menuOpen && (
+        <>
+          {/* Anywhere else on the page closes it. Starts below the bar so the
+              button that opened it can still be pressed to shut it. */}
+          <div
+            onClick={() => setMenuOpen(false)}
+            style={{ position: 'absolute', top: '100%', left: 0, right: 0, height: 'var(--screen)' }}
+          />
+
+          <div className="nav-sheet">
+            <Link to="/" className="nav-sheet-link">Home</Link>
+
+            {tabs.map((tab) => (
+              <div key={tab.label}>
+                <Link to={tab.path} className="nav-sheet-link">{tab.label}</Link>
+                {tab.categories.map((category) => (
+                  <Link
+                    key={category.label}
+                    to={category.path}
+                    className="nav-sheet-link nav-sheet-sub"
+                  >
+                    {category.label}
+                  </Link>
+                ))}
+              </div>
+            ))}
+
+            <Link to="/contact" className="nav-sheet-link">Contact</Link>
+            <Link to="/about" className="nav-sheet-link">About Me</Link>
+          </div>
+        </>
+      )}
 
     </nav>
   )

@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { TYPE } from '../styles/type'
+import useIsPhone from '../hooks/useIsPhone'
 
 // Card tints cycle through these, so each item in a carousel reads distinctly.
 const TINTS = ['var(--card-1)', 'var(--card-2)', 'var(--card-3)', 'var(--card-4)', 'var(--card-5)', 'var(--card-6)']
@@ -14,6 +15,7 @@ const TINTS = ['var(--card-1)', 'var(--card-2)', 'var(--card-3)', 'var(--card-4)
 const EDGE = 32
 
 export default function Carousel({ items }) {
+  const phone = useIsPhone()
   const trackRef = useRef(null)
   const barRef = useRef(null)
   const railRef = useRef(null)
@@ -155,7 +157,9 @@ export default function Carousel({ items }) {
             flex: '0 0 auto',
             display: 'flex',
             flexDirection: 'column',
-            width: 340,
+            // A card narrower than the screen on a phone, so the edge of the
+            // next one shows and the row reads as something to swipe.
+            width: phone ? 'min(78vw, 340px)' : 340,
             height: 460,
             marginLeft: i === 0 ? EDGE : 0,
             marginRight: i === items.length - 1 ? EDGE : 0,
@@ -167,7 +171,7 @@ export default function Carousel({ items }) {
           }}
         >
           {/* Title block — sits above the image, Apple-style */}
-          <div style={{ padding: '36px 32px 0', textAlign: 'left' }}>
+          <div style={{ padding: phone ? '26px 22px 0' : '36px 32px 0', textAlign: 'left' }}>
             <h3 style={{
               margin: 0,
               fontSize: TYPE.card,

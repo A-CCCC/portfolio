@@ -53,7 +53,7 @@ export function PhotoGroup({ photos, heading }) {
 const BAND_HEIGHT = '76vh'          // a row of text beside photos
 export const STATEMENT_HEIGHT = BAND_HEIGHT     // centred text on its own
 const TITLE_HEIGHT = '32vh'         // a heading introducing the sections under it
-export const BAND_PADDING = '56px 64px'
+export const BAND_PADDING = '56px var(--gutter)'
 
 // A rotating stack: the active photo sits front and centre, its neighbours
 // scaled down, angled and tucked behind it. Clicking a neighbour — or an arrow —
@@ -328,7 +328,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
     }
 
     return (
-      <div
+      <div className="split"
         style={{
           minHeight: STATEMENT_HEIGHT,
           display: 'flex',
@@ -366,7 +366,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
   }
 
   return (
-    <div
+    <div className="split"
       style={{
         minHeight: BAND_HEIGHT,
         display: 'flex',
@@ -430,7 +430,7 @@ export function SectionTitle({ children, tight }) {
         // `tight` is for a heading with an image directly under it, which should
         // read as one unit. Otherwise the sub-sections below need room to
         // breathe, or the first one crowds the heading it belongs to.
-        padding: `min(30vh, 300px) 64px ${tight ? '28px' : '56px'}`,
+        padding: `min(30vh, 300px) var(--gutter) ${tight ? '28px' : '56px'}`,
         textAlign: 'center',
         background: 'var(--bg)',
         opacity,
@@ -457,7 +457,7 @@ export function FeatureImage({ src, alt }) {
         display: 'flex',
         justifyContent: 'center',
         // Matches the room above the heading, for the same reason.
-        padding: '0 64px min(26vh, 270px)',
+        padding: '0 var(--gutter) min(26vh, 270px)',
         background: 'var(--bg)',
         opacity,
         transition: 'opacity 1.5s ease',
@@ -527,7 +527,7 @@ export function SplitRow({ heading, body, photo, alt, flip }) {
   }
 
   return (
-    <div
+    <div className="split"
       ref={ref}
       style={{
         minHeight: BAND_HEIGHT,

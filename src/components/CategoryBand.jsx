@@ -25,7 +25,7 @@ export default function CategoryBand({
   )
 
   return (
-    <section
+    <section className="split"
       // Painted the inverse of the page, which the navbar watches for so it can
       // turn over as it crosses one.
       data-inverted={alt ? '' : undefined}
@@ -34,14 +34,14 @@ export default function CategoryBand({
         // the window from one precise scroll position; the extra gives about
         // 40px of positions that all still cover it, which is the difference
         // between landing it and fighting for it.
-        minHeight: 'calc(100vh + 40px)',
+        minHeight: 'calc(var(--screen) + 40px)',
         display: 'flex',
         flexDirection: flip ? 'row-reverse' : 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 72,
-        padding: '72px 64px',
+        padding: '72px var(--gutter)',
         // Every other band is the inverse of the page — black on a white page,
         // white on a dark one — so the categories read as separate panels
         // rather than one long scroll.

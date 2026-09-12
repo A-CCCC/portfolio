@@ -37,7 +37,7 @@ export default function Solutions() {
     <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
 
       <div style={{
-        height: '100vh',
+        height: 'var(--screen)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

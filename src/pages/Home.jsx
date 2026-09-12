@@ -22,7 +22,7 @@ export default function Home() {
       {/* ---- Hero: fades in on page load ---- */}
       <div style={{
         position: 'relative',
-        height: '100vh',
+        height: 'var(--screen)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -38,6 +38,10 @@ export default function Home() {
           fontWeight: 'bold',
           letterSpacing: '0.01em',
           color: 'var(--text)',
+          // On a phone the title wraps, and a wrapped line needs somewhere to
+          // wrap to: without these it sets flush against both edges of the glass.
+          padding: '0 24px',
+          textAlign: 'center',
           opacity: titleOpacity,
           transition: 'opacity 1.5s ease',
         }}>

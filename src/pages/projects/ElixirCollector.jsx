@@ -23,7 +23,7 @@ export default function ElixirCollector() {
 
       {/* ---- SECTION 1: Intro ---- */}
       <div style={{
-        height: '100vh',
+        height: 'var(--screen)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -55,15 +55,15 @@ export default function ElixirCollector() {
 
       {/* ---- SECTION 2: Scroll-scrubbed animation (left) + text (right) ---- */}
       <div ref={sectionRef} style={{ height: '200vh', position: 'relative' }}>
-        <div style={{
+        <div className="split" style={{
           position: 'sticky',
           top: 0,
-          height: '100vh',
+          height: 'var(--screen)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 64,
-          padding: '0 64px',
+          padding: '0 var(--gutter)',
           background: 'var(--bg)',
         }}>
 
@@ -111,13 +111,13 @@ export default function ElixirCollector() {
       <ContextNote></ContextNote>
 
       {/* ---- SECTION 3: Build video (plays when scrolled to) ---- */}
-      <div style={{
-        minHeight: '100vh',
+      <div className="split" style={{
+        minHeight: 'var(--screen)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 64,
-        padding: '80px 64px',
+        padding: '80px var(--gutter)',
         background: 'var(--bg)',
       }}>
 

@@ -12,7 +12,7 @@ export default function NotFound() {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: 'var(--screen)',
       fontFamily: 'system-ui',
       display: 'flex',
       flexDirection: 'column',

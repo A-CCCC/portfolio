@@ -16,7 +16,7 @@ export default function ClashRoyale() {
           page on the site opens — the hubs above these and the project
           pages below them both. */}
       <div style={{
-        height: '100vh',
+        height: 'var(--screen)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

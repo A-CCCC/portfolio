@@ -11,6 +11,7 @@ import drawGrass from './grass'
 import drawSky from './sky'
 import { playOver, preload } from './sound'
 import asset from '../lib-asset'
+import { useIsTouch } from '../hooks/useIsPhone'
 
 // The play area's own coordinates. Portrait, where the runner is landscape:
 // flappy games are about vertical room, not the ground ahead. The canvas is
@@ -167,6 +168,7 @@ const fresh = () => ({
 })
 
 export default function BarrelDrop() {
+  const touch = useIsTouch()
   const canvasRef = useRef(null)
   const [state, setState] = useState('ready')     // ready | running | over
   const [score, setScore] = useState(0)
@@ -433,14 +435,14 @@ export default function BarrelDrop() {
   }, [])
 
   const prompt = state === 'ready'
-    ? 'Click or press space to start'
+    ? (touch ? 'Tap to start' : 'Click or press space to start')
     : state === 'over'
-      ? 'Press space to fly again'
+      ? (touch ? 'Tap to fly again' : 'Press space to fly again')
       : ''
 
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: 'var(--screen)',
       background: 'var(--bg)',
       color: 'var(--text)',
       fontFamily: 'system-ui',
@@ -454,7 +456,7 @@ export default function BarrelDrop() {
       {/* Portrait play area in a landscape window: sized by the height there is
           rather than a fixed 480, so the score, the prompt and the way back are
           all on screen without scrolling. 0.75 is the play area's own shape. */}
-      <div style={{ width: 'min(480px, calc((100vh - 250px) * 0.75))', maxWidth: '100%' }}>
+      <div style={{ width: 'min(480px, calc((var(--screen) - 250px) * 0.75))', maxWidth: '100%' }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',

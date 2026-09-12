@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Gamepad2 } from 'lucide-react'
 import useFadeIn from '../hooks/useFadeIn'
 import { accessibility, clashRoyale, convenience, misc, bubbleProjects } from '../data/projects'
+import useIsPhone from '../hooks/useIsPhone'
 
 // Hand-placed as two arcs — one above the hero title, one below — plus a pair
 // flanking it, so the bubbles gather toward the middle of the page instead of
@@ -58,18 +59,32 @@ const DRIFTS = [[24, -20], [-22, 25], [19, 27], [-26, -18], [28, -22], [-18, 26]
 const DURATIONS = [13, 11, 15, 10, 14, 12, 16, 11]
 const DELAYS = [-2, -6, -9, -4, -11, -1, -7, -3]
 
-const PLACEMENTS = Array.from({ length: RING_COUNT }, (_, i) => {
+// A phone gets the same ring, drawn smaller. It used to get nothing at all —
+// at full size the bubbles had to be hidden to keep them off a title that was
+// then a fixed 510px wide, which left the opening screen empty. The title
+// shrinks with the window now, and the pair that sits level with it is already
+// hidden below 900px, so what is left has the length of the screen to spread
+// down and room either side of the words.
+const PHONE_SIZE = 0.58         // of each bubble's own size
+const PHONE_RING_RY = 36        // % of hero height — a taller oval on a tall screen
+
+const place = (phone) => Array.from({ length: RING_COUNT }, (_, i) => {
   const baseDeg = RING_START + (360 / RING_COUNT) * i
   const angle = ((baseDeg + ANGLE_JITTER[i % ANGLE_JITTER.length]) * Math.PI) / 180
   const radius = RADIUS_JITTER[i % RADIUS_JITTER.length]
   const cos = Math.cos(angle)
   const sin = Math.sin(angle)
 
+  // The cap on the horizontal radius covers the bubble's own half-width plus
+  // the wander and the pulse, so nothing reaches the edge of the screen.
+  const reach = phone ? '50% - 56px' : '50% - 110px'
+  const scale = phone ? PHONE_SIZE : 1
+
   return {
-    left: `calc(50% + min(26% + 140px, 50% - 110px) * ${(cos * radius).toFixed(4)})`,
-    top: `calc(50% + ${RING_RY}% * ${(sin * radius).toFixed(4)})`,
-    size: SIZES[i % SIZES.length],
-    drift: DRIFTS[i % DRIFTS.length],
+    left: `calc(50% + min(26% + 140px, ${reach}) * ${(cos * radius).toFixed(4)})`,
+    top: `calc(50% + ${phone ? PHONE_RING_RY : RING_RY}% * ${(sin * radius).toFixed(4)})`,
+    size: Math.round(SIZES[i % SIZES.length] * scale),
+    drift: DRIFTS[i % DRIFTS.length].map((d) => Math.round(d * scale)),
     duration: DURATIONS[i % DURATIONS.length],
     delay: DELAYS[i % DELAYS.length],
     // Judged on the even spacing, not the jittered angle, so the pair that sits
@@ -77,6 +92,9 @@ const PLACEMENTS = Array.from({ length: RING_COUNT }, (_, i) => {
     flank: Math.abs(Math.cos((baseDeg * Math.PI) / 180)) > 0.9,
   }
 })
+
+const PLACEMENTS = place(false)
+const PHONE_PLACEMENTS = place(true)
 
 const TINTS = ['var(--card-1)', 'var(--card-2)', 'var(--card-3)', 'var(--card-4)', 'var(--card-5)', 'var(--card-6)']
 
@@ -199,6 +217,8 @@ function initials(label) {
 export default function ProjectBubbles() {
   // Starts after the hero title has begun settling, so the text reads first.
   const visible = useFadeIn(1200)
+  const phone = useIsPhone()
+  const placements = phone ? PHONE_PLACEMENTS : PLACEMENTS
 
   // Drawn once and held in state: recomputing on render would reshuffle the
   // bubbles mid-animation every time anything on the page updated.
@@ -218,7 +238,7 @@ export default function ProjectBubbles() {
       }}
     >
       {cast.map((project, i) => {
-        const spot = PLACEMENTS[i]
+        const spot = placements[i]
 
         return (
           <div

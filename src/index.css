@@ -1,6 +1,18 @@
 /* NAVBAR GRADIENTS*/
 
 :root {
+  /* The breathing room down both sides of a wide band. 64px is right on a
+     laptop and swallows a third of a phone, so it comes in with the window.
+     Named rather than written out at each band: they all want the same one. */
+  --gutter: 64px;
+
+  /* A screenful, as the screen actually is. On a phone `100vh` is the height
+     the window would have with the address bar hidden, whether or not it is —
+     so a panel meant to fill the screen hangs below it and loses its bottom
+     until the bar rolls away. `dvh` is the height there is right now, and
+     follows the bar as it comes and goes. One name for it, so if the following
+     ever reads as restless mid-scroll, `svh` here settles the whole site. */
+  --screen: 100vh;
   --nav-gradient-light: linear-gradient(to bottom,
     rgba(255,255,255,0.7) 0%,
     rgba(255,255,255,0.65) 20%,
@@ -49,6 +61,10 @@
 
 
 /* LIGHT — the default, and explicitly when data-theme="light" */
+@supports (height: 100dvh) {
+  :root { --screen: 100dvh; }
+}
+
 :root,
 :root[data-theme='light'] {
   color-scheme: light;
@@ -265,9 +281,34 @@
   .bubble-flank { display: none; }
 }
 
-/* Too cramped alongside the hero text on phones */
-@media (max-width: 720px) {
-  .bubble-layer { display: none; }
+/* PHONE — the width the navbar folds its links away at, see useIsPhone.js */
+@media (max-width: 700px) {
+  :root { --gutter: 22px; }
+
+  /* Words beside a picture is the shape of most of this site, and a phone has
+     room for one column, not two. Marked rows become that column, in the order
+     they are written — so the text still introduces the thing below it, and a
+     band that reads right-to-left on a laptop reads top-to-bottom here. */
+  .split {
+    flex-direction: column !important;
+    gap: 26px !important;
+  }
+  .split > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: 0 1 auto !important;
+  }
+
+  /* The picture in a stacked row keeps its shape and leaves room for the words
+     above it: half the screen at most, whichever way round it is shaped. */
+  .split canvas,
+  .split video,
+  .split img {
+    max-width: 100% !important;
+    max-height: 46vh !important;
+    width: auto !important;
+    height: auto !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -641,6 +682,76 @@ canvas {
 @media (prefers-reduced-motion: reduce) {
   .nav-top { transition: opacity 0.45s ease; }
   .nav-top:hover { transform: translate(-50%, -50%); }
+}
+
+/* THE PHONE MENU */
+
+/* The button that stands in for the links, sized to be hit with a thumb rather
+   than pointed at. Same quiet ink as the rest of the bar. */
+.nav-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s ease;
+}
+.nav-toggle:active { background: var(--hover); }
+
+/* The links themselves, hanging from the bar. It carries its own background
+   rather than relying on the bar's blur: the bar fades out a little way down
+   and the list is taller than that. Scrolls if it ever outgrows the screen. */
+.nav-sheet {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 12px 14px;
+  background: var(--panel);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+  max-height: calc(var(--screen) - 68px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: nav-sheet-in 0.18s ease both;
+}
+
+@keyframes nav-sheet-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-sheet { animation: none; }
+}
+
+.nav-sheet-link {
+  display: block;
+  padding: 13px 10px;
+  color: var(--text);
+  font-size: 1.05rem;
+  text-decoration: none;
+  border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-sheet-link:active { background: var(--hover); }
+
+/* A category sits under the tab it belongs to, and reads as belonging to it. */
+.nav-sheet-sub {
+  padding: 11px 10px 11px 26px;
+  font-size: 0.95rem;
+  color: var(--text-body);
 }
 
 /* The inverted copy of the navbar carries the tint the panel behind it would
