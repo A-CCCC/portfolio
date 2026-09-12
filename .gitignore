@@ -50,3 +50,8 @@ mortar build
 
 # Blender's automatic backups: a stale copy of the .blend beside it
 *.blend1
+
+# Copy kept off the public site: page descriptions and contact details. The
+# build falls back to an under-construction state when this is absent, which is
+# what GitHub produces, since it never receives it.
+src/data/private

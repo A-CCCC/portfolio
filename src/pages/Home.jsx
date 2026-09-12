@@ -1,5 +1,6 @@
 // src/pages/Home.jsx
 import { Link } from 'react-router-dom'
+import { contact } from '../data/site-copy'
 import { TYPE } from '../styles/type'
 import useFadeIn from '../hooks/useFadeIn'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
@@ -8,8 +9,8 @@ import Portrait from '../components/Portrait'
 
 // The same address and profile the Contact page publishes, kept in one place so
 // the two cannot drift apart.
-const EMAIL = 'azschang@gmail.com'
-const LINKEDIN = 'https://www.linkedin.com/in/alex-c-243881370/'
+// Absent in public, where the block below is not built at all.
+const REACH = contact
 
 export default function Home() {
   const titleOpacity = useFadeIn(100)
@@ -86,31 +87,33 @@ export default function Home() {
               eggs across this website, so look everywhere!
             </p>
 
-            {/* The contact links first, then the way onward on a line of its
-                own — beside them, its arrow looked like it pointed at them. */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '10px 20px' }}>
-              {/* Labels the two links beside it. Muted and not a link itself, so
-                  the arrow reads as pointing at them rather than leading away. */}
-              <span style={{ color: 'var(--text-muted)', fontSize: TYPE.small }}>
-                Contact <span aria-hidden="true">→</span>
-              </span>
-              <a
-                href={`mailto:${EMAIL}`}
-                className="hub-link"
-                style={{ color: 'var(--text-body)', fontSize: TYPE.small }}
-              >
-                {EMAIL}
-              </a>
-              <a
-                href={LINKEDIN}
-                target="_blank"
-                rel="noreferrer"
-                className="hub-link"
-                style={{ color: 'var(--text-body)', fontSize: TYPE.small }}
-              >
-                LinkedIn
-              </a>
-            </div>
+            {/* Not rendered at all without somewhere to point: hiding it
+                with styling would still publish the address. */}
+            {REACH && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: '10px 20px' }}>
+                {/* Labels the two links beside it. Muted and not a link itself, so
+                    the arrow reads as pointing at them rather than leading away. */}
+                <span style={{ color: 'var(--text-muted)', fontSize: TYPE.small }}>
+                  Contact <span aria-hidden="true">→</span>
+                </span>
+                <a
+                  href={`mailto:${REACH.email}`}
+                  className="hub-link"
+                  style={{ color: 'var(--text-body)', fontSize: TYPE.small }}
+                >
+                  {REACH.email}
+                </a>
+                <a
+                  href={REACH.linkedin}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hub-link"
+                  style={{ color: 'var(--text-body)', fontSize: TYPE.small }}
+                >
+                  LinkedIn
+                </a>
+              </div>
+            )}
 
             <div style={{ marginTop: 18 }}>
               <Link

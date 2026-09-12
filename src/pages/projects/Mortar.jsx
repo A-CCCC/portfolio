@@ -8,8 +8,9 @@ import ContextNote from '../../components/ContextNote'
 import ScrollHint from '../../components/ScrollHint'
 import asset from '../../lib-asset'
 import ScrubFrames from '../../components/ScrubFrames'
+import { describe } from '../../data/site-copy'
 
-const DESCRIPTION = 'A model combining extruded and mirrored geometry around an angled barrel.'
+const DESCRIPTION = describe('mortar')
 
 // The scroll-scrubbed animation is written but switched off: set this to the
 // number of frames in public/mortar-anim/ and the section below appears. At zero

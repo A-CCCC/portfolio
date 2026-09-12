@@ -8,8 +8,9 @@ import ContextNote from '../../components/ContextNote'
 import ScrollHint from '../../components/ScrollHint'
 import asset from '../../lib-asset'
 import ScrubFrames from '../../components/ScrubFrames'
+import { describe } from '../../data/site-copy'
 
-const DESCRIPTION = 'My first detailed model, combining revolve, sweep, and extrude.'
+const DESCRIPTION = describe('cannon-cart')
 
 // The scroll-scrubbed animation is written but switched off: set this to the
 // number of frames in public/cannon-cart-anim/ and the section below appears. At zero

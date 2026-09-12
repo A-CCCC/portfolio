@@ -1,10 +1,13 @@
 // src/pages/Contact.jsx
 import useFadeIn from '../hooks/useFadeIn'
 import { TYPE } from '../styles/type'
+import { contact } from '../data/site-copy'
 
 // The address the home page also shows, in one place on each page so the two
 // cannot drift apart.
-const EMAIL = 'azschang@gmail.com'
+// From the copy kept off the repository, so the address is not compiled into
+// the public bundle even though this page is never routed there.
+const REACH = contact
 
 export default function Contact() {
   const titleOpacity = useFadeIn(100)
@@ -37,12 +40,12 @@ export default function Contact() {
         transition: 'opacity 1.5s ease',
       }}>
         <p style={{ marginBottom: 8 }}>
-          <a href={`mailto:${EMAIL}`} style={{ color: 'var(--text-body)' }}>
-            {EMAIL}
+          <a href={`mailto:${REACH?.email ?? ''}`} style={{ color: 'var(--text-body)' }}>
+            {REACH?.email}
           </a>
         </p>
         <p>
-          <a href="https://www.linkedin.com/in/alex-c-243881370/" target="_blank" rel="noreferrer" style={{ color: 'var(--text-body)' }}>
+          <a href={REACH?.linkedin} target="_blank" rel="noreferrer" style={{ color: 'var(--text-body)' }}>
             LinkedIn
           </a>
         </p>

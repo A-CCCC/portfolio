@@ -5,10 +5,11 @@ import useScrollFrames from '../../../hooks/useScrollFrames'
 import PageIntro from '../../../components/PageIntro'
 import ScrollHint from '../../../components/ScrollHint'
 import ScrubFrames from '../../../components/ScrubFrames'
+import { describe } from '../../../data/site-copy'
 
 // One line on what this is. Fill it in and the page reads like the finished
 // ones; the note stays until the page itself is built out.
-const DESCRIPTION = 'A remote-controlled wiper to keep a backup camera clear in the rain.'
+const DESCRIPTION = describe('backup-camera-wiper')
 
 // The scroll-scrubbed section is written but switched off: set this to the
 // number of frames in public/backup-camera-wiper-anim/ and it appears. At zero

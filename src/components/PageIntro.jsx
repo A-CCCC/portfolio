@@ -5,9 +5,13 @@
 // is finished — the same title, in the same place, with a note that there is
 // more to come rather than a page that reads as broken.
 import useFadeIn from '../hooks/useFadeIn'
+import { isFullSite } from '../data/site-copy'
 import { TYPE } from '../styles/type'
 
 export default function PageIntro({ title, description, comingSoon = false, full = true }) {
+  // In public there are no descriptions, so every page says the same thing:
+  // that there is more of it to come.
+  const pending = comingSoon || !isFullSite
   const titleOpacity = useFadeIn(100)
   // Second, so the line under the title arrives after it rather than with it.
   const introOpacity = useFadeIn(600)
@@ -36,7 +40,7 @@ export default function PageIntro({ title, description, comingSoon = false, full
         {title}
       </h1>
 
-      {(description || comingSoon) && (
+      {(description || pending) && (
         <p className="page-intro-line" style={{
           fontSize: TYPE.lead,
           lineHeight: 1.7,
@@ -45,7 +49,7 @@ export default function PageIntro({ title, description, comingSoon = false, full
           transition: 'opacity 1.5s ease',
         }}>
           {description}
-          {comingSoon && (
+          {pending && (
             <>
               {description ? ' ' : ''}
               {/* Quieter than the description, so it reads as a note about the

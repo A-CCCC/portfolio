@@ -4,10 +4,11 @@ import useFadeInOnScroll from '../../../hooks/useFadeInOnScroll'
 import PageIntro from '../../../components/PageIntro'
 import { PhotoGroup } from '../../../components/PhotoStory'
 import asset from '../../../lib-asset'
+import { describe } from '../../../data/site-copy'
 
 // One line on what this is. The note below it clears itself once there are
 // photos in the folder — see src/assets/photos/README.md.
-const DESCRIPTION = 'Custom parts to bring a broken RC car back to life.'
+const DESCRIPTION = describe('rc-car-repair')
 
 // Every photo in public/photos/rc-car-repair/, in filename order. The folder is
 // read at build time (see scripts/photo-manifest.mjs), so adding a photo is a

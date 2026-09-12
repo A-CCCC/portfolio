@@ -5,6 +5,7 @@ import pagePhotos from '../../../data/pagePhotos'
 import useFadeIn from '../../../hooks/useFadeIn'
 import PhotoSection, { FeatureImage, SectionTitle, SplitRow } from '../../../components/PhotoStory'
 import asset from '../../../lib-asset'
+import { describe } from '../../../data/site-copy'
 
 // Every photo in public/photos/smart-kinesiology-tape/, in filename order. The
 // folder is read at build time (see scripts/photo-manifest.mjs), so adding a
@@ -193,7 +194,8 @@ export default function SmartKinesiologyTape() {
           opacity: introOpacity,
           transition: 'opacity 1.5s ease',
         }}>
-          Disposable tape to track joint movement and hydration for recovery.
+          {describe('smart-kinesiology-tape')
+            || <span style={{ color: 'var(--text-muted)' }}>(Coming Soon!)</span>}
         </p>
       </div>
 

@@ -10,6 +10,7 @@ import ContextNote from '../../components/ContextNote'
 import ScrubFrames from '../../components/ScrubFrames'
 import pagePhotos from '../../data/pagePhotos'
 import asset from '../../lib-asset'
+import { describe } from '../../data/site-copy'
 
 const TOTAL_FRAMES = 457
 
@@ -137,7 +138,8 @@ export default function SkeletonBarrel() {
           opacity: introOpacity,
           transition: 'opacity 1.5s ease',
         }}>
-          A paneled barrel modeled with Fusion's pattern tool.
+          {describe('skeleton-barrel')
+            || <span style={{ color: 'var(--text-muted)' }}>(Coming Soon!)</span>}
         </p>
       </div>
 

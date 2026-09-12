@@ -6,6 +6,7 @@ import useScrollProgress from '../../../hooks/useScrollProgress'
 import PhotoSection, { SectionTitle } from '../../../components/PhotoStory'
 import ScrollHint from '../../../components/ScrollHint'
 import asset from '../../../lib-asset'
+import { describe } from '../../../data/site-copy'
 
 const SLIDE_ASSET = '/wheelchair-storage.webp'
 
@@ -157,7 +158,8 @@ export default function WheelchairStorage() {
           opacity: introOpacity,
           transition: 'opacity 1.5s ease',
         }}>
-          A custom container to bring daily materials within reach.
+          {describe('wheelchair-storage')
+            || <span style={{ color: 'var(--text-muted)' }}>(Coming Soon!)</span>}
         </p>
       </div>
 
