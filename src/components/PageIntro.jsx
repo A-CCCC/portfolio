@@ -9,7 +9,7 @@ import { isFullSite } from '../data/site-copy'
 import { TYPE } from '../styles/type'
 
 export default function PageIntro({
-  title, description, comingSoon = false, full = true, notice = '(Coming Soon!)',
+  title, description, comingSoon = false, full = true, notice = '(Page Coming Soon!)',
   buy = '',
 }) {
   // A page with nothing to say about itself says it is coming instead — which in
@@ -61,11 +61,13 @@ export default function PageIntro({
               {/* Quieter than the description, so it reads as a note about the
                   page rather than as part of what the project is.
 
-                  What it says depends on why there is nothing here. A project
-                  that has not been built yet is coming; a page that is finished
-                  but kept off this version of the site is not available *here*,
-                  which says it is this site that lacks it rather than the work
-                  being unfinished. */}
+                  What it says depends on why there is nothing here. It is the
+                  page that is coming, not necessarily the thing it is about —
+                  two of these are for sale already — so it says so in those
+                  words. A page that is finished but kept off this version of
+                  the site is not available *here* instead, which says it is
+                  this site that lacks it rather than the work being
+                  unfinished. */}
               <span style={{ color: 'var(--text-muted)' }}>{notice}</span>
             </>
           )}

@@ -151,7 +151,7 @@ export default function SkeletonBarrel() {
           transition: 'opacity 1.5s ease',
         }}>
           {describe('skeleton-barrel')
-            || <span style={{ color: 'var(--text-muted)' }}>(Coming Soon!)</span>}
+            || <span style={{ color: 'var(--text-muted)' }}>(Page Coming Soon!)</span>}
         </p>
       </div>
 

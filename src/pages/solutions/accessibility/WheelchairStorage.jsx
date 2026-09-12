@@ -159,7 +159,7 @@ export default function WheelchairStorage() {
           transition: 'opacity 1.5s ease',
         }}>
           {describe('wheelchair-storage')
-            || <span style={{ color: 'var(--text-muted)' }}>(Coming Soon!)</span>}
+            || <span style={{ color: 'var(--text-muted)' }}>(Page Coming Soon!)</span>}
         </p>
       </div>
 

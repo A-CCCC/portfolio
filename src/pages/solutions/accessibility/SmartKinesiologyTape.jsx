@@ -195,7 +195,7 @@ export default function SmartKinesiologyTape() {
           transition: 'opacity 1.5s ease',
         }}>
           {describe('smart-kinesiology-tape')
-            || <span style={{ color: 'var(--text-muted)' }}>(Coming Soon!)</span>}
+            || <span style={{ color: 'var(--text-muted)' }}>(Page Coming Soon!)</span>}
         </p>
       </div>
 
