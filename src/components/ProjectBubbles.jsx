@@ -64,7 +64,7 @@ const DELAYS = [-2, -6, -9, -4, -11, -1, -7, -3]
 // shrinks with the window now, and the pair that sits level with it is already
 // hidden below 900px, so what is left has the length of the screen to spread
 // down and room either side of the words.
-const PHONE_SIZE = 0.58         // of each bubble's own size
+const PHONE_SIZE = 0.5          // of each bubble's own size
 const PHONE_RING_RY = 36        // % of hero height — a taller oval on a tall screen
 
 const place = (phone) => Array.from({ length: RING_COUNT }, (_, i) => {
