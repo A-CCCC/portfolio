@@ -10,7 +10,7 @@ import ContextNote from '../../components/ContextNote'
 import pagePhotos from '../../data/pagePhotos'
 import asset from '../../lib-asset'
 
-const TOTAL_FRAMES = 457
+const TOTAL_FRAMES = 320
 
 // Whatever is in public/photos/skeleton-barrel/, in filename order. One picture
 // sits beside the note, several become a stack to turn through, and none leaves
@@ -23,7 +23,12 @@ const INSPIRATION = (pagePhotos['skeleton-barrel'] ?? []).map(asset)
 // until the model reached the edge of the screen.
 //
 // The 63 frames rendered before the model appears at all were dropped outright —
-// dead at any window size. The rest depends on the
+// dead at any window size. The rest were thinned to roughly two in three, which
+// is a frame about every eight pixels of scroll and still reads as continuous,
+// for a third less to download. The full set is kept in
+// source-frames/skeleton-barrel-anim-457/ if it is ever wanted back.
+//
+// Where the model first appears depends on the
 // window: the wider it is, the more of the frame box is on screen and the
 // sooner the model appears, so there is no single frame to start at. This table
 // answers that, measured from the frames themselves: for a given share of the
@@ -32,8 +37,8 @@ const INSPIRATION = (pagePhotos['skeleton-barrel'] ?? []).map(asset)
 const ENTRY_STEP = 0.01
 const ENTRY_BASE = 0.75
 const ENTRY_FRAME = [
-   33,  32,  30,  29,  28,  26,  25,  23,  22,  21,  19,  18,  16,
-   15,  13,  12,  10,   9,   7,   6,   4,   2,   1,   1,   1,   1,
+   24,  23,  22,  21,  20,  19,  18,  17,  16,  15,  14,  13,  12,
+   11,  10,   9,   8,   7,   6,   5,   3,   2,   1,   1,   1,   1,
 ]
 
 // How the frame box is fitted into the panel that holds it: most of its height,
