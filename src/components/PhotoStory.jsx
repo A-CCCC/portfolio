@@ -51,9 +51,9 @@ export function PhotoGroup({ photos, heading }) {
 // — the next heading sat entirely below the fold with nothing to suggest it was
 // there. These are minimums: a section grows if its content needs the room.
 const BAND_HEIGHT = '76vh'          // a row of text beside photos
-const STATEMENT_HEIGHT = BAND_HEIGHT     // centred text on its own
+export const STATEMENT_HEIGHT = BAND_HEIGHT     // centred text on its own
 const TITLE_HEIGHT = '32vh'         // a heading introducing the sections under it
-const BAND_PADDING = '56px 64px'
+export const BAND_PADDING = '56px 64px'
 
 // A rotating stack: the active photo sits front and centre, its neighbours
 // scaled down, angled and tucked behind it. Clicking a neighbour — or an arrow —

@@ -10,6 +10,7 @@
 // Renders nothing when it has no text, so a page can carry the slot before the
 // words exist.
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
+import { BAND_PADDING, STATEMENT_HEIGHT } from './PhotoStory'
 import { TYPE } from '../styles/type'
 
 // The pictures sit in a row beside the words. Two reference shots are worth
@@ -101,7 +102,11 @@ export default function ContextNote({ title, images = [], alt = '', children }) 
         // the words instead of beside them.
         flexWrap: 'wrap',
         gap: picture ? GUTTER : 0,
-        padding: '96px 64px 24px',
+        // Given the room a section gets on the solutions pages, from the same
+        // two numbers: a band of its own to sit in, rather than a paragraph
+        // squeezed between the thing above it and the thing below.
+        minHeight: STATEMENT_HEIGHT,
+        padding: BAND_PADDING,
         background: 'var(--bg)',
         opacity,
         transition: 'opacity 1.5s ease',
