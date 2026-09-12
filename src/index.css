@@ -687,8 +687,17 @@ canvas {
    scrollbar itself is hidden and a card cut off at the edge reads as the end. */
 .carousel-bar {
   width: min(260px, 55%);
+  /* Padded rather than three pixels tall: the rail is what you see, this is
+     what you can hit, and a three-pixel drag target is no target at all. */
+  padding: 10px 0;
+  margin: -38px auto 0;
+  cursor: grab;
+  touch-action: none;
+}
+.carousel-bar:focus-visible { outline: 2px solid var(--text-muted); outline-offset: 6px; border-radius: 2px; }
+.carousel-bar.is-dragging { cursor: grabbing; }
+.carousel-bar-rail {
   height: 3px;
-  margin: -28px auto 0;
   border-radius: 999px;
   background: var(--border);
   overflow: hidden;
@@ -699,3 +708,5 @@ canvas {
   background: var(--text-muted);
   /* No transition: it follows a finger or a wheel, and easing would lag it. */
 }
+.carousel-bar:hover .carousel-bar-thumb,
+.carousel-bar.is-dragging .carousel-bar-thumb { background: var(--text); }

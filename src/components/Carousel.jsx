@@ -16,6 +16,7 @@ const EDGE = 32
 export default function Carousel({ items }) {
   const trackRef = useRef(null)
   const barRef = useRef(null)
+  const railRef = useRef(null)
   const thumbRef = useRef(null)
 
   // A row that scrolls sideways gives no sign that it does: the scrollbar is
@@ -42,8 +43,57 @@ export default function Carousel({ items }) {
       thumb.style.width = `${(shown * 100).toFixed(2)}%`
       // How far the thumb may travel, counted in its own widths
       const room = ((1 - shown) / shown) * 100
-      thumb.style.transform = `translateX(${((track.scrollLeft / hidden) * room).toFixed(2)}%)`
+      const through = track.scrollLeft / hidden
+      thumb.style.transform = `translateX(${(through * room).toFixed(2)}%)`
+      bar.setAttribute('aria-valuenow', String(Math.round(through * 100)))
     }
+
+    // Dragging it moves the row. The whole rail answers, not just the thumb:
+    // a three-pixel target is a poor thing to ask anyone to hit, so a press
+    // anywhere along it jumps there and carries on from wherever it is taken.
+    const rail = railRef.current
+    const scrollTo = (clientX) => {
+      const box = rail.getBoundingClientRect()
+      const thumbWidth = thumb.getBoundingClientRect().width
+      const travel = box.width - thumbWidth
+      if (travel <= 0) return
+      const at = (clientX - box.left - thumbWidth / 2) / travel
+      track.scrollLeft = Math.max(0, Math.min(1, at)) * (track.scrollWidth - track.clientWidth)
+      // Drawn from here rather than waiting for the row's own scroll event: the
+      // thumb should be under the finger that is dragging it, not a moment
+      // behind wherever the row reports itself to be.
+      update()
+    }
+
+    let dragging = false
+    const onDown = (e) => {
+      if (bar.style.visibility === 'hidden') return
+      dragging = true
+      bar.classList.add('is-dragging')
+      try { bar.setPointerCapture(e.pointerId) } catch { /* synthetic pointers have none */ }
+      scrollTo(e.clientX)
+      e.preventDefault()
+    }
+    const onMove = (e) => { if (dragging) scrollTo(e.clientX) }
+    const onUp = () => { dragging = false; bar.classList.remove('is-dragging') }
+
+    bar.addEventListener('pointerdown', onDown)
+    bar.addEventListener('pointermove', onMove)
+    bar.addEventListener('pointerup', onUp)
+    bar.addEventListener('pointercancel', onUp)
+
+    // And by keyboard, since it is a control now
+    const onKey = (e) => {
+      const step = track.clientWidth * 0.6
+      if (e.key === 'ArrowRight') track.scrollLeft += step
+      else if (e.key === 'ArrowLeft') track.scrollLeft -= step
+      else if (e.key === 'Home') track.scrollLeft = 0
+      else if (e.key === 'End') track.scrollLeft = track.scrollWidth
+      else return
+      update()
+      e.preventDefault()
+    }
+    bar.addEventListener('keydown', onKey)
 
     update()
     track.addEventListener('scroll', update, { passive: true })
@@ -55,6 +105,11 @@ export default function Carousel({ items }) {
     return () => {
       track.removeEventListener('scroll', update)
       window.removeEventListener('resize', update)
+      bar.removeEventListener('pointerdown', onDown)
+      bar.removeEventListener('pointermove', onMove)
+      bar.removeEventListener('pointerup', onUp)
+      bar.removeEventListener('pointercancel', onUp)
+      bar.removeEventListener('keydown', onKey)
       watcher.disconnect()
     }
   }, [items.length])
@@ -138,10 +193,23 @@ export default function Carousel({ items }) {
       ))}
       </div>
 
-      {/* Not a control: it says the row goes further right, and scrolling is
-          how you get there. */}
-      <div ref={barRef} className="carousel-bar" aria-hidden="true">
-        <div ref={thumbRef} className="carousel-bar-thumb" />
+      {/* Shows how far the row runs, and moves it when dragged. The padded
+          outer box is the part that answers to a pointer; the thin rail inside
+          is what can be seen. */}
+      <div
+        ref={barRef}
+        className="carousel-bar"
+        role="scrollbar"
+        aria-orientation="horizontal"
+        aria-label="Scroll the projects"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={0}
+        tabIndex={0}
+      >
+        <div ref={railRef} className="carousel-bar-rail">
+          <div ref={thumbRef} className="carousel-bar-thumb" />
+        </div>
       </div>
     </div>
   )
