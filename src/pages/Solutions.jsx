@@ -46,7 +46,10 @@ export default function Solutions() {
         textAlign: 'center',
       }}>
         <h1 style={{
-          fontSize: TYPE.hubTitle,
+          // Same size as every other page's title, the home page included.
+          // It was TYPE.hubTitle, a tier larger — put that back here to
+          // return to it; the size itself is still in the scale.
+          fontSize: TYPE.pageTitle,
           fontWeight: 'bold',
           letterSpacing: '-0.02em',
           marginBottom: 24,

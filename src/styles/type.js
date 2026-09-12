@@ -8,7 +8,9 @@
 // Five steps, each with a job:
 export const TYPE = {
   pageTitle: '3rem',              // the name of a page, on its own screen
-  hubTitle: 'clamp(3rem, 7vw, 5.5rem)',   // Projects and Solutions, a tier above
+  // Kept for the hubs to go back to: they use pageTitle for now, to see
+  // whether matching the rest of the site reads better than towering over it.
+  hubTitle: 'clamp(3rem, 7vw, 5.5rem)',
   hubCategory: 'clamp(2.25rem, 4vw, 3.25rem)',  // a category on a hub page
   umbrella: '3rem',               // a heading introducing sub-sections below it
   section: '2.5rem',              // a section with its own text or photos
