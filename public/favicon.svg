@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- A tab icon is read at about sixteen pixels across, so it is a solid
+       ground and one letter: anything finer than this turns to mush. -->
+  <rect width="64" height="64" rx="15" fill="#5aa832"/>
+  <path d="M19 47 L32 17 L45 47" fill="none" stroke="#ffffff" stroke-width="7"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24.5 38 H39.5" fill="none" stroke="#ffffff" stroke-width="7"
+        stroke-linecap="round"/>
+</svg>
