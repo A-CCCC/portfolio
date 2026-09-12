@@ -10,6 +10,7 @@ import { TYPE } from '../styles/type'
 
 export default function PageIntro({
   title, description, comingSoon = false, full = true, notice = '(Coming Soon!)',
+  buy = '',
 }) {
   // A page with nothing to say about itself says it is coming instead — which in
   // public is every project still being kept back. One that has a description
@@ -18,6 +19,8 @@ export default function PageIntro({
   const titleOpacity = useFadeIn(100)
   // Second, so the line under the title arrives after it rather than with it.
   const introOpacity = useFadeIn(600)
+  // Last of the three, for the same reason.
+  const buyOpacity = useFadeIn(1000)
 
   return (
     <div style={{
@@ -67,6 +70,30 @@ export default function PageIntro({
             </>
           )}
         </p>
+      )}
+
+      {/* A piece that can be bought says so. It reads as a way on rather than
+          as part of the description, so it sits apart from the line above in
+          the same pill the hubs use to lead somewhere. */}
+      {buy && (
+        <a
+          href={buy}
+          target="_blank"
+          rel="noreferrer"
+          className="count-link"
+          style={{
+            marginTop: 28,
+            color: 'var(--text)',
+            textDecoration: 'none',
+            fontSize: TYPE.small,
+            '--count-hover': 'var(--hover)',
+            opacity: buyOpacity,
+            transition: 'opacity 1.5s ease',
+          }}
+        >
+          Purchase here
+          <span className="count-arrow" aria-hidden="true">→</span>
+        </a>
       )}
     </div>
   )

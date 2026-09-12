@@ -2,6 +2,7 @@
 import useFadeIn from '../hooks/useFadeIn'
 import { TYPE } from '../styles/type'
 import { contact } from '../data/site-copy'
+import { SHOP } from '../data/shop'
 import PageIntro from '../components/PageIntro'
 import { isFullSite } from '../data/site-copy'
 
@@ -59,6 +60,30 @@ export default function Contact() {
             LinkedIn
           </a>
         </p>
+
+        {/* What is for sale, gathered in one place. The listings themselves are
+            public — it is this page that is not, so they are here as a private
+            index of them rather than as something being kept back. Each one is
+            also on the page of the piece it belongs to. */}
+        {SHOP.length > 0 && (
+          <div style={{ marginTop: 40 }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: TYPE.small, marginBottom: 12 }}>
+              For sale
+            </p>
+            {SHOP.map((item) => (
+              <p key={item.page} style={{ marginBottom: 8 }}>
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: 'var(--text-body)' }}
+                >
+                  {item.name}
+                </a>
+              </p>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
