@@ -42,16 +42,15 @@ const RING_COUNT = 8
 const RING_RY = 33            // % of hero height — a wider oval spaces the ring out
 const RING_START = -90        // deg — first bubble sits at the top
 
-// Per-bubble variation, so the ring reads as scattered rather than stamped out.
-// These are fixed rather than random: a random offset would be re-rolled on
-// every render and the bubbles would jump around as the page redraws.
+// Evenly spaced, and left that way. The ring used to carry a fixed nudge per
+// bubble — a few degrees round, a percent or two out — to keep it from reading
+// as stamped out. The drift below does that job better: it is movement rather
+// than an arrangement, so the ring is never caught in one shape, and the even
+// spacing underneath it is what the eye settles on.
 //
-// Radius nudges for the two bubbles level with the title (indices 2 and 6) only
-// ever push outward — pulling them in would eat the gutter clearance that keeps
-// them off the text on a narrow window.
-const ANGLE_JITTER  = [3, -4, 2, -3, 4, -3, -1, 3]              // deg off the even spacing
-const RADIUS_JITTER = [0.98, 1.03, 1.02, 0.97, 1.03, 0.98, 1.01, 1.04]
-const SIZES         = [116, 103, 121, 108, 99, 116, 105, 112]
+// Sizes still vary. That is not where the bubbles are, and eight of one size
+// would read as a diagram.
+const SIZES = [116, 103, 121, 108, 99, 116, 105, 112]
 
 // Bigger, faster wander than the original drift — cycled so neighbours never
 // move or breathe in step.
@@ -70,8 +69,7 @@ const PHONE_RING_RY = 36        // % of hero height — a taller oval on a tall 
 
 const place = (phone) => Array.from({ length: RING_COUNT }, (_, i) => {
   const baseDeg = RING_START + (360 / RING_COUNT) * i
-  const angle = ((baseDeg + ANGLE_JITTER[i % ANGLE_JITTER.length]) * Math.PI) / 180
-  const radius = RADIUS_JITTER[i % RADIUS_JITTER.length]
+  const angle = (baseDeg * Math.PI) / 180
   const cos = Math.cos(angle)
   const sin = Math.sin(angle)
 
@@ -81,15 +79,15 @@ const place = (phone) => Array.from({ length: RING_COUNT }, (_, i) => {
   const scale = phone ? PHONE_SIZE : 1
 
   return {
-    left: `calc(50% + min(26% + 140px, ${reach}) * ${(cos * radius).toFixed(4)})`,
-    top: `calc(50% + ${phone ? PHONE_RING_RY : RING_RY}% * ${(sin * radius).toFixed(4)})`,
+    left: `calc(50% + min(26% + 140px, ${reach}) * ${cos.toFixed(4)})`,
+    top: `calc(50% + ${phone ? PHONE_RING_RY : RING_RY}% * ${sin.toFixed(4)})`,
     size: Math.round(SIZES[i % SIZES.length] * scale),
     drift: DRIFTS[i % DRIFTS.length].map((d) => Math.round(d * scale)),
     duration: DURATIONS[i % DURATIONS.length],
     delay: DELAYS[i % DELAYS.length],
-    // Judged on the even spacing, not the jittered angle, so the pair that sits
-    // level with the title is identified consistently.
-    flank: Math.abs(Math.cos((baseDeg * Math.PI) / 180)) > 0.9,
+    // The pair sitting level with the title, which is hidden on a window too
+    // narrow to hold both them and the words.
+    flank: Math.abs(cos) > 0.9,
   }
 })
 

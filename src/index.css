@@ -277,7 +277,12 @@
 }
 
 /* No room left for a bubble beside the fixed-width title */
-@media (max-width: 900px) {
+/* The two bubbles level with the title stand down before the rest. The ring is
+   evenly spaced and the drift is what scatters it, so nothing nudges these two
+   outward any more to clear the words — instead they leave while there is still
+   room to leave in. The title is a fixed width until the window is narrow
+   enough for the type to shrink, so it is the window that decides. */
+@media (max-width: 1000px) {
   .bubble-flank { display: none; }
 }
 
