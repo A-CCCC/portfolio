@@ -70,12 +70,23 @@ export default function Carousel({ items }) {
       if (bar.style.visibility === 'hidden') return
       dragging = true
       bar.classList.add('is-dragging')
+      // The row snaps to whichever card is nearest, which is right when someone
+      // flicks it and wrong under a finger: every pixel of a drag gets tugged
+      // toward a card edge and the whole thing moves in steps. Off while
+      // dragging, so it follows exactly, and back on when let go so it still
+      // settles on a card.
+      track.style.scrollSnapType = 'none'
       try { bar.setPointerCapture(e.pointerId) } catch { /* synthetic pointers have none */ }
       scrollTo(e.clientX)
       e.preventDefault()
     }
     const onMove = (e) => { if (dragging) scrollTo(e.clientX) }
-    const onUp = () => { dragging = false; bar.classList.remove('is-dragging') }
+    const onUp = () => {
+      if (!dragging) return
+      dragging = false
+      bar.classList.remove('is-dragging')
+      track.style.scrollSnapType = 'x proximity'
+    }
 
     bar.addEventListener('pointerdown', onDown)
     bar.addEventListener('pointermove', onMove)
