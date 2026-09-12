@@ -29,7 +29,6 @@ import NotFound from './pages/NotFound'
 import Games from './pages/Games'
 import LogRunner from './components/LogRunner'
 import BarrelDrop from './components/BarrelDrop'
-import { isFullSite } from './data/site-copy'
 import Navbar from './components/Navbar'
 import ScrollToTop from './components/ScrollToTop'
 import ThemeToggle from './components/ThemeToggle'
@@ -45,10 +44,10 @@ export default function App() {
       <ThemeToggle />
       <Routes>
         <Route path="/" element={<Home />} />
-        {/* Absent in public: a page nobody should read yet is better left
-            unrouted than routed to something apologetic. */}
-        {isFullSite && <Route path="/about" element={<About />} />}
-        {isFullSite && <Route path="/contact" element={<Contact />} />}
+        {/* Routed either way. In public the pages say they are coming, rather
+            than their tabs in the navbar leading nowhere. */}
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/clash-royale" element={<ClashRoyale />} />
         <Route path="/projects/clash-royale/skeleton-barrel" element={<SkeletonBarrel />} />

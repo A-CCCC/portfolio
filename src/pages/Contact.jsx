@@ -2,6 +2,8 @@
 import useFadeIn from '../hooks/useFadeIn'
 import { TYPE } from '../styles/type'
 import { contact } from '../data/site-copy'
+import PageIntro from '../components/PageIntro'
+import { isFullSite } from '../data/site-copy'
 
 // The address the home page also shows, in one place on each page so the two
 // cannot drift apart.
@@ -12,6 +14,12 @@ const REACH = contact
 export default function Contact() {
   const titleOpacity = useFadeIn(100)
   const bodyOpacity = useFadeIn(600)
+
+  // The tab leads here in public too, but what would be on the page is
+  // not in this build — so it says it is coming rather than showing a
+  // stripped-out version of itself. Below the hooks, which have to run
+  // the same way on every render.
+  if (!isFullSite) return <PageIntro title="Contact" description="" comingSoon />
 
   return (
     <div style={{

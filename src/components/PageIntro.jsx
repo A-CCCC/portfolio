@@ -9,9 +9,10 @@ import { isFullSite } from '../data/site-copy'
 import { TYPE } from '../styles/type'
 
 export default function PageIntro({ title, description, comingSoon = false, full = true }) {
-  // In public there are no descriptions, so every page says the same thing:
-  // that there is more of it to come.
-  const pending = comingSoon || !isFullSite
+  // A page with nothing to say about itself says it is coming instead — which in
+  // public is every project still being kept back. One that has a description
+  // does not need the note as well.
+  const pending = comingSoon || (!isFullSite && !description)
   const titleOpacity = useFadeIn(100)
   // Second, so the line under the title arrives after it rather than with it.
   const introOpacity = useFadeIn(600)

@@ -1,7 +1,6 @@
 // src/components/Navbar.jsx
 import { useEffect, useRef, useState } from 'react'
 import { ArrowUp } from 'lucide-react'
-import { isFullSite } from '../data/site-copy'
 import { TYPE } from '../styles/type'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -286,40 +285,36 @@ export default function Navbar() {
             </div>
           ))}
 
-          {isFullSite && (
-          <>
-  <Link
-              to="/contact"
-              className="nav-label"
-              data-label="Contact"
-              onMouseEnter={() => setHovered('contact')}
-              onMouseLeave={() => setHovered(null)}
-              style={{
-                ...linkStyle,
-                ...hoverStyle(hovered === 'contact'),
-                padding: '8px 14px',
-              }}
-            >
-              Contact
-            </Link>
+          <Link
+            to="/contact"
+            className="nav-label"
+            data-label="Contact"
+            onMouseEnter={() => setHovered('contact')}
+            onMouseLeave={() => setHovered(null)}
+            style={{
+              ...linkStyle,
+              ...hoverStyle(hovered === 'contact'),
+              padding: '8px 14px',
+            }}
+          >
+            Contact
+          </Link>
 
-            <Link
-              to="/about"
-              className="nav-label"
-              data-label="About Me"
-              onMouseEnter={() => setHovered('about')}
-              onMouseLeave={() => setHovered(null)}
-              style={{
-                ...linkStyle,
-                ...hoverStyle(hovered === 'about'),
-                padding: '8px 14px',
-                marginRight: -14,
-              }}
-            >
-              About Me
-            </Link>
-          </>
-          )}
+          <Link
+            to="/about"
+            className="nav-label"
+            data-label="About Me"
+            onMouseEnter={() => setHovered('about')}
+            onMouseLeave={() => setHovered(null)}
+            style={{
+              ...linkStyle,
+              ...hoverStyle(hovered === 'about'),
+              padding: '8px 14px',
+              marginRight: -14,
+            }}
+          >
+            About Me
+          </Link>
 
         </div>
     </>
