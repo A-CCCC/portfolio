@@ -44,6 +44,19 @@ for (let i = 0; i < 3; i += 1) step(g, models)
 check('bands do not drift as it moves', g.colours, painted)
 check('and none is lost', g.colours.filter((c) => c === '#aa0000').length, 1)
 
+// --- what the drawing slides from
+g = newGame('#base')
+const stood = g.snake.map((c) => ({ ...c }))
+g.food = null
+step(g, models)
+check('a step records where every block was', g.prev, stood)
+check('and each block moves into the square ahead of it', g.snake[1], g.prev[0])
+
+g = newGame('#base')
+g.food = { x: 9, y: 7, model: models[0] }
+step(g, models)
+check('a block grown at the tail has nowhere it came from', g.prev.length, g.snake.length - 1)
+
 // --- walls
 g = newGame('#base')
 g.food = null

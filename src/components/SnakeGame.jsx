@@ -137,7 +137,20 @@ export default function SnakeGame() {
 
     const centre = (cell) => ({ x: cell.x * CELL + CELL / 2, y: cell.y * CELL + CELL / 2 })
 
-    const drawSnake = (g, hidden) => {
+    // Where block i is partway through the step it is taking. `at` is how far
+    // through, so the snake glides from square to square instead of appearing
+    // in the next one. A block that has just grown at the tail has nowhere it
+    // came from, and simply stays where it is.
+    const sliding = (g, i, at) => {
+      const now = g.snake[i]
+      const was = g.prev?.[i] || now
+      return {
+        x: (was.x + (now.x - was.x) * at) * CELL + CELL / 2,
+        y: (was.y + (now.y - was.y) * at) * CELL + CELL / 2,
+      }
+    }
+
+    const drawSnake = (g, hidden, at) => {
       if (hidden) return
       ctx.lineCap = 'round'
       ctx.lineJoin = 'round'
@@ -147,8 +160,8 @@ export default function SnakeGame() {
       // behind it and the head finishes on top.
       const bandOf = (i) => (i === 0 ? HEAD : g.colours[i] || BASE)
       for (let i = g.snake.length - 1; i >= 0; i -= 1) {
-        const here = centre(g.snake[i])
-        const ahead = i > 0 ? centre(g.snake[i - 1]) : null
+        const here = sliding(g, i, at)
+        const ahead = i > 0 ? sliding(g, i - 1, at) : null
         ctx.strokeStyle = bandOf(i)
         ctx.beginPath()
         ctx.moveTo(here.x, here.y)
@@ -166,7 +179,7 @@ export default function SnakeGame() {
       }
 
       // Eyes, looking where it is going
-      const head = centre(g.snake[0])
+      const head = sliding(g, 0, at)
       const [dx, dy] = HEADINGS[g.heading]
       const side = CELL * 0.17
       const out = CELL * 0.1
@@ -239,9 +252,9 @@ export default function SnakeGame() {
           }
         } else if (state === 'running' && !g.over) {
           g.since += delta * 1000
-          const pace = Math.max(QUICKEST, FIRST_STEP - g.score * QUICKENS_BY)
-          while (g.since >= pace && g.dying === 0) {
-            g.since -= pace
+          const stepEvery = Math.max(QUICKEST, FIRST_STEP - g.score * QUICKENS_BY)
+          while (g.since >= stepEvery && g.dying === 0) {
+            g.since -= stepEvery
             const what = step(g, MODELS)
             if (what.died) g.dying = DEATH_FLASH
             else if (what.ate) setScore(g.score)
@@ -251,8 +264,14 @@ export default function SnakeGame() {
 
       drawGrass(ctx, W, 0, H, 0, colour('--grass-a', '#7cc242'), colour('--grass-b', '#6cb139'), CELL)
       drawFood(g)
+      // How far through the current step the snake is. Standing still between
+      // games, and at rest where it died, so nothing slides on the last frame.
+      const pace = Math.max(QUICKEST, FIRST_STEP - g.score * QUICKENS_BY)
+      const at = state === 'running' && !g.over && g.dying === 0
+        ? Math.min(1, g.since / pace)
+        : 1
       // Blinking on the way out, the way a game of this age would
-      drawSnake(g, g.dying > 0 && Math.floor(g.dying / DEATH_BLINK) % 2 === 1)
+      drawSnake(g, g.dying > 0 && Math.floor(g.dying / DEATH_BLINK) % 2 === 1, at)
 
       frame = requestAnimationFrame(loop)
     }

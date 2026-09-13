@@ -64,6 +64,10 @@ export const ask = (game, way) => {
 // One square forward. Returns what happened, so the caller can count a score,
 // start a death, or put out another model.
 export const step = (game, models, random = Math.random) => {
+  // Where every block was before this step, so the drawing can slide from there
+  // to here rather than jumping a whole square at a time. Block k travels from
+  // the square it held into the one the block ahead of it has just left.
+  game.prev = game.snake.map((cell) => ({ x: cell.x, y: cell.y }))
   if (game.asked.length) game.heading = game.asked.shift()
   const [dx, dy] = HEADINGS[game.heading]
   const head = game.snake[0]
