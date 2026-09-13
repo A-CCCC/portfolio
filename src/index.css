@@ -96,7 +96,7 @@
 
   /* Caption sitting inside the wheelchair-storage render. Softened off-black
      rather than pure black, with neutral shadows matched to the render's own
-     cool grey shading, so it belongs to the scene rather than reading as flat
+     cool gray shading, so it belongs to the scene rather than reading as flat
      text pasted on top. */
   --caption-ink: #222426;
 
@@ -129,7 +129,7 @@
   --card-shadow-ink: rgba(0, 0, 0, 0.5);
 
   /* Grass has to sit on a near-black page without glowing, so the same two
-     greens taken well down rather than a different colour. */
+     greens taken well down rather than a different color. */
   --grass-a: #3c6626;  --grass-b: #325820;
 
   /* The same sky after dark, rather than a different idea of one. */
@@ -268,9 +268,9 @@
 
 /* Photo thumbnails keep their background, so a hard circular crop leaves a
    visible disc of photo sitting on the tint. Masking with a radial gradient
-   fades the edges out instead, so the photo dissolves into the bubble's colour.
+   fades the edges out instead, so the photo dissolves into the bubble's color.
    Transparent renders do not need this — it would only eat their edges — so it
-   is opt-in per project via `photo: true` in the catalogue. */
+   is opt-in per project via `photo: true` in the catalog. */
 .bubble-photo img {
   -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 48%, rgba(0, 0, 0, 0.6) 68%, transparent 82%);
   mask-image: radial-gradient(circle at 50% 50%, #000 48%, rgba(0, 0, 0, 0.6) 68%, transparent 82%);
@@ -312,9 +312,9 @@
     width: 100% !important;
   }
 
-  /* Centred, because there is no width here for the ragged edge of a column to
+  /* Centered, because there is no width here for the ragged edge of a column to
      mean anything. A line that fills all but the last few characters of the
-     screen reads as centred whether it is or not, and the headings and the
+     screen reads as centered whether it is or not, and the headings and the
      pictures above and below it already are. */
   .split,
   .split h2,
@@ -420,7 +420,7 @@
   -webkit-appearance: none;
   width: 11px;
   height: 11px;
-  margin-top: -3.5px;      /* centres the handle on a 4px track */
+  margin-top: -3.5px;      /* centers the handle on a 4px track */
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.75);
   opacity: 0;
@@ -446,9 +446,9 @@
 /* HUB COUNT LINK */
 
 /* "2 solutions →" is the way into a category, so it has to look like a control
-   rather than a caption. On hover it takes a soft pill of its own colour and the
+   rather than a caption. On hover it takes a soft pill of its own color and the
    arrow steps forward. The tint comes from --count-hover, which each band sets
-   to suit the colour it is painted — a mix from currentColor looked neater but
+   to suit the color it is painted — a mix from currentColor looked neater but
    resolved to fully transparent, so the highlight never showed. */
 .count-link {
   display: inline-flex;
@@ -497,12 +497,12 @@
   white-space: nowrap;
   /* The reserved bold width is wider than the label at rest, and the spare room
      would otherwise all sit on one side, so the text appears to grow rightwards
-     when it bolds. Centred, it grows evenly from the middle instead. */
+     when it bolds. Centered, it grows evenly from the middle instead. */
   display: inline-block;
   text-align: center;
 }
 
-/* In a dropdown the labels are stacked in a column, where centring leaves both
+/* In a dropdown the labels are stacked in a column, where centering leaves both
    edges ragged. They line up on the left instead — the reserved bold width still
    applies, so the row still does not move when one bolds. */
 .nav-menu .nav-label {
@@ -544,7 +544,7 @@
    that scene rather than as a label over it: softened ink instead of pure
    black, a hairline light edge along the top like a lit surface, and two soft
    shadows — one tight for contact, one wide and diffuse to match the render's
-   own ambient shadow. The tint follows the render, so it is neutral grey while
+   own ambient shadow. The tint follows the render, so it is neutral gray while
    the model is; a warmer render wants warmer values. */
 .slide-caption {
   color: var(--caption-ink);
@@ -575,7 +575,7 @@ canvas {
    together, for two reasons that pull in opposite directions:
 
    - `color` is inherited, so when an ancestor animates it every descendant's
-     colour changes frame by frame as a result. A descendant carrying its own
+     color changes frame by frame as a result. A descendant carrying its own
      `color` transition treats each of those frames as a fresh change to animate
      towards, and ends up chasing the ancestor a whole duration behind — the
      subheadings that only began to change once the background had finished.
@@ -591,7 +591,7 @@ canvas {
    string to the browser and flips from one value to the other, while one
    declared as <color> can be interpolated.
 
-   Anything below that is not a plain colour — the card gradients, the shadows —
+   Anything below that is not a plain color — the card gradients, the shadows —
    still changes at once, since neither can be interpolated this way. */
 @property --bg          { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
 @property --text        { syntax: "<color>"; inherits: true; initial-value: #000000; }
@@ -611,7 +611,7 @@ canvas {
 
 /* A gradient cannot be interpolated as one value, so the card tints are built
    from stops that can be. Same for the shadows: the geometry is shared between
-   the themes and only the colour differs, so that is the part that moves. */
+   the themes and only the color differs, so that is the part that moves. */
 @property --card-1a { syntax: "<color>"; inherits: true; initial-value: #eaf1fb; }
 @property --card-1b { syntax: "<color>"; inherits: true; initial-value: #d5e4f6; }
 @property --card-2a { syntax: "<color>"; inherits: true; initial-value: #fdf1e2; }
@@ -685,7 +685,7 @@ canvas {
     --band-body var(--theme-fade) var(--theme-ease),
     --band-hover var(--theme-fade) var(--theme-ease);
 
-  /* Shapes, defined once. Only the stop colours above differ between themes,
+  /* Shapes, defined once. Only the stop colors above differ between themes,
      so switching moves the gradient rather than replacing it — a gradient
      cannot be interpolated as a single value, but its stops can. */
   --card-1: linear-gradient(165deg, var(--card-1a) 0%, var(--card-1b) 100%);
@@ -896,7 +896,7 @@ canvas {
   .photo-stack { height: 74vh !important; }
 
   /* The columns either side of a row are as narrow here as a whole phone is in
-     portrait, so the prose is centred for the same reason. */
+     portrait, so the prose is centered for the same reason. */
   .split,
   .split h2,
   .split h3,

@@ -90,7 +90,7 @@ export default function CategoryBand({
             color: 'inherit',
             textDecoration: 'none',
             fontSize: TYPE.small,
-            // The hover tint has to suit whichever colour this band is painted.
+            // The hover tint has to suit whichever color this band is painted.
             '--count-hover': alt ? 'var(--band-hover)' : 'var(--hover)',
           }}
         >

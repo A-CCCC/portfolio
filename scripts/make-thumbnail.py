@@ -4,7 +4,7 @@
     python3 scripts/make-thumbnail.py public/thumbnails/Cannon-cart-new.png cannon-cart
 
 Cuts the subject out of its background, scales it so it fills the same share of
-the frame as every other thumbnail, centres it on a transparent square and
+the frame as every other thumbnail, centers it on a transparent square and
 writes <slug>.webp. The original is kept in source-thumbnails/full-size/ so a
 later change of size does not need a fresh export.
 """

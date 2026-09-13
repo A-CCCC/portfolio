@@ -50,7 +50,7 @@ export default function Portrait({ size = 150 }) {
         ...frame,
         objectFit: 'cover',
         // Anchored to the top rather than the middle: the photo is taller than
-        // it is wide and the head sits high in it, so a centred crop would take
+        // it is wide and the head sits high in it, so a centered crop would take
         // the top off it and fill the bottom of the circle with shirt.
         objectPosition: '50% 0%',
       }}

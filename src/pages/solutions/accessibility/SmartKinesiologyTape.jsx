@@ -24,13 +24,13 @@ const named = (prefix) =>
 //     process-sketch.jpg -> The Process
 //
 // A heading with no body becomes a title for what follows; a section with no
-// photos becomes a centred statement; a section with neither is skipped, so the
+// photos becomes a centered statement; a section with neither is skipped, so the
 // page can be filled in a piece at a time.
 const SECTIONS = [
   {
     // Opens the page: how the problem was found, before the problem itself.
     heading: 'Finding the Problem',
-    centred: true,   // heading over text, down the middle
+    centered: true,   // heading over text, down the middle
     prefix: 'finding',
     body: [
       'This project came out of the Aspiring Inventor\'s Fellowship Program at George Mason '
@@ -118,7 +118,7 @@ const SECTIONS = [
 
 // The solution's paragraphs each take one photo beside them, in filename order:
 // solution-1 goes with the first paragraph, solution-2 with the second, and so
-// on. A paragraph with no photo yet simply sits centred.
+// on. A paragraph with no photo yet simply sits centered.
 // Keyed by the number in the filename rather than by position, so solution-2
 // sits beside the second paragraph whether or not solution-1 exists yet.
 const SOLUTION_PHOTOS = Object.fromEntries(

@@ -40,7 +40,7 @@ const PHOTO_DIR = asset('/photos/wheelchair-storage')
 const PHOTO_SECTIONS = [
   {
     heading: 'The Problem',
-    centred: true,   // heading over text, down the middle
+    centered: true,   // heading over text, down the middle
     body: 'A student at my school is in a wheelchair because of back problems. His backpack, which stores all of his class materials, is mounted on the back of his wheelchair. He has to twist around to reach anything, which is uncomfortable and risks further back injury.',
     // Deliberately no photos: the problem is an action, not an object, so this
     // reads as a full-width opening statement rather than a half-empty row.
@@ -120,7 +120,7 @@ export default function WheelchairStorage() {
   }
 
   // ...and the caption from the right, meeting it in the middle. The -50%/-50%
-  // is the caption's own centring on its anchor point, so the travel has to be
+  // is the caption's own centering on its anchor point, so the travel has to be
   // folded into the same translate rather than applied as a second one.
   const captionStyle = {
     transform: `translate(calc(-50% + ${travel}vw), -50%)`,
@@ -237,7 +237,7 @@ export default function WheelchairStorage() {
               fontWeight: 700,
               lineHeight: 1.2,
               letterSpacing: '-0.01em',
-              // colour + shadow come from .slide-caption so they can vary by theme
+              // color + shadow come from .slide-caption so they can vary by theme
             }}>
               Custom Wheelchair Storage
             </h2>

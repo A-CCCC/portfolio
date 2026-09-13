@@ -31,7 +31,7 @@ const CLOUDS = [
   { x: 0.92, y: 0.27, r: 0.14, shape: 1, fade: 0.34 },
 ]
 
-// Each cloud is a few boxes sharing one base line: [centre, width, height], in
+// Each cloud is a few boxes sharing one base line: [center, width, height], in
 // units of the cloud's own size. Stacking boxes of different heights on a common
 // floor is what gives the blocky, stepped top and the flat underside.
 const BASE = 0.55
@@ -61,7 +61,7 @@ const puff = (ctx, cx, cy, r, shape) => {
 // drawn softly, with a wider, fainter copy behind it that fades further out.
 // Doing that sixty times a second would be wasteful, so each cloud is built once
 // into its own little canvas and stamped from then on. There are only a handful
-// of sizes and they never change, so the cache stays tiny; the colours are in
+// of sizes and they never change, so the cache stays tiny; the colors are in
 // the key, which is what redraws them when the theme turns over.
 const cache = new Map()
 

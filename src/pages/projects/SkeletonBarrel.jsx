@@ -17,7 +17,7 @@ const TOTAL_FRAMES = 457
 
 // Whatever is in public/photos/skeleton-barrel/, in filename order. One picture
 // sits beside the note, several become a stack to turn through, and none leaves
-// the note centred on its own.
+// the note centered on its own.
 const INSPIRATION = (pagePhotos['skeleton-barrel'] ?? []).map(asset)
 
 // The animation was rendered across the full 1920-wide frame, so the model
@@ -49,7 +49,7 @@ const ENTRY_FRAME = [
 const BOX_HEIGHT = 0.86         // of the panel's height
 const BOX_MAX_WIDTH = 1.70      // of the panel's width
 // On a phone the text is above the animation rather than beside it, and the
-// overhang has nowhere to hang: the frame is fitted inside the panel and centred
+// overhang has nowhere to hang: the frame is fitted inside the panel and centered
 // there, so the model arrives on screen whole instead of off the right edge.
 const BOX_MAX_WIDTH_PHONE = 1
 const FRAME_RATIO = 1920 / 1080
@@ -60,7 +60,7 @@ const FRAME_RATIO = 1920 / 1080
 const CROP_RATIO = 1272 / 1032
 // Where the model comes to rest. It rolls in from the right and finishes left
 // of middle — measured from the last frame, its content sits at 0.299 across
-// and 0.552 down — so a box centred on its own middle leaves the finished model
+// and 0.552 down — so a box centered on its own middle leaves the finished model
 // off to one side, which is the frame everyone sees longest. The box is hung
 // off that point instead: the rest of the animation arrives around it.
 const SETTLES_AT = { x: 0.299, y: 0.552 }
@@ -253,7 +253,7 @@ export default function SkeletonBarrel() {
                    x 648 y 0, 1272x1032 of 1920x1080. */
                 style={phone
                   // The box is the crop itself here, so the frames simply fill
-                  // it: centred, whole, and inside the panel.
+                  // it: centered, whole, and inside the panel.
                   ? { position: 'absolute', inset: 0, width: '100%', height: '100%' }
                   : {
                     position: 'absolute',

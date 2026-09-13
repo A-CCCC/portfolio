@@ -1,10 +1,10 @@
 // src/components/ContextNote.jsx
 //
 // A short paragraph on its own before a section — why a project was made, or
-// what surrounded it. On its own it is set centred and narrow, so it reads as an
+// what surrounded it. On its own it is set centered and narrow, so it reads as an
 // aside rather than as the section's own text. Given a `title` it gains a
 // heading, and given an `image` it turns into a row with the picture on the left
-// and the words beside it, since a centred column beside a picture reads as two
+// and the words beside it, since a centered column beside a picture reads as two
 // things rather than one.
 //
 // Renders nothing when it has no text, so a page can carry the slot before the

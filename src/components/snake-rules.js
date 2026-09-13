@@ -6,11 +6,11 @@
 // which do not run in a headless browser — so this is the part that can be
 // tested, and scripts/test-snake.mjs does.
 //
-// The blocks and their colours are kept apart on purpose. The blocks travel and
-// the colours do not: a colour belongs to a place along the snake's length —
+// The blocks and their colors are kept apart on purpose. The blocks travel and
+// the colors do not: a color belongs to a place along the snake's length —
 // the head, the one behind it, and so on to the tail — so a model eaten adds a
 // band at the tail and the bands stay put as the body flows through them.
-// Carried on the blocks themselves, each step would hand every colour back one
+// Carried on the blocks themselves, each step would hand every color back one
 // place and the oldest would fall off the end.
 export const COLS = 17
 export const ROWS = 15
@@ -24,7 +24,7 @@ export const newSnake = () => [{ x: 8, y: 7 }, { x: 7, y: 7 }, { x: 6, y: 7 }]
 
 export const newGame = (base, way) => ({
   snake: newSnake(),
-  colours: [base, base, base],
+  colors: [base, base, base],
   // Left is ignored when starting: the snake lies along that line already and
   // would set off through itself.
   heading: way && way !== 'left' ? way : 'right',
@@ -92,7 +92,7 @@ export const step = (game, models, random = Math.random, at = 1) => {
 
   if (eating) {
     game.snake.unshift(next)
-    game.colours.push(game.food.model.colour)
+    game.colors.push(game.food.model.color)
     game.score += 1
     placeFood(game, models, random)
     return { died: false, ate: true }

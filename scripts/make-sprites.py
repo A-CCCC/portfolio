@@ -9,7 +9,7 @@ height from what the thing is in Clash Royale, then compresses that range so the
 game stays playable — at true proportions the elixir collector would be twice
 the log's height and impossible to clear in a 300px play area.
 
-Heights below are in rough metres, judged from the game's own art. The exponent
+Heights below are in rough meters, judged from the game's own art. The exponent
 keeps the ordering while pulling the extremes together.
 """
 import os, shutil
@@ -18,7 +18,7 @@ import numpy as np
 from PIL import Image, ImageFilter
 from scipy import ndimage
 
-REAL_HEIGHT = {          # metres, roughly, relative to each other
+REAL_HEIGHT = {          # meters, roughly, relative to each other
     'log': 1.2,
     'cannon-cart': 1.5,
     'skeleton-barrel': 2.0,     # the barrel plus its balloons
@@ -28,8 +28,8 @@ REAL_HEIGHT = {          # metres, roughly, relative to each other
 COMPRESS = 0.7           # 1.0 = true proportions, lower = flatter range
 LOG_HEIGHT = 112         # the log's height in the sprite, at 2x its drawn size
 SMOOTH = 6               # a step this small between neighbours reads as backdrop
-BACKDROP = 26            # how close to the backdrop colour a leftover edge may be
-FLAT = 8                 # tighter, for a backdrop that is all one colour
+BACKDROP = 26            # how close to the backdrop color a leftover edge may be
+FLAT = 8                 # tighter, for a backdrop that is all one color
 
 
 def keyed(im):
@@ -38,7 +38,7 @@ def keyed(im):
     A render exported as PNG arrives with its background already cut out, but a
     screenshot arrives opaque, and cropping that to its alpha bounds keeps the
     whole window. So the backdrop is lifted instead — by where it stops rather
-    than by its colour, since a pale spike on a white backdrop is the same colour
+    than by its color, since a pale spike on a white backdrop is the same color
     and a gradient backdrop is several. Anywhere neighbouring pixels step by
     almost nothing is smooth; the model's outline is not, so the smooth region
     joined to the frame's edge is the backdrop and nothing else is.
@@ -56,24 +56,24 @@ def keyed(im):
     tolerance = BACKDROP
     if backdrop.any():
         rim = np.median(a[backdrop], axis=0)
-        # A backdrop of one flat colour cannot be walked into by mistake, so its
-        # colour is allowed to have the final say: a pale part of the model on a
+        # A backdrop of one flat color cannot be walked into by mistake, so its
+        # color is allowed to have the final say: a pale part of the model on a
         # white background steps too gently to stop the pass above, and this is
-        # what keeps it. A graded backdrop is several colours and cannot.
+        # what keeps it. A graded backdrop is several colors and cannot.
         if a[backdrop].std(axis=0).max() < 4:
             tolerance = FLAT
             backdrop &= np.abs(a - rim).max(axis=2) <= tolerance
 
         # The outline itself is a step, so it survives as a rim of backdrop
-        # coloured pixels. Anything touching the backdrop and still close to its
-        # colour goes too, which leaves the model's own edge behind.
+        # colored pixels. Anything touching the backdrop and still close to its
+        # color goes too, which leaves the model's own edge behind.
         near = np.abs(a - rim).max(axis=2) <= tolerance
         for _ in range(2):
             backdrop |= ndimage.binary_dilation(backdrop) & near
 
-    # Where the model's own colour meets the backdrop's, the step between them
+    # Where the model's own color meets the backdrop's, the step between them
     # vanishes and the pass above walks straight in. So anything plainly not the
-    # backdrop colour is put back, and whatever that encloses with it.
+    # backdrop color is put back, and whatever that encloses with it.
     subject = ~backdrop
     if backdrop.any():
         subject |= np.abs(a - rim).max(axis=2) > BACKDROP
@@ -112,7 +112,7 @@ def main():
         if (np.array(im)[:, :, 3] > 250).mean() > 0.98:
             im, lifted = keyed(im)
             print(f'{slug:20} screenshot: lifted {lifted*100:.0f}% of it as backdrop '
-                  f'(a backdrop the model has no colour in common with keys best)')
+                  f'(a backdrop the model has no color in common with keys best)')
         a = np.array(im)
         ys, xs = np.where(a[:, :, 3] > 8)
         subject = im.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1))

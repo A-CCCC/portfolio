@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """Reads each thumbnail and writes how the snake game should show that model:
-the one colour that stands for it, and where the model actually sits inside its
+the one color that stands for it, and where the model actually sits inside its
 picture.
 
 The snake game grows by a block per model eaten, painted the model's own
-colour, so the answer has to be the colour someone would name if asked what the
+color, so the answer has to be the color someone would name if asked what the
 model looks like. Neither of the obvious methods gives that: the average of a
 picture is always mud, and the most common exact shade splits a red car between
 a dozen near-identical reds and loses to a smaller patch of one flat blue.
 
-So: gather what has colour in it at all, group that by hue — every red in one
+So: gather what has color in it at all, group that by hue — every red in one
 pile — and weigh each pile by how much of the model it covers and how strong
-the colour is. A model with almost no colour anywhere is genuinely a grey or a
+the color is. A model with almost no color anywhere is genuinely a gray or a
 black one, and keeps its own shade rather than being given a hue it hasn't got.
 """
 from PIL import Image
@@ -22,7 +22,7 @@ import os
 
 MIN_ALPHA = 160
 HUE_BINS = 18            # 20 degrees each — near enough that one red is one pile
-HAS_COLOUR = 0.22        # saturation at which a pixel counts as coloured
+HAS_COLOUR = 0.22        # saturation at which a pixel counts as colored
 COLOURED_ENOUGH = 0.08   # of the model, below which it is a neutral thing
 
 # Where the eye disagrees with the arithmetic. Keep this short, and say why.
@@ -42,7 +42,7 @@ def stands_for(path):
         h, l, s = colorsys.rgb_to_hls(r / 255, g / 255, b / 255)
         if s >= HAS_COLOUR and 0.12 < l < 0.88:
             pile = piles[int(h * HUE_BINS) % HUE_BINS]
-            weight = s                      # stronger colour speaks louder
+            weight = s                      # stronger color speaks louder
             pile[0] += weight
             pile[1] += r * weight
             pile[2] += g * weight
@@ -53,8 +53,8 @@ def stands_for(path):
             neutral[2] += g
             neutral[3] += b
 
-    coloured = sum(p[0] for p in piles.values())
-    if opaque and coloured / opaque >= COLOURED_ENOUGH and piles:
+    colored = sum(p[0] for p in piles.values())
+    if opaque and colored / opaque >= COLOURED_ENOUGH and piles:
         weight, r, g, b = max(piles.values(), key=lambda p: p[0])
     elif neutral[0]:
         weight, r, g, b = neutral
@@ -77,7 +77,7 @@ def stands_for(path):
 def sits_at(path):
     """Where the model is within its picture, as fractions of the whole.
 
-    A thumbnail is mostly empty space — the model is cut out and centred in a
+    A thumbnail is mostly empty space — the model is cut out and centered in a
     generous frame, which is right on a card and wrong on a 40px square, where
     it comes out a speck. The game draws this part of the picture instead.
     """
@@ -97,25 +97,25 @@ for path in sorted(glob.glob('public/thumbnails/*.webp')):
         continue
     rows.append((name, OVERRIDES.get(name) or stands_for(path), sits_at(path)))
 
-with open('src/data/model-colours.js', 'w') as out:
-    out.write("""// src/data/model-colours.js
+with open('src/data/model-colors.js', 'w') as out:
+    out.write("""// src/data/model-colors.js
 //
 // How the snake game shows each model, keyed by its thumbnail's name:
 //
-//   colour — the one colour that stands for it. The snake grows by a block of
+//   color — the one color that stands for it. The snake grows by a block of
 //            this for every model it eats.
 //   crop   — where the model sits inside its picture, as fractions of the
-//            whole. Thumbnails are cut-outs centred in a generous frame, which
+//            whole. Thumbnails are cut-outs centered in a generous frame, which
 //            is right on a card and a speck on a 40px square, so the game draws
 //            this part of the picture rather than all of it.
 //
-// Written by scripts/model-colours.py from the thumbnails themselves — run that
+// Written by scripts/model-colors.py from the thumbnails themselves — run that
 // again when a render is replaced, rather than editing these by hand.
 export const MODEL_LOOK = {
 """)
-    for name, colour, crop in rows:
-        out.write(f"  '{name}': {{ colour: '{colour}', crop: {crop} }},\n")
+    for name, color, crop in rows:
+        out.write(f"  '{name}': {{ color: '{color}', crop: {crop} }},\n")
     out.write("}\n")
 
-for name, colour, crop in rows:
-    print(f'{name:26} {colour}  crop {crop}')
+for name, color, crop in rows:
+    print(f'{name:26} {color}  crop {crop}')

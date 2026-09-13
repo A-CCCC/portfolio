@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 // Same runway maths as useScrollFrames, but returns a continuous 0–1 value
 // instead of a frame number — for scrubbing a transform rather than a sprite
 // sequence. Attach the ref to a tall section holding a sticky child; progress
-// is how far that section has travelled through the viewport.
+// is how far that section has traveled through the viewport.
 //
 // Progress stays at 0 until the section pins, so the scrub only ever runs while
 // the panel is held still — never while the page is scrolling normally beneath

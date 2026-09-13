@@ -76,8 +76,8 @@ export default function Resume({ resume }) {
   if (!resume) return null
 
   return (
-    // Left-aligned inside a page that centres everything else: a résumé read
-    // down a centred column is a poster, not a document.
+    // Left-aligned inside a page that centers everything else: a résumé read
+    // down a centered column is a poster, not a document.
     <div style={{ textAlign: 'left', maxWidth: 760, width: '100%', margin: '0 auto' }}>
 
       <h2 style={{

@@ -56,12 +56,12 @@ const RELIEF = 0.55
 
 // One jump's worth of ground, in frames: take-off to landing under a constant
 // pull. Spacing is written in these units, so a gap means the same thing to the
-// player whatever the log is travelling at.
+// player whatever the log is traveling at.
 const AIR_FRAMES = (2 * JUMP) / GRAVITY
 
 // Obstacles crowd in as the run goes on, measured in jumps rather than seconds:
 // better than two jumps' room between them at the start, barely more than one by
-// the end. Paced off distance travelled so it does not drift with the frame rate.
+// the end. Paced off distance traveled so it does not drift with the frame rate.
 const RAMP_DISTANCE = 24000
 const GAP_START = 2.4
 const GAP_END = 1.35
@@ -320,7 +320,7 @@ export default function LogRunner() {
       const wood = w * logRadius.current
       return { w, h, x: LOG_X + w / 2, y: GROUND - wood + lift, r: wood * (1 - FORGIVENESS) }
     }
-    const colour = (name, fallback) =>
+    const color = (name, fallback) =>
       getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback
 
     const spawn = () => {
@@ -418,13 +418,13 @@ export default function LogRunner() {
       ctx.clearRect(0, 0, W, H)
 
       drawSky(ctx, W, 0, GROUND, g.distance,
-        colour('--sky-high', '#3fa4dd'), colour('--sky-low', '#b3e2f6'),
-        colour('--cloud', 'rgba(255,255,255,0.95)'),
-        colour('--cloud-shade', 'rgba(186,214,236,0.95)'))
+        color('--sky-high', '#3fa4dd'), color('--sky-low', '#b3e2f6'),
+        color('--cloud', 'rgba(255,255,255,0.95)'),
+        color('--cloud-shade', 'rgba(186,214,236,0.95)'))
 
-      // Scrolled by distance travelled, so the ground runs under the log
+      // Scrolled by distance traveled, so the ground runs under the log
       drawGrass(ctx, W, GROUND, H, g.distance,
-        colour('--grass-a', '#7cc242'), colour('--grass-b', '#6cb139'))
+        color('--grass-a', '#7cc242'), color('--grass-b', '#6cb139'))
 
       const logImg = sprites.current.log
       const { w: lw, h: lh, x: lx, y: ly } = logBody(g.y)
@@ -434,7 +434,7 @@ export default function LogRunner() {
       if (logImg?.complete && logImg.naturalWidth) {
         ctx.drawImage(logImg, -lw / 2, -lh / 2, lw, lh)
       } else {
-        ctx.fillStyle = colour('--text', '#000')
+        ctx.fillStyle = color('--text', '#000')
         ctx.fillRect(-lw / 2, -lh / 2, lw, lh)
       }
       ctx.restore()
@@ -443,7 +443,7 @@ export default function LogRunner() {
         const img = sprites.current[o.name]
         const y = obstacleTop(o)
         if (img?.complete && img.naturalWidth) ctx.drawImage(img, o.x, y, o.w, o.h)
-        else { ctx.fillStyle = colour('--text-muted', '#888'); ctx.fillRect(o.x, y, o.w, o.h) }
+        else { ctx.fillStyle = color('--text-muted', '#888'); ctx.fillRect(o.x, y, o.w, o.h) }
       })
     }
 

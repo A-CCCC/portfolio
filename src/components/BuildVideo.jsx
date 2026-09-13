@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Pause, Play, RotateCcw } from 'lucide-react'
 
 // The round button's size sets where the whole control row sits: the scrubber is
-// centred on the button, so a smaller button brings both closer to the edge.
+// centered on the button, so a smaller button brings both closer to the edge.
 const BUTTON = 32
 // One inset all round. The videos are encoded with a strip of background along
 // the bottom for this row to sit in (see scripts/make-build-video.py), so 32px
@@ -137,7 +137,7 @@ export default function BuildVideo({ src, label = 'Build timelapse' }) {
         aria-label={`${label} position`}
         style={{
           position: 'absolute',
-          // Centred on the button: the input is 16px tall for hit area while the
+          // Centered on the button: the input is 16px tall for hit area while the
           // bar it draws is 4px, so its own offset sits 8px lower than the bar
           // appears.
           bottom: INSET + BUTTON / 2 - 8,

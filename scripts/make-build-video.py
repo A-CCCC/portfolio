@@ -18,8 +18,8 @@ framed and paced the same way:
     speed-up below makes an output-side one silently do nothing
   * frames the model at 81% of the height on a 1.283 aspect, padding with the
     recording's own background when the source is too tight to crop
-  * matches the pad colour to what the video's white encodes to, which is not
-    the colour it started as
+  * matches the pad color to what the video's white encodes to, which is not
+    the color it started as
   * speeds it up to about eleven seconds at 30fps
 """
 import subprocess, sys, tempfile, os, glob
@@ -88,9 +88,9 @@ def main(src, dst, seconds=TARGET_SECONDS):
         # on average: adding a small part moves few pixels but moves them a lot,
         # and an average over the whole frame hides it. A mean-based rule cut the
         # last two moves off one of these videos.
-        grey = [a.mean(axis=2) for a in arrays]
-        moved = [i for i in range(1, len(grey))
-                 if (np.abs(grey[i] - grey[i - 1]) > 12).mean() > 0.0005]
+        gray = [a.mean(axis=2) for a in arrays]
+        moved = [i for i in range(1, len(gray))
+                 if (np.abs(gray[i] - gray[i - 1]) > 12).mean() > 0.0005]
         if moved:
             settle = (moved[-1] + 1) / SAMPLE_FPS + 0.5
             if settle < cut:
@@ -102,8 +102,8 @@ def main(src, dst, seconds=TARGET_SECONDS):
 
         # Framed on the finished model — the last frame — rather than on
         # every frame together. Sketch planes and half-built parts sit elsewhere
-        # in the frame, and centring on all of them together left the finished
-        # model visibly off-centre.
+        # in the frame, and centering on all of them together left the finished
+        # model visibly off-center.
         model = boxes[-1]
         sx, sy = w / sw, h / sh
         model_h = (model[3] - model[1]) * sy
@@ -127,7 +127,7 @@ def main(src, dst, seconds=TARGET_SECONDS):
             frame_h = round(frame_h * scale / 2) * 2
 
         x0, y0 = round(cx - frame_w / 2), round(cy - frame_h / 2)
-        # the model stays centred in the frame above; the extra height is added
+        # the model stays centered in the frame above; the extra height is added
         # underneath it, where the controls go
         frame_h += round(frame_w * CONTROL_ROOM / 2) * 2
 

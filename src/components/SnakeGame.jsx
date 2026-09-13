@@ -1,18 +1,18 @@
 // src/components/SnakeGame.jsx
 //
 // Snake, played on Google's chequerboard, eating the models on this site. Each
-// one swallowed adds a block to the tail in that model's own colour — so the
+// one swallowed adds a block to the tail in that model's own color — so the
 // snake ends up a record of what it has been fed, and a long one is a tour of
 // the portfolio.
 //
-// The colours are not guessed at here: scripts/model-colours.py reads them off
-// the thumbnails, so a re-rendered model brings its new colour with it.
+// The colors are not guessed at here: scripts/model-colors.py reads them off
+// the thumbnails, so a re-rendered model brings its new color with it.
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { TYPE } from '../styles/type'
 import { useIsTouch, useIsShort } from '../hooks/useIsPhone'
 import { clashRoyale, accessibility, convenience, misc } from '../data/projects'
-import { MODEL_LOOK } from '../data/model-colours'
+import { MODEL_LOOK } from '../data/model-colors'
 import drawGrass from './grass'
 import {
   COLS, ROWS, HEADINGS, newGame, placeFood, ask, step,
@@ -38,12 +38,6 @@ const HEAD = '#3568c0'
 const DEATH_FLASH = 0.6          // seconds of blinking before the board rests
 const DEATH_BLINK = 0.1
 
-// How far into a step a turn has to arrive before the step is cut short and
-// taken at once. Anywhere at all, near enough: a key is answered on the frame
-// it arrives on, which is what the game should feel like, and the shortened
-// step is the price of that. The sliver at the start only stops two keys
-// inside a single frame from stepping the snake twice.
-const ANSWER_AFTER = 0.02
 
 const HIGH_SCORE_KEY = 'model-snake-best'
 
@@ -61,7 +55,7 @@ const MODELS = [...clashRoyale, ...accessibility, ...convenience, ...misc].map((
   const look = MODEL_LOOK[project.image.split('/').pop().replace('.webp', '')]
   return {
     ...project,
-    colour: look?.colour || '#888888',
+    color: look?.color || '#888888',
     crop: look?.crop || [0, 0, 1, 1],
     // One of the six card tints the carousels and the home page bubbles use, so
     // a model sits on the board the way it sits everywhere else on the site.
@@ -86,15 +80,11 @@ export default function SnakeGame() {
   // the loop has to read the state it left behind on the frame before.
   // The game itself lives in a ref: a step should not cost a React render, and
   // the loop has to read the state it left behind on the frame before.
-  // `travel` is how long the move in progress should take. Usually one step's
-  // worth; longer when a turn has been answered part way through a step, since
-  // the snake then sets off from where it had got to and has further to go.
-  // Keeping the two in proportion is what stops it lurching round a corner.
-  const game = useRef({ ...newGame(BASE), travel: FIRST_STEP })
+  const game = useRef(newGame(BASE))
   const images = useRef({})
 
   const restart = (way) => {
-    game.current = { ...newGame(BASE, way), travel: FIRST_STEP }
+    game.current = newGame(BASE, way)
     placeFood(game.current, MODELS)
     setScore(0)
     setState('running')
@@ -102,27 +92,11 @@ export default function SnakeGame() {
 
   const paceNow = () => Math.max(QUICKEST, FIRST_STEP - game.current.score * QUICKENS_BY)
 
-  const turn = (way) => {
-    const g = game.current
-    const asked = g.asked.length
-    ask(g, way)
-    if (g.asked.length === asked) return          // not a turn it can take
-    if (state !== 'running' || g.over || g.dying > 0) return
-
-    // Answered here and now rather than whenever this step runs out. The step
-    // is taken from exactly where the snake was being drawn, so nothing jumps.
-    const at = Math.min(1, g.since / g.travel)
-    if (at < ANSWER_AFTER) return                 // two keys inside one frame
-    const what = step(g, MODELS, Math.random, at)
-    if (what.died) { g.dying = DEATH_FLASH; return }
-    if (what.ate) setScore(g.score)
-
-    // Setting off from part way back, the head has more than a square to cover
-    // — so it is given time to match, and the snake holds its pace.
-    const far = Math.hypot(g.snake[0].x - g.prev[0].x, g.snake[0].y - g.prev[0].y)
-    g.travel = paceNow() * Math.max(0.6, far)
-    g.since = 0
-  }
+  // Remembered, and taken at the next square the snake reaches. Nothing is
+  // hurried along to answer it: a step is a step, every step is the same
+  // length, and a snake that sometimes moved early was what made the game look
+  // like it was drifting rather than traveling.
+  const turn = (way) => ask(game.current, way)
 
   // The models themselves, loaded once and drawn from then on. One is put out
   // on the board straight away, so the opening screen is a snake with something
@@ -168,10 +142,10 @@ export default function SnakeGame() {
     fit()
     window.addEventListener('resize', fit)
 
-    const colour = (name, fallback) =>
+    const color = (name, fallback) =>
       getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback
 
-    const centre = (cell) => ({ x: cell.x * CELL + CELL / 2, y: cell.y * CELL + CELL / 2 })
+    const center = (cell) => ({ x: cell.x * CELL + CELL / 2, y: cell.y * CELL + CELL / 2 })
 
     // Where block i is partway through the step it is taking. `at` is how far
     // through, so the snake glides from square to square instead of appearing
@@ -192,16 +166,16 @@ export default function SnakeGame() {
       ctx.lineJoin = 'round'
       ctx.lineWidth = CELL * BODY
 
-      // Drawn from the tail forward, so each square's colour laps over the one
+      // Drawn from the tail forward, so each square's color laps over the one
       // behind it and the head finishes on top.
-      const bandOf = (i) => (i === 0 ? HEAD : g.colours[i] || BASE)
+      const bandOf = (i) => (i === 0 ? HEAD : g.colors[i] || BASE)
       const halfway = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 })
 
       // A block at a time, from the tail forward so the head finishes on top.
       // Each is drawn as one curve from the edge it shares with the block
       // behind it, bending through its own middle, to the edge it shares with
       // the block ahead — which is a straight line down a straight stretch and
-      // a rounded corner wherever the snake turns. Every colour gets exactly
+      // a rounded corner wherever the snake turns. Every color gets exactly
       // its own square, since the joins fall on the edges between them.
       for (let i = g.snake.length - 1; i >= 0; i -= 1) {
         const here = sliding(g, i, at)
@@ -240,8 +214,8 @@ export default function SnakeGame() {
     const drawBubble = (model, x, y) => {
       const r = CELL * 0.47
       const wash = ctx.createLinearGradient(x - r * 0.55, y - r, x + r * 0.55, y + r)
-      wash.addColorStop(0, colour(`--card-${model.tint}a`, '#eef1fb'))
-      wash.addColorStop(1, colour(`--card-${model.tint}b`, '#dde4f6'))
+      wash.addColorStop(0, color(`--card-${model.tint}a`, '#eef1fb'))
+      wash.addColorStop(1, color(`--card-${model.tint}b`, '#dde4f6'))
       ctx.save()
       ctx.shadowColor = 'rgba(0, 0, 0, 0.18)'
       ctx.shadowBlur = 7
@@ -256,7 +230,7 @@ export default function SnakeGame() {
     const drawFood = (g) => {
       if (!g.food) return
       const img = images.current[g.food.model.image]
-      const { x, y } = centre(g.food)
+      const { x, y } = center(g.food)
       drawBubble(g.food.model, x, y)
       // Inside the bubble rather than filling the square, so the tint reads as
       // something the model is sitting in.
@@ -275,8 +249,8 @@ export default function SnakeGame() {
         const h = sh * scale
         ctx.drawImage(img, sx, sy, sw, sh, x - w / 2, y - h / 2, w, h)
       } else {
-        // Until the picture is here, the model's colour stands in for it
-        ctx.fillStyle = g.food.model.colour
+        // Until the picture is here, the model's color stands in for it
+        ctx.fillStyle = g.food.model.color
         ctx.beginPath()
         ctx.arc(x, y, room / 2.6, 0, Math.PI * 2)
         ctx.fill()
@@ -306,24 +280,21 @@ export default function SnakeGame() {
           }
         } else if (state === 'running' && !g.over) {
           g.since += delta * 1000
-          while (g.travel > 0 && g.since >= g.travel && g.dying === 0) {
-            g.since -= g.travel
-            // A step that ran its course: the drawing had arrived, so the next
-            // one sets off from the squares themselves.
-            const what = step(g, MODELS, Math.random, 1)
+          while (g.since >= paceNow() && g.dying === 0) {
+            g.since -= paceNow()
+            const what = step(g, MODELS)
             if (what.died) g.dying = DEATH_FLASH
             else if (what.ate) setScore(g.score)
-            g.travel = Math.max(QUICKEST, FIRST_STEP - g.score * QUICKENS_BY)
           }
         }
       }
 
-      drawGrass(ctx, W, 0, H, 0, colour('--grass-a', '#7cc242'), colour('--grass-b', '#6cb139'), CELL)
+      drawGrass(ctx, W, 0, H, 0, color('--grass-a', '#7cc242'), color('--grass-b', '#6cb139'), CELL)
       drawFood(g)
       // How far through the current step the snake is. Standing still between
       // games, and at rest where it died, so nothing slides on the last frame.
-      const at = state === 'running' && !g.over && g.dying === 0 && g.travel > 0
-        ? Math.min(1, g.since / g.travel)
+      const at = state === 'running' && !g.over && g.dying === 0
+        ? Math.min(1, g.since / paceNow())
         : 1
       // Blinking on the way out, the way a game of this age would
       drawSnake(g, g.dying > 0 && Math.floor(g.dying / DEATH_BLINK) % 2 === 1, at)

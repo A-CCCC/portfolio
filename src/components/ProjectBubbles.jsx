@@ -8,13 +8,13 @@ import useIsPhone, { useIsShort } from '../hooks/useIsPhone'
 
 // Hand-placed as two arcs — one above the hero title, one below — plus a pair
 // flanking it, so the bubbles gather toward the middle of the page instead of
-// hugging the corners. `left`/`top` are the bubble's centre point.
+// hugging the corners. `left`/`top` are the bubble's center point.
 //
 // The title is the constraint on how far in they can come. It is a fixed pixel
 // width, so it takes up a *larger share* of a narrow window: percentage-placed
 // entries need their full diameter outside a keep-out of roughly 18%–82%
 // across and 40%–60% down. Staying out of that band vertically is what buys
-// the freedom to sit near the centre horizontally.
+// the freedom to sit near the center horizontally.
 //
 // `drift` is how far it wanders (px) and `duration` how long one loop takes;
 // `delay` is negative so every bubble starts mid-cycle and they never sync up.
@@ -353,7 +353,7 @@ export default function ProjectBubbles() {
                       width: '100%',
                       height: '100%',
                       // `cover` rather than `contain`: the renders are 5:4 with
-                      // the model centred, so fitting the whole frame inside a
+                      // the model centered, so fitting the whole frame inside a
                       // circle wastes the space on the empty side margins.
                       // Covering crops those margins and lets the model fill
                       // the bubble; the circle clips the rest.

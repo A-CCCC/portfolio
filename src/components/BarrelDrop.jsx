@@ -31,7 +31,7 @@ const TERMINAL = 11              // stops a long drop from outrunning the tilt
 // under the balloons. So the balloons barely move and the barrel travels, which
 // is how a load on a line behaves.
 const PIVOT_ROW = 63 / 160
-const PIVOT_X = -0.3 / 87          // the strings gather a hair left of centre
+const PIVOT_X = -0.3 / 87          // the strings gather a hair left of center
 
 // The lean only ever grows from falling. A flap does not snap the barrel level;
 // it takes a fixed bite out of whatever lean has built up, and several in a row
@@ -42,7 +42,7 @@ const TILT_DOWN = 0.5            // the full lean, at terminal velocity
 const TILT_RATE = 0.5            // of the way to that lean each frame
 const TILT_FLAP = 0.2            // taken off the lean by one flap
 
-// The columns are painted from the same six card colours the project carousels
+// The columns are painted from the same six card colors the project carousels
 // use, so the game belongs to the site rather than sitting in its own palette.
 // Those tokens are theme-aware, so the columns follow light and dark for free.
 const CARD_TONES = 6
@@ -240,7 +240,7 @@ export default function BarrelDrop() {
     fit()
     window.addEventListener('resize', fit)
 
-    const colour = (name, fallback) =>
+    const color = (name, fallback) =>
       getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback
 
     const size = () => {
@@ -258,7 +258,7 @@ export default function BarrelDrop() {
       const g = game.current
       const gap = gapFor(g.score)
       const top = MARGIN + Math.random() * (FLOOR - gap - MARGIN * 2)
-      // Runs through the carousel's six card colours in turn, so no two
+      // Runs through the carousel's six card colors in turn, so no two
       // columns in sight of each other are the same.
       g.hue = (g.hue % CARD_TONES) + 1
       g.columns.push({ x: W + COLUMN_W, top, gap, passed: false, hue: g.hue })
@@ -368,17 +368,17 @@ export default function BarrelDrop() {
       const { w, h } = size()
       ctx.clearRect(0, 0, W, H)
 
-      const line = colour('--border', '#ddd')
-      const edge = colour('--text-muted', '#888')
+      const line = color('--border', '#ddd')
+      const edge = color('--text-muted', '#888')
 
       drawSky(ctx, W, 0, FLOOR, g.scroll,
-        colour('--sky-high', '#3fa4dd'), colour('--sky-low', '#b3e2f6'),
-        colour('--cloud', 'rgba(255,255,255,0.95)'),
-        colour('--cloud-shade', 'rgba(186,214,236,0.95)'))
+        color('--sky-high', '#3fa4dd'), color('--sky-low', '#b3e2f6'),
+        color('--cloud', 'rgba(255,255,255,0.95)'),
+        color('--cloud-shade', 'rgba(186,214,236,0.95)'))
 
       g.columns.forEach((c) => {
-        const tone = colour(`--card-${c.hue}a`, line)
-        const deep = colour(`--card-${c.hue}b`, line)
+        const tone = color(`--card-${c.hue}a`, line)
+        const deep = color(`--card-${c.hue}b`, line)
         drawColumn(ctx, c.x, COLUMN_W, c.top, -6, tone, deep, edge)
         drawColumn(ctx, c.x, COLUMN_W, c.top + c.gap, FLOOR, tone, deep, edge)
       })
@@ -386,7 +386,7 @@ export default function BarrelDrop() {
       // A shallower band than the runner's, so the tiles are halved to keep
       // two rows of them and stay square.
       drawGrass(ctx, W, FLOOR, H, g.scroll,
-        colour('--grass-a', '#7cc242'), colour('--grass-b', '#6cb139'), 13)
+        color('--grass-a', '#7cc242'), color('--grass-b', '#6cb139'), 13)
 
       // Blinking: drawn on the even beats, skipped on the odd ones
       if (g.dead !== null) {
@@ -404,7 +404,7 @@ export default function BarrelDrop() {
       if (img?.complete && img.naturalWidth) {
         ctx.drawImage(img, -w / 2 - w * PIVOT_X, -h * PIVOT_ROW, w, h)
       } else {
-        ctx.fillStyle = colour('--text', '#000')
+        ctx.fillStyle = color('--text', '#000')
         ctx.fillRect(-w / 2 - w * PIVOT_X, -h * PIVOT_ROW, w, h)
       }
       ctx.restore()

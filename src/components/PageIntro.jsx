@@ -1,6 +1,6 @@
 // src/components/PageIntro.jsx
 //
-// The opening of a project page: the title centred on a screen of its own with
+// The opening of a project page: the title centered on a screen of its own with
 // a line beneath it. Shared so a page that is still a stub looks like one that
 // is finished — the same title, in the same place, with a note that there is
 // more to come rather than a page that reads as broken.

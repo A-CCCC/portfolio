@@ -29,7 +29,7 @@ const TINT_TAIL = 32
 const isContentPage = (path) => path.split('/').filter(Boolean).length >= 3
 const RIDE = 620             // ms to get back up, whatever the distance
 
-// Fast, but travelled rather than jumped: the page keeps everything it has
+// Fast, but traveled rather than jumped: the page keeps everything it has
 // faded in on the way past, which a reload or a hard jump to the top would not.
 // Eased out, so it arrives rather than stops. The same time from anywhere, so a
 // long page is not a long wait.
@@ -187,7 +187,7 @@ export default function Navbar() {
   }, [menuOpen])
 
   // The bar is drawn twice. The one underneath is the real thing — links,
-  // menus, the lot. The one on top is the same bar in the panel's colours,
+  // menus, the lot. The one on top is the same bar in the panel's colors,
   // clipped to exactly the part of the navbar that the panel is behind. As the
   // edge of a panel travels up through the bar, the clip travels with it, so the
   // bar turns over a line rather than all at once.
@@ -210,8 +210,8 @@ export default function Navbar() {
           Home
         </Link>
 
-        {/* Centred between the two sides, and positioned rather than placed in the
-            row: as a flex item it would push the links off centre every time it
+        {/* Centered between the two sides, and positioned rather than placed in the
+            row: as a flex item it would push the links off center every time it
             came and went. */}
         <button
           type="button"
@@ -481,7 +481,7 @@ export default function Navbar() {
             // mounting it on the way past would cost a render exactly when the
             // scroll can least afford one.
             clipPath: HIDDEN,
-            // The panel's own colours, handed to the same styles the real bar
+            // The panel's own colors, handed to the same styles the real bar
             // uses — nothing below needs to know it is being inverted.
             '--text': 'var(--band-ink)',
             '--text-body': 'var(--band-body)',

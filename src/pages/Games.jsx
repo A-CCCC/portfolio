@@ -2,8 +2,15 @@
 //
 // Not in the navbar and not linked from anywhere obvious: the way in is the
 // Skeleton Barrel on the projects hub. Anyone who lands here found it.
+//
+// The three games sit on cards cut from the same cloth as the project
+// carousels — the site's own tints, each picked to suit the game it carries —
+// and each one shows what the person at this browser has managed, which is the
+// only thing a hub for games can say that a list of names cannot.
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import useFadeIn from '../hooks/useFadeIn'
+import { useIsShort } from '../hooks/useIsPhone'
 import { TYPE } from '../styles/type'
 import asset from '../lib-asset'
 
@@ -11,9 +18,13 @@ const GAMES = [
   {
     title: 'The Log Game',
     path: '/log',
-    blurb: 'The Log rolls, everything else comes at it. Jump the ones on the '
+    blurb: 'The Log rolls, everything else comes at it. Jump what is on the '
       + 'ground, duck the barrels overhead.',
     image: asset('/thumbnails/the-log.webp'),
+    // Warm, like the wood
+    tint: 2,
+    best: 'log-runner-best',
+    counts: 'meters',
   },
   {
     title: 'Flappy Barrel',
@@ -21,20 +32,50 @@ const GAMES = [
     blurb: 'Keep the Skeleton Barrel in the air and thread the columns. '
       + 'Gravity never lets up.',
     image: asset('/game/skeleton-barrel.png'),
+    // Blue, like its balloons
+    tint: 1,
+    best: 'flappy-barrel-best',
+    counts: 'columns',
   },
   {
     title: 'Model Snake',
     path: '/snake',
-    blurb: 'Snake, fed on everything else in this portfolio. Each model '
-      + 'swallowed adds a block of its own colour to the tail.',
+    blurb: 'Snake, fed on everything else in this portfolio. Each model eaten '
+      + 'adds a block of its own color.',
     image: asset('/thumbnails/smart-kinesiology-tape.webp'),
+    // Green, like the board it is played on
+    tint: 3,
+    best: 'model-snake-best',
+    counts: 'models',
   },
 ]
+
+// What this browser has managed. Read after mounting rather than while
+// rendering: a private window throws on the way in, and a high score is not
+// worth a blank page.
+const useBests = () => {
+  const [bests, setBests] = useState({})
+  useEffect(() => {
+    try {
+      const found = {}
+      GAMES.forEach((game) => {
+        const score = Number(localStorage.getItem(game.best)) || 0
+        if (score > 0) found[game.best] = score
+      })
+      setBests(found)
+    } catch { /* fine — the cards simply say nothing */ }
+  }, [])
+  return bests
+}
 
 export default function Games() {
   const titleOpacity = useFadeIn(100)
   const introOpacity = useFadeIn(500)
   const listOpacity = useFadeIn(900)
+  const bests = useBests()
+  // A phone held sideways has about 390px of height for all three cards, the
+  // title and the line under it, so everything gives up a little.
+  const short = useIsShort()
 
   return (
     <div style={{
@@ -46,14 +87,16 @@ export default function Games() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '140px 24px 100px',
+      // Narrower margins sideways too: at 64px a side the three cards cannot
+      // sit in a row and fall to two, which leaves one of them orphaned.
+      padding: short ? '70px 24px 18px' : '120px var(--gutter) 80px',
       textAlign: 'center',
     }}>
       <h1 style={{
         fontSize: TYPE.pageTitle,
         fontWeight: 'bold',
         letterSpacing: '-0.01em',
-        marginBottom: 16,
+        marginBottom: short ? 6 : 16,
         opacity: titleOpacity,
         transition: 'opacity 1.5s ease',
       }}>
@@ -64,43 +107,55 @@ export default function Games() {
         fontSize: TYPE.body,
         lineHeight: 1.7,
         color: 'var(--text-muted)',
-        marginBottom: 64,
+        marginBottom: short ? 18 : 48,
         opacity: introOpacity,
         transition: 'opacity 1.5s ease',
       }}>
         You found an easter egg! Try out these games made with my models.
       </p>
 
+      {/* Three across where there is room, one under another where there is
+          not — the cards decide for themselves rather than at a breakpoint. */}
       <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        gap: 40,
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+        gap: short ? 14 : 24,
         width: '100%',
-        maxWidth: 760,
+        maxWidth: 980,
         opacity: listOpacity,
         transition: 'opacity 1.5s ease',
       }}>
         {GAMES.map((game) => (
-          // The whole card is the control here, unlike the hub bands: there is
+          // The whole card is the control, unlike the hub bands: there is
           // nothing else on it to click, so a picture that navigates is no trap.
           <Link
             key={game.path}
             to={game.path}
             className="game-card"
-            style={{ color: 'inherit', textDecoration: 'none', flex: '1 1 300px', maxWidth: 340 }}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: short ? '14px 16px 14px' : '26px 22px 24px',
+              borderRadius: 28,
+              background: `var(--card-${game.tint})`,
+              color: 'var(--text)',
+              textDecoration: 'none',
+            }}
           >
             <div style={{
-              height: 180,
+              // Room for the art, given as a share of a short screen so a phone
+              // held sideways still shows all three cards at once.
+              height: short ? 'clamp(48px, 15vh, 74px)' : 'clamp(88px, 17vh, 150px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              marginBottom: 20,
+              marginBottom: short ? 10 : 18,
             }}>
               <img
                 src={game.image}
                 alt=""
-                style={{ maxHeight: '100%', maxWidth: '60%', display: 'block' }}
+                style={{ maxHeight: '100%', maxWidth: '76%', display: 'block' }}
               />
             </div>
 
@@ -108,18 +163,36 @@ export default function Games() {
               fontSize: TYPE.card,
               fontWeight: 400,
               letterSpacing: '-0.01em',
-              margin: '0 0 10px',
+              margin: short ? '0 0 6px' : '0 0 10px',
             }}>
               {game.title}
             </h2>
 
+            {/* Held back on a screen with no height for it. The name and the
+                model between them say which game this is, and the game itself
+                says the rest. */}
+            {!short && (
+              <p style={{
+                margin: 0,
+                fontSize: TYPE.small,
+                lineHeight: 1.6,
+                color: 'var(--text-body)',
+              }}>
+                {game.blurb}
+              </p>
+            )}
+
+            {/* Only where there is something to say. A game not yet played says
+                nothing rather than boasting a nought. */}
             <p style={{
-              margin: 0,
-              fontSize: TYPE.small,
-              lineHeight: 1.6,
-              color: 'var(--text-body)',
+              margin: short ? '8px 0 0' : '16px 0 0',
+              fontSize: TYPE.caption,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: 'var(--text-muted)',
+              minHeight: '1.2em',
             }}>
-              {game.blurb}
+              {bests[game.best] ? `Best ${bests[game.best]} ${game.counts}` : ''}
             </p>
           </Link>
         ))}

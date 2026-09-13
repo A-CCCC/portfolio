@@ -12,7 +12,7 @@ export default function Misc() {
   return (
     <div style={{ fontFamily: 'system-ui' }}>
 
-      {/* The title gets a screen to itself, centred, the way every other
+      {/* The title gets a screen to itself, centered, the way every other
           page on the site opens — the hubs above these and the project
           pages below them both. */}
       <div style={{

@@ -16,7 +16,7 @@ const SECTIONS = [
     items: clashRoyale,
     // Draft copy — a line on what the category covers.
     blurb: 'Models rebuilt from the game using reference images, where I push my '
-      + 'modelling and animation the furthest.',
+      + 'modeling and animation the furthest.',
     cover: asset('/thumbnails/skeleton-barrel.webp'),
     // Clicking the barrel is the only way to the games page. The box is where
     // the barrel actually sits in its render — left, top, width, height, as

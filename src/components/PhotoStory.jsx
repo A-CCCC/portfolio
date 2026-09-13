@@ -52,16 +52,16 @@ export function PhotoGroup({ photos, heading }) {
 // — the next heading sat entirely below the fold with nothing to suggest it was
 // there. These are minimums: a section grows if its content needs the room.
 const BAND_HEIGHT = '76vh'          // a row of text beside photos
-export const STATEMENT_HEIGHT = BAND_HEIGHT     // centred text on its own
+export const STATEMENT_HEIGHT = BAND_HEIGHT     // centered text on its own
 const TITLE_HEIGHT = '32vh'         // a heading introducing the sections under it
 export const BAND_PADDING = '56px var(--gutter)'
 
-// A rotating stack: the active photo sits front and centre, its neighbours
+// A rotating stack: the active photo sits front and center, its neighbours
 // scaled down, angled and tucked behind it. Clicking a neighbour — or an arrow —
 // rotates it to the front. Every slide keeps its own aspect ratio, so nothing is
 // cropped to fit; a portrait shot is simply narrower than a landscape one.
 const STACK_HEIGHT = 400
-// How far each neighbour sits from the centre. Applied as a translate rather
+// How far each neighbour sits from the center. Applied as a translate rather
 // than through `left`: only transform and opacity animate, so positioning a
 // slide with `left` (or swapping its transform-origin) makes it jump between
 // states instead of gliding across.
@@ -122,7 +122,7 @@ export function PhotoCarousel({ photos, heading }) {
           // with only a left, a front and a right to hand out, a photo leaving on
           // the left had to be reassigned to the right, and the trip between them
           // ran straight across the middle. On a ring it simply keeps going the
-          // way it was already travelling — around the back and out of sight.
+          // way it was already traveling — around the back and out of sight.
           //
           // The angle is counted in whole steps taken and never wrapped, so the
           // ring turns the same way however many times it is nudged. Every value
@@ -153,7 +153,7 @@ export function PhotoCarousel({ photos, heading }) {
                 display: 'block',
                 cursor: isActive ? 'default' : 'pointer',
                 // Sideways travel follows the ring, so a photo at the very back
-                // sits centred behind the front one rather than out at the edge,
+                // sits centered behind the front one rather than out at the edge,
                 // and the tilt follows it round in the same way. Both are sines
                 // of the angle, which keeps a neighbour at the same offset and
                 // angle it had before.
@@ -179,7 +179,7 @@ export function PhotoCarousel({ photos, heading }) {
 
       {/* Arrows: the only keyboard-reachable way to rotate the stack. Hung below
           the stack rather than stacked under it, so the column measures the
-          height of the photos alone — counted in, they push the column's centre
+          height of the photos alone — counted in, they push the column's center
           down and the text beside it no longer lines up with the picture. */}
       <div style={{
         position: 'absolute',
@@ -204,8 +204,8 @@ export function PhotoCarousel({ photos, heading }) {
               background: 'transparent',
               color: 'var(--text)',
               cursor: 'pointer',
-              // Flex-centre an SVG rather than a text glyph: characters like
-              // ‹ and › carry their own font metrics and sit off-centre in a
+              // Flex-center an SVG rather than a text glyph: characters like
+              // ‹ and › carry their own font metrics and sit off-center in a
               // circle no matter what line-height they are given.
               display: 'flex',
               alignItems: 'center',
@@ -262,17 +262,17 @@ function Paragraphs({ body, style }) {
 // Nothing here fades as a whole any more: a band is taller than the window, so
 // one fade for all of it finishes before its lower half is reached. The heading,
 // each paragraph and the pictures each wait for their own moment instead.
-export default function PhotoSection({ heading, body, photos, flip, layout, sub, centred }) {
+export default function PhotoSection({ heading, body, photos, flip, layout, sub, centered }) {
 
   // A section with no photos sets its heading against its text rather than
   // stacking both down the middle. Two of these in a row — which is how a page
-  // opens — read as one undifferentiated column when centred, and a page with
+  // opens — read as one undifferentiated column when centered, and a page with
   // several is flattest exactly where it should be drawing someone in. Set
   // across two columns they keep the same left-right rhythm as the bands with
   // photos, so the page has one structure throughout instead of two.
   if (!photos.length) {
     // A heading with no body is a title for what follows, so it takes a shorter
-    // band, stays centred, and sits close to the next section.
+    // band, stays centered, and sits close to the next section.
     if (!body) {
       return (
         <div
@@ -295,10 +295,10 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
       )
     }
 
-    // A section marked `centred` keeps the older treatment: heading over text,
+    // A section marked `centered` keeps the older treatment: heading over text,
     // both down the middle. It suits a short, declarative section — a statement
     // of the problem — where two columns read as reference material.
-    if (centred) {
+    if (centered) {
       return (
         <div
           style={{
@@ -338,7 +338,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
           minHeight: STATEMENT_HEIGHT,
           display: 'flex',
           flexWrap: 'wrap',
-          // Centred in the band like every other section, so the room left over
+          // Centered in the band like every other section, so the room left over
           // falls evenly above and below rather than all of it below.
           alignItems: 'center',
           justifyContent: 'center',
@@ -419,7 +419,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
 }
 
 // A heading for a section that is laid out by hand below it. The heading-only
-// band from PhotoSection centres itself in a tall band, which leaves a gap under
+// band from PhotoSection centers itself in a tall band, which leaves a gap under
 // the words; this one sits close to whatever follows.
 export function SectionTitle({ children, tight }) {
   const [ref, opacity] = useFadeInOnScroll(0)
@@ -490,7 +490,7 @@ export function FeatureImage({ src, alt }) {
 // One paragraph with a single photo beside it, sides alternating down the page.
 // Used where a section is a sequence of points rather than one block of text: the
 // paragraph explains a part, the photo shows it. With no photo yet, the paragraph
-// simply sits centred, so the section reads properly before its photos arrive.
+// simply sits centered, so the section reads properly before its photos arrive.
 export function SplitRow({ heading, body, photo, alt, flip }) {
   const [ref, opacity] = useFadeInOnScroll(0)
   const RISE = 48   // matches the feature image, so the page moves one way
