@@ -29,6 +29,7 @@ import NotFound from './pages/NotFound'
 import Games from './pages/Games'
 import LogRunner from './components/LogRunner'
 import BarrelDrop from './components/BarrelDrop'
+import SnakeGame from './components/SnakeGame'
 import Navbar from './components/Navbar'
 import ScrollToTop from './components/ScrollToTop'
 import ThemeToggle from './components/ThemeToggle'
@@ -75,6 +76,7 @@ export default function App() {
         <Route path="/games" element={<Games />} />
         <Route path="/log" element={<LogRunner />} />
         <Route path="/barrel" element={<BarrelDrop />} />
+        <Route path="/snake" element={<SnakeGame />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

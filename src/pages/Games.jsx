@@ -22,6 +22,13 @@ const GAMES = [
       + 'Gravity never lets up.',
     image: asset('/game/skeleton-barrel.png'),
   },
+  {
+    title: 'Model Snake',
+    path: '/snake',
+    blurb: 'Snake, fed on everything else in this portfolio. Each model '
+      + 'swallowed adds a block of its own colour to the tail.',
+    image: asset('/thumbnails/smart-kinesiology-tape.webp'),
+  },
 ]
 
 export default function Games() {

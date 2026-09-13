@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Reads each thumbnail and writes the one colour that stands for the model.
+"""Reads each thumbnail and writes how the snake game should show that model:
+the one colour that stands for it, and where the model actually sits inside its
+picture.
 
 The snake game grows by a block per model eaten, painted the model's own
 colour, so the answer has to be the colour someone would name if asked what the
@@ -72,26 +74,48 @@ def stands_for(path):
     r, g, b = colorsys.hls_to_rgb(h, l, s)
     return '#%02x%02x%02x' % (round(r * 255), round(g * 255), round(b * 255))
 
+def sits_at(path):
+    """Where the model is within its picture, as fractions of the whole.
+
+    A thumbnail is mostly empty space — the model is cut out and centred in a
+    generous frame, which is right on a card and wrong on a 40px square, where
+    it comes out a speck. The game draws this part of the picture instead.
+    """
+    im = Image.open(path).convert('RGBA')
+    box = im.getbbox()          # the extent of what is not transparent
+    if not box:
+        return [0, 0, 1, 1]
+    l, t, r, b = box
+    w, h = im.size
+    return [round(l / w, 4), round(t / h, 4), round((r - l) / w, 4), round((b - t) / h, 4)]
+
+
 rows = []
 for path in sorted(glob.glob('public/thumbnails/*.webp')):
     name = os.path.basename(path)[:-5]
     if name.endswith('-small'):
         continue
-    rows.append((name, OVERRIDES.get(name) or stands_for(path)))
+    rows.append((name, OVERRIDES.get(name) or stands_for(path), sits_at(path)))
 
 with open('src/data/model-colours.js', 'w') as out:
     out.write("""// src/data/model-colours.js
 //
-// The colour that stands for each model, keyed by its thumbnail's name.
+// How the snake game shows each model, keyed by its thumbnail's name:
+//
+//   colour — the one colour that stands for it. The snake grows by a block of
+//            this for every model it eats.
+//   crop   — where the model sits inside its picture, as fractions of the
+//            whole. Thumbnails are cut-outs centred in a generous frame, which
+//            is right on a card and a speck on a 40px square, so the game draws
+//            this part of the picture rather than all of it.
+//
 // Written by scripts/model-colours.py from the thumbnails themselves — run that
 // again when a render is replaced, rather than editing these by hand.
-//
-// The snake game grows by a block of this colour for every model it eats.
-export const MODEL_COLOUR = {
+export const MODEL_LOOK = {
 """)
-    for name, colour in rows:
-        out.write(f"  '{name}': '{colour}',\n")
+    for name, colour, crop in rows:
+        out.write(f"  '{name}': {{ colour: '{colour}', crop: {crop} }},\n")
     out.write("}\n")
 
-for name, colour in rows:
-    print(f'{name:26} {colour}')
+for name, colour, crop in rows:
+    print(f'{name:26} {colour}  crop {crop}')
