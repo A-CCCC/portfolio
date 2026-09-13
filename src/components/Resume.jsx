@@ -14,6 +14,10 @@ import { TYPE } from '../styles/type'
 const RULE = { borderBottom: '1px solid var(--border)', paddingBottom: 6, marginBottom: 14 }
 
 function Entry({ entry }) {
+  // Two lines where there are two things to say on each side — a place above a
+  // date, a role beneath the heading. An entry with no place puts its date up
+  // on the heading's line instead of leaving a line with nothing on its left.
+  const dateOnTop = !entry.place && !entry.role
   return (
     <div style={{ marginBottom: 18 }}>
       <div style={{
@@ -24,12 +28,14 @@ function Entry({ entry }) {
         gap: '2px 16px',
       }}>
         <span style={{ fontWeight: 600, fontSize: TYPE.body }}>{entry.heading}</span>
-        {entry.place && (
-          <span style={{ color: 'var(--text-muted)', fontSize: TYPE.small }}>{entry.place}</span>
+        {(entry.place || dateOnTop) && (
+          <span style={{ color: 'var(--text-muted)', fontSize: TYPE.small }}>
+            {entry.place || entry.when}
+          </span>
         )}
       </div>
 
-      {(entry.role || entry.when) && (
+      {!dateOnTop && (entry.role || entry.when) && (
         <div style={{
           display: 'flex',
           flexWrap: 'wrap',
