@@ -1,6 +1,6 @@
 // src/pages/Home.jsx
 import { Link } from 'react-router-dom'
-import { contact, isFullSite } from '../data/site-copy'
+import { contact } from '../data/site-copy'
 import { TYPE } from '../styles/type'
 import useFadeIn from '../hooks/useFadeIn'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
@@ -91,6 +91,25 @@ export default function Home() {
               eggs across this website, so look everywhere!
             </p>
 
+            {/* Straight under the words, where what is on offer follows from
+                what was just said about the work. */}
+            <div style={{ marginBottom: 20 }}>
+              <Link
+                to="/services"
+                className="count-link"
+                style={{
+                  color: 'var(--text)',
+                  textDecoration: 'none',
+                  fontSize: TYPE.small,
+                  '--count-hover': 'var(--hover)',
+                  margin: '-10px 0 -10px -16px',
+                }}
+              >
+                Services
+                <span className="count-arrow" aria-hidden="true">→</span>
+              </Link>
+            </div>
+
             {/* Not rendered at all without somewhere to point: hiding it
                 with styling would still publish the address. */}
             {REACH && (
@@ -135,24 +154,6 @@ export default function Home() {
                 <span className="count-arrow" aria-hidden="true">→</span>
               </Link>
 
-              {/* Beside the way to read more, on the site that has the page to
-                  lead to. In public there is nothing behind it. */}
-              {isFullSite && (
-                <Link
-                  to="/services"
-                  className="count-link"
-                  style={{
-                    color: 'var(--text)',
-                    textDecoration: 'none',
-                    fontSize: TYPE.small,
-                    '--count-hover': 'var(--hover)',
-                    margin: '-10px 0',
-                  }}
-                >
-                  Services
-                  <span className="count-arrow" aria-hidden="true">→</span>
-                </Link>
-              )}
             </div>
           </div>
         </div>

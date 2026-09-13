@@ -4,7 +4,6 @@ import { ArrowUp, Menu, X } from 'lucide-react'
 import { TYPE } from '../styles/type'
 import { Link, useLocation } from 'react-router-dom'
 import useIsPhone from '../hooks/useIsPhone'
-import { isFullSite } from '../data/site-copy'
 
 // The way back up appears once the end of a page is in sight — near the bottom,
 // where the walk back is longest and there is nothing below to go on to.
@@ -104,12 +103,10 @@ const tabs = [
   },
 ]
 
-// The full site calls this page Services: it lists what is for sale as well as
-// the ways to get in touch. In public the page is withheld anyway, so there it
-// keeps the plainer name and the plainer address.
-const REACH = isFullSite
-  ? { path: '/services', label: 'Services' }
-  : { path: '/contact', label: 'Contact' }
+// What is for sale, and — where the copy for it exists — the ways to get in
+// touch as well. Both sites have the page: the listings on it are public
+// already, which is the point of them.
+const REACH = { path: '/services', label: 'Services' }
 
 const linkStyle = {
   color: 'var(--text)',
