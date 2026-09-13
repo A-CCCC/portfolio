@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { TYPE } from '../styles/type'
-import useIsPhone from '../hooks/useIsPhone'
+import useIsPhone, { useIsShort } from '../hooks/useIsPhone'
 
 // Card tints cycle through these, so each item in a carousel reads distinctly.
 const TINTS = ['var(--card-1)', 'var(--card-2)', 'var(--card-3)', 'var(--card-4)', 'var(--card-5)', 'var(--card-6)']
@@ -16,6 +16,7 @@ const EDGE = 32
 
 export default function Carousel({ items }) {
   const phone = useIsPhone()
+  const short = useIsShort()
   const trackRef = useRef(null)
   const barRef = useRef(null)
   const railRef = useRef(null)
@@ -160,7 +161,8 @@ export default function Carousel({ items }) {
             // A card narrower than the screen on a phone, so the edge of the
             // next one shows and the row reads as something to swipe.
             width: phone ? 'min(78vw, 340px)' : 340,
-            height: 460,
+            // Held sideways, a 460px card is taller than the screen it is on.
+            height: short ? 'min(460px, 74vh)' : 460,
             marginLeft: i === 0 ? EDGE : 0,
             marginRight: i === items.length - 1 ? EDGE : 0,
             textDecoration: 'none',

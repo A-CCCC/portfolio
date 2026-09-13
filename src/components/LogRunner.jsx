@@ -11,7 +11,7 @@ import drawGrass from './grass'
 import drawSky from './sky'
 import { playStart, preload } from './sound'
 import asset from '../lib-asset'
-import { useIsTouch } from '../hooks/useIsPhone'
+import { useIsTouch, useIsShort } from '../hooks/useIsPhone'
 
 // The play area's own coordinates. The canvas is scaled to fit its column, so
 // everything below can be written in these units and stay put at any size.
@@ -210,6 +210,7 @@ const readBest = () => {
 
 export default function LogRunner() {
   const touch = useIsTouch()
+  const short = useIsShort()
   const canvasRef = useRef(null)
   const [state, setState] = useState('ready')     // ready | running | over
   const [score, setScore] = useState(0)
@@ -487,10 +488,18 @@ export default function LogRunner() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '120px 24px 80px',
+      // A phone on its side has width to spare and none of the height the
+      // chrome above and below the game was sized against.
+      padding: short ? '74px 24px 20px' : '120px 24px 80px',
       gap: 16,
     }}>
-      <div style={{ width: W, maxWidth: '100%' }}>
+      {/* Wide enough to play, and never taller than the screen it is on: in
+          landscape the height is what runs out, and a play area sized only by
+          width pushed the prompt and the way back off the bottom. */}
+      <div style={{
+        width: short ? `min(${W}px, calc((var(--screen) - 205px) * ${(W / H).toFixed(3)}))` : W,
+        maxWidth: '100%',
+      }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',

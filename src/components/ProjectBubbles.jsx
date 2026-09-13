@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { Gamepad2 } from 'lucide-react'
 import useFadeIn from '../hooks/useFadeIn'
 import { accessibility, clashRoyale, convenience, misc, bubbleProjects } from '../data/projects'
-import useIsPhone from '../hooks/useIsPhone'
+import useIsPhone, { useIsShort } from '../hooks/useIsPhone'
 
 // Hand-placed as two arcs — one above the hero title, one below — plus a pair
 // flanking it, so the bubbles gather toward the middle of the page instead of
@@ -74,6 +74,34 @@ const PHONE_RING_COUNT = 6
 const PHONE_SIZE = 0.5          // of each bubble's own size
 const PHONE_RING_RY = 36        // % of hero height — a taller oval on a tall screen
 
+// A phone on its side is the one shape a ring cannot be drawn in. The title
+// takes the middle of a 390px-tall screen and the navbar the top of it, which
+// leaves two bands — one above the words, one below — and no room at all at the
+// sides of them. So the bubbles line up in those bands instead: three across the
+// top, three across the bottom, in an order that keeps the staggered fade from
+// sweeping along one row and then the other.
+//
+// Positions are the share of the ring's own reach across, and of the hero's
+// height down.
+const SHORT_SIZE = 0.55
+const LANDSCAPE = [
+  [-0.78, 0.28], [0.78, 0.72], [0, 0.28],
+  [-0.78, 0.72], [0.78, 0.28], [0, 0.72],
+]
+
+const lieDown = () => LANDSCAPE.map(([across, down], i) => ({
+  // Kept further off the edge than the ring is: these sit at the full reach
+  // rather than somewhere round a curve.
+  left: `calc(50% + min(26% + 140px, 50% - 80px) * ${across.toFixed(2)})`,
+  top: `${(down * 100).toFixed(0)}%`,
+  size: Math.round(SIZES[i % SIZES.length] * SHORT_SIZE),
+  drift: DRIFTS[i % DRIFTS.length].map((d) => Math.round(d * SHORT_SIZE)),
+  duration: DURATIONS[i % DURATIONS.length],
+  delay: DELAYS[i % DELAYS.length],
+  // Nothing here is level with the title, so nothing has to stand down for it.
+  flank: false,
+}))
+
 const place = (phone) => Array.from({ length: phone ? PHONE_RING_COUNT : RING_COUNT }, (_, i) => {
   const count = phone ? PHONE_RING_COUNT : RING_COUNT
   const baseDeg = RING_START + (360 / count) * i
@@ -101,6 +129,7 @@ const place = (phone) => Array.from({ length: phone ? PHONE_RING_COUNT : RING_CO
 
 const PLACEMENTS = place(false)
 const PHONE_PLACEMENTS = place(true)
+const SHORT_PLACEMENTS = lieDown()
 
 const TINTS = ['var(--card-1)', 'var(--card-2)', 'var(--card-3)', 'var(--card-4)', 'var(--card-5)', 'var(--card-6)']
 
@@ -224,7 +253,10 @@ export default function ProjectBubbles() {
   // Starts after the hero title has begun settling, so the text reads first.
   const visible = useFadeIn(1200)
   const phone = useIsPhone()
-  const placements = phone ? PHONE_PLACEMENTS : PLACEMENTS
+  const short = useIsShort()
+  // Short wins: a phone held sideways is both, and it is the missing height
+  // that decides what can go where.
+  const placements = short ? SHORT_PLACEMENTS : phone ? PHONE_PLACEMENTS : PLACEMENTS
 
   // Drawn once and held in state: recomputing on render would reshuffle the
   // bubbles mid-animation every time anything on the page updated. A phone has

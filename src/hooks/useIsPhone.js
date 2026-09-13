@@ -47,3 +47,26 @@ export function useIsTouch() {
 
   return touch
 }
+
+// A phone on its side: width to spare and almost no height. It is the height
+// that matters here rather than the orientation — the same treatment suits any
+// window this short — but the width keeps a narrow portrait phone out of it,
+// since that is a different shape with a different answer.
+export const SHORT = 520
+
+export function useIsShort() {
+  const query = `(max-height: ${SHORT}px) and (min-width: 560px)`
+  const [short, setShort] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(query).matches,
+  )
+
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    const look = (e) => setShort(e.matches)
+    mq.addEventListener('change', look)
+    setShort(mq.matches)
+    return () => mq.removeEventListener('change', look)
+  }, [query])
+
+  return short
+}

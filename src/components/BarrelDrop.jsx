@@ -11,7 +11,7 @@ import drawGrass from './grass'
 import drawSky from './sky'
 import { playOver, preload } from './sound'
 import asset from '../lib-asset'
-import { useIsTouch } from '../hooks/useIsPhone'
+import { useIsTouch, useIsShort } from '../hooks/useIsPhone'
 
 // The play area's own coordinates. Portrait, where the runner is landscape:
 // flappy games are about vertical room, not the ground ahead. The canvas is
@@ -169,6 +169,7 @@ const fresh = () => ({
 
 export default function BarrelDrop() {
   const touch = useIsTouch()
+  const short = useIsShort()
   const canvasRef = useRef(null)
   const [state, setState] = useState('ready')     // ready | running | over
   const [score, setScore] = useState(0)
@@ -447,16 +448,22 @@ export default function BarrelDrop() {
       color: 'var(--text)',
       fontFamily: 'system-ui',
       display: 'flex',
-      flexDirection: 'column',
+      // Held sideways there is no height to spend on a line of text above the
+      // play area and two more below it, and plenty of width doing nothing. So
+      // the words go beside the game instead of around it.
+      flexDirection: short ? 'row' : 'column',
       alignItems: 'center',
-      justifyContent: 'flex-start',
-      padding: '96px 24px 40px',
-      gap: 16,
+      justifyContent: 'center',
+      padding: short ? '70px 24px 20px' : '96px 24px 40px',
+      gap: short ? 28 : 16,
     }}>
       {/* Portrait play area in a landscape window: sized by the height there is
           rather than a fixed 480, so the score, the prompt and the way back are
           all on screen without scrolling. 0.75 is the play area's own shape. */}
-      <div style={{ width: 'min(480px, calc((var(--screen) - 250px) * 0.75))', maxWidth: '100%' }}>
+      <div style={{
+        width: `min(480px, calc((var(--screen) - ${short ? 130 : 250}px) * 0.75))`,
+        maxWidth: '100%',
+      }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -476,9 +483,12 @@ export default function BarrelDrop() {
           style={{ width: '100%', height: 'auto', display: 'block', touchAction: 'manipulation', cursor: 'pointer' }}
         />
 
+      </div>
+
+      {/* Under the game, or beside it on a screen with no room underneath. */}
+      <div style={{ textAlign: short ? 'left' : 'center', maxWidth: 220 }}>
         <p style={{
-          marginTop: 12,
-          textAlign: 'center',
+          marginTop: short ? 0 : 12,
           fontSize: TYPE.small,
           color: 'var(--text-muted)',
           minHeight: '1.4em',
@@ -488,7 +498,7 @@ export default function BarrelDrop() {
 
         {/* The way back out. Both games are reached from the same page, so that
             is where this returns to rather than the site at large. */}
-        <p style={{ textAlign: 'center', marginTop: 28 }}>
+        <p style={{ marginTop: short ? 16 : 28 }}>
           <Link
             to="/games"
             className="hub-link"
