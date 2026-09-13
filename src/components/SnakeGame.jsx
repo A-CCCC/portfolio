@@ -39,11 +39,11 @@ const DEATH_FLASH = 0.6          // seconds of blinking before the board rests
 const DEATH_BLINK = 0.1
 
 // How far into a step a turn has to arrive before the step is cut short and
-// taken at once. Without this a key pressed just after a step began waited the
-// best part of a step to be answered, which reads as the snake ignoring you.
-// Not from the very start of a step, or a second key inside the same square
-// would hurry the snake along faster than it should go.
-const ANSWER_AFTER = 0.4
+// taken at once. Anywhere at all, near enough: a key is answered on the frame
+// it arrives on, which is what the game should feel like, and the shortened
+// step is the price of that. The sliver at the start only stops two keys
+// inside a single frame from stepping the snake twice.
+const ANSWER_AFTER = 0.02
 
 const HIGH_SCORE_KEY = 'model-snake-best'
 
@@ -177,23 +177,23 @@ export default function SnakeGame() {
       // Drawn from the tail forward, so each square's colour laps over the one
       // behind it and the head finishes on top.
       const bandOf = (i) => (i === 0 ? HEAD : g.colours[i] || BASE)
+      const halfway = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 })
+
+      // A block at a time, from the tail forward so the head finishes on top.
+      // Each is drawn as one curve from the edge it shares with the block
+      // behind it, bending through its own middle, to the edge it shares with
+      // the block ahead — which is a straight line down a straight stretch and
+      // a rounded corner wherever the snake turns. Every colour gets exactly
+      // its own square, since the joins fall on the edges between them.
       for (let i = g.snake.length - 1; i >= 0; i -= 1) {
         const here = sliding(g, i, at)
-        const ahead = i > 0 ? sliding(g, i - 1, at) : null
+        const behind = i < g.snake.length - 1 ? halfway(here, sliding(g, i + 1, at)) : here
+        const ahead = i > 0 ? halfway(here, sliding(g, i - 1, at)) : here
         ctx.strokeStyle = bandOf(i)
         ctx.beginPath()
-        ctx.moveTo(here.x, here.y)
-        ctx.lineTo(ahead ? (here.x + ahead.x) / 2 : here.x, ahead ? (here.y + ahead.y) / 2 : here.y)
+        ctx.moveTo(behind.x, behind.y)
+        ctx.quadraticCurveTo(here.x, here.y, ahead.x, ahead.y)
         ctx.stroke()
-        if (ahead) {
-          // The half nearer the head wears the head-ward colour, so the join
-          // between two models falls between their squares rather than across one.
-          ctx.strokeStyle = bandOf(i - 1)
-          ctx.beginPath()
-          ctx.moveTo((here.x + ahead.x) / 2, (here.y + ahead.y) / 2)
-          ctx.lineTo(ahead.x, ahead.y)
-          ctx.stroke()
-        }
       }
 
       // Eyes, looking where it is going
@@ -322,7 +322,7 @@ export default function SnakeGame() {
   // A swipe turns it; a tap starts it. Kept on the canvas rather than the page,
   // so scrolling the page around the board still works.
   const swipe = useRef(null)
-  const SWIPE = 18                 // px before a drag counts as a swipe
+  const SWIPE = 12                 // px before a drag counts as a swipe
 
   const onDown = (e) => {
     swipe.current = { x: e.clientX, y: e.clientY, turned: false }
