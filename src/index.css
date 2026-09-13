@@ -312,6 +312,18 @@
     width: 100% !important;
   }
 
+  /* Centred, because there is no width here for the ragged edge of a column to
+     mean anything. A line that fills all but the last few characters of the
+     screen reads as centred whether it is or not, and the headings and the
+     pictures above and below it already are. */
+  .split,
+  .split h2,
+  .split h3,
+  .split p,
+  .split li {
+    text-align: center !important;
+  }
+
   /* The picture in a stacked row keeps its shape and leaves room for the words
      above it: half the screen at most, whichever way round it is shaped. */
   .split canvas,
@@ -331,10 +343,17 @@
     height: 46vh !important;
     overflow: hidden;
   }
+  /* Sized to fit rather than to a common height. A photo held to the stack's
+     full height and then cut back to the width of a phone is no longer its own
+     shape, and `contain` fits the picture inside a box it no longer fills —
+     which shows as white down two sides of it, with the rounded corners and the
+     shadow drawn around the box rather than around the picture. Given both a
+     ceiling and no fixed size, each one keeps its shape and wears its own
+     edges. */
   .photo-stack img {
-    height: 100% !important;
+    height: auto !important;
     width: auto !important;
-    max-height: none !important;
+    max-height: 100% !important;
     max-width: 88% !important;
   }
 }
@@ -858,6 +877,21 @@ canvas {
    came to be that shape; the width keeps a portrait phone out of it. */
 @media (max-height: 520px) and (min-width: 560px) {
   .photo-stack { height: 74vh !important; }
+
+  /* The columns either side of a row are as narrow here as a whole phone is in
+     portrait, so the prose is centred for the same reason. */
+  .split,
+  .split h2,
+  .split h3,
+  .split p,
+  .split li {
+    text-align: center !important;
+  }
+
+  /* A card began a bare 24px below the top of its section, which on a screen
+     this short put its own title behind the navbar as soon as the section
+     reached the top. Enough room now to clear the bar. */
+  .carousel-track { padding-top: 64px !important; }
   .split img,
   .split video,
   .split canvas { max-height: 74vh !important; }

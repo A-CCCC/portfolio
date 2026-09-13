@@ -173,7 +173,12 @@ export default function Carousel({ items }) {
           }}
         >
           {/* Title block — sits above the image, Apple-style */}
-          <div style={{ padding: phone ? '26px 22px 0' : '36px 32px 0', textAlign: 'left' }}>
+          <div style={{
+          padding: phone ? '26px 22px 0' : '36px 32px 0',
+          // A card is most of the screen wide on a phone; its name sits over the
+          // middle of the picture below it rather than off to one side.
+          textAlign: phone ? 'center' : 'left',
+        }}>
             <h3 style={{
               margin: 0,
               fontSize: TYPE.card,

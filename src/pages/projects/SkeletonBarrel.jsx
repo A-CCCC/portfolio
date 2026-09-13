@@ -58,6 +58,12 @@ const FRAME_RATIO = 1920 / 1080
 // there is no room for a box two thirds of which is empty and the model hung
 // off the right edge of it.
 const CROP_RATIO = 1272 / 1032
+// Where the model comes to rest. It rolls in from the right and finishes left
+// of middle — measured from the last frame, its content sits at 0.299 across
+// and 0.552 down — so a box centred on its own middle leaves the finished model
+// off to one side, which is the frame everyone sees longest. The box is hung
+// off that point instead: the rest of the animation arrives around it.
+const SETTLES_AT = { x: 0.299, y: 0.552 }
 
 export default function SkeletonBarrel() {
   const phone = useIsPhone()
@@ -222,7 +228,14 @@ export default function SkeletonBarrel() {
               position: 'absolute',
               top: '50%',
               ...(phone
-                ? { left: '50%', transform: 'translate(-50%, -50%)' }
+                ? {
+                  left: '50%',
+                  // Percentages in a translate are of the box itself, which is
+                  // what makes this the model's resting place rather than the
+                  // box's middle.
+                  transform: `translate(${(SETTLES_AT.x * -100).toFixed(1)}%,`
+                    + ` ${(SETTLES_AT.y * -100).toFixed(1)}%)`,
+                }
                 : { right: '-12%', transform: 'translateY(-50%)' }),
               // Until the panel has been measured, the ratio alone will do
               ...(box ? { width: box.width, height: box.height }
