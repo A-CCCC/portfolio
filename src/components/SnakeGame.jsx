@@ -86,11 +86,15 @@ export default function SnakeGame() {
   // the loop has to read the state it left behind on the frame before.
   // The game itself lives in a ref: a step should not cost a React render, and
   // the loop has to read the state it left behind on the frame before.
-  const game = useRef(newGame(BASE))
+  // `travel` is how long the move in progress should take. Usually one step's
+  // worth; longer when a turn has been answered part way through a step, since
+  // the snake then sets off from where it had got to and has further to go.
+  // Keeping the two in proportion is what stops it lurching round a corner.
+  const game = useRef({ ...newGame(BASE), travel: FIRST_STEP })
   const images = useRef({})
 
   const restart = (way) => {
-    game.current = newGame(BASE, way)
+    game.current = { ...newGame(BASE, way), travel: FIRST_STEP }
     placeFood(game.current, MODELS)
     setScore(0)
     setState('running')
@@ -102,8 +106,22 @@ export default function SnakeGame() {
     const g = game.current
     const asked = g.asked.length
     ask(g, way)
-    // Taken now rather than whenever this step happens to run out
-    if (g.asked.length > asked && g.since >= paceNow() * ANSWER_AFTER) g.since = paceNow()
+    if (g.asked.length === asked) return          // not a turn it can take
+    if (state !== 'running' || g.over || g.dying > 0) return
+
+    // Answered here and now rather than whenever this step runs out. The step
+    // is taken from exactly where the snake was being drawn, so nothing jumps.
+    const at = Math.min(1, g.since / g.travel)
+    if (at < ANSWER_AFTER) return                 // two keys inside one frame
+    const what = step(g, MODELS, Math.random, at)
+    if (what.died) { g.dying = DEATH_FLASH; return }
+    if (what.ate) setScore(g.score)
+
+    // Setting off from part way back, the head has more than a square to cover
+    // — so it is given time to match, and the snake holds its pace.
+    const far = Math.hypot(g.snake[0].x - g.prev[0].x, g.snake[0].y - g.prev[0].y)
+    g.travel = paceNow() * Math.max(0.6, far)
+    g.since = 0
   }
 
   // The models themselves, loaded once and drawn from then on. One is put out
@@ -288,12 +306,14 @@ export default function SnakeGame() {
           }
         } else if (state === 'running' && !g.over) {
           g.since += delta * 1000
-          const stepEvery = Math.max(QUICKEST, FIRST_STEP - g.score * QUICKENS_BY)
-          while (g.since >= stepEvery && g.dying === 0) {
-            g.since -= stepEvery
-            const what = step(g, MODELS)
+          while (g.travel > 0 && g.since >= g.travel && g.dying === 0) {
+            g.since -= g.travel
+            // A step that ran its course: the drawing had arrived, so the next
+            // one sets off from the squares themselves.
+            const what = step(g, MODELS, Math.random, 1)
             if (what.died) g.dying = DEATH_FLASH
             else if (what.ate) setScore(g.score)
+            g.travel = Math.max(QUICKEST, FIRST_STEP - g.score * QUICKENS_BY)
           }
         }
       }
@@ -302,9 +322,8 @@ export default function SnakeGame() {
       drawFood(g)
       // How far through the current step the snake is. Standing still between
       // games, and at rest where it died, so nothing slides on the last frame.
-      const pace = Math.max(QUICKEST, FIRST_STEP - g.score * QUICKENS_BY)
-      const at = state === 'running' && !g.over && g.dying === 0
-        ? Math.min(1, g.since / pace)
+      const at = state === 'running' && !g.over && g.dying === 0 && g.travel > 0
+        ? Math.min(1, g.since / g.travel)
         : 1
       // Blinking on the way out, the way a game of this age would
       drawSnake(g, g.dying > 0 && Math.floor(g.dying / DEATH_BLINK) % 2 === 1, at)

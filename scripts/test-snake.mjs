@@ -57,6 +57,14 @@ g.food = { x: 9, y: 7, model: models[0] }
 step(g, models)
 check('a block grown at the tail has nowhere it came from', g.prev.length, g.snake.length - 1)
 
+// --- a step cut short part way through the last one
+g = newGame('#base')
+g.food = null
+step(g, models)                    // head 8,7 -> 9,7, drawn sliding from 8,7
+step(g, models, Math.random, 0.25) // cut a quarter of the way through
+check('a cut step slides from where the drawing had got to', g.prev[0], { x: 8.25, y: 7 })
+check('and not from the square it holds', g.prev[0].x === 9, false)
+
 // --- walls
 g = newGame('#base')
 g.food = null

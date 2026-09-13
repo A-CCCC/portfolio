@@ -63,11 +63,19 @@ export const ask = (game, way) => {
 
 // One square forward. Returns what happened, so the caller can count a score,
 // start a death, or put out another model.
-export const step = (game, models, random = Math.random) => {
-  // Where every block was before this step, so the drawing can slide from there
-  // to here rather than jumping a whole square at a time. Block k travels from
-  // the square it held into the one the block ahead of it has just left.
-  game.prev = game.snake.map((cell) => ({ x: cell.x, y: cell.y }))
+// `at` is how far the drawing had got through the step before this one — 1 for
+// a step that ran its course, less for one cut short to answer a turn. Where a
+// step is cut short, what the blocks slide from is where they were being drawn
+// at that moment, not the squares they logically hold: sliding from the squares
+// would jump them the rest of the way there before setting off again.
+export const step = (game, models, random = Math.random, at = 1) => {
+  game.prev = game.snake.map((cell, i) => {
+    const from = game.prev?.[i] ?? cell
+    return {
+      x: from.x + (cell.x - from.x) * at,
+      y: from.y + (cell.y - from.y) * at,
+    }
+  })
   if (game.asked.length) game.heading = game.asked.shift()
   const [dx, dy] = HEADINGS[game.heading]
   const head = game.snake[0]
