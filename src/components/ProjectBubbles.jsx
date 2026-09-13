@@ -83,10 +83,13 @@ const PHONE_RING_RY = 36        // % of hero height — a taller oval on a tall 
 //
 // Positions are the share of the ring's own reach across, and of the hero's
 // height down.
-const SHORT_SIZE = 0.55
+// Smaller here than a phone held upright, and the two bands pushed further
+// apart: the title has a link under it now, and on a 390px screen the navbar,
+// the words and two rows of bubbles are all asking for the same height.
+const SHORT_SIZE = 0.42
 const LANDSCAPE = [
-  [-0.78, 0.28], [0.78, 0.72], [0, 0.28],
-  [-0.78, 0.72], [0.78, 0.28], [0, 0.72],
+  [-0.78, 0.26], [0.78, 0.78], [0, 0.26],
+  [-0.78, 0.78], [0.78, 0.26], [0, 0.78],
 ]
 
 const lieDown = () => LANDSCAPE.map(([across, down], i) => ({

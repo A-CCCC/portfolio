@@ -47,6 +47,28 @@ export default function Home() {
         }}>
           Alex's Design Portfolio
         </h1>
+
+        {/* Under the name of the site, where the first thing anyone sees can
+            lead somewhere. Above the bubbles, and unlike the title it takes
+            its own clicks. No arrow: the ones elsewhere point along a trail of
+            hubs, and this is a single door off the front page. */}
+        <Link
+          to="/services"
+          className="count-link"
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            marginTop: 10,
+            color: 'var(--text)',
+            textDecoration: 'none',
+            fontSize: TYPE.small,
+            '--count-hover': 'var(--hover)',
+            opacity: titleOpacity,
+            transition: 'opacity 1.5s ease',
+          }}
+        >
+          View services
+        </Link>
       </div>
 
       {/* ---- About + contact: fades in when scrolled into view ---- */}
@@ -90,25 +112,6 @@ export default function Home() {
               engineering and science, and outside of school I row. I hid some fun easter
               eggs across this website, so look everywhere!
             </p>
-
-            {/* Straight under the words, where what is on offer follows from
-                what was just said about the work. */}
-            <div style={{ marginBottom: 20 }}>
-              <Link
-                to="/services"
-                className="count-link"
-                style={{
-                  color: 'var(--text)',
-                  textDecoration: 'none',
-                  fontSize: TYPE.small,
-                  '--count-hover': 'var(--hover)',
-                  margin: '-10px 0 -10px -16px',
-                }}
-              >
-                Services
-                <span className="count-arrow" aria-hidden="true">→</span>
-              </Link>
-            </div>
 
             {/* Not rendered at all without somewhere to point: hiding it
                 with styling would still publish the address. */}
