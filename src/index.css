@@ -467,6 +467,17 @@
   background-color: var(--count-hover);
 }
 
+/* The one link on the front page shades in more slowly than the ones on the
+   hubs. Nothing else on that screen arrives quickly — the title, the bubbles
+   and the link itself all fade — and a pill that snaps on under the pointer is
+   the only thing there that does. */
+.hero-link {
+  /* Both of its fades live here rather than on the element: a `transition`
+     written inline would replace this one wholesale and the shading would snap
+     on again. */
+  transition: opacity 1.5s ease, background-color 0.9s ease;
+}
+
 .count-link .count-arrow {
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }

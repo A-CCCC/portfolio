@@ -14,6 +14,10 @@ const REACH = contact
 
 export default function Home() {
   const titleOpacity = useFadeIn(100)
+  // Last of everything on the opening screen. The bubbles begin at 1.2s and
+  // arrive one after another over half a second more, so this waits for the
+  // screen to be finished before offering somewhere to go.
+  const servicesOpacity = useFadeIn(2200)
   const [aboutRef, aboutOpacity] = useFadeInOnScroll(0)
 
   return (
@@ -54,7 +58,7 @@ export default function Home() {
             hubs, and this is a single door off the front page. */}
         <Link
           to="/services"
-          className="count-link"
+          className="count-link hero-link"
           style={{
             position: 'relative',
             zIndex: 1,
@@ -63,8 +67,9 @@ export default function Home() {
             textDecoration: 'none',
             fontSize: TYPE.small,
             '--count-hover': 'var(--hover)',
-            opacity: titleOpacity,
-            transition: 'opacity 1.5s ease',
+            opacity: servicesOpacity,
+            // Both of this one's transitions are in .hero-link, since writing
+            // either here would drop the other.
           }}
         >
           View services
