@@ -1,5 +1,5 @@
 // src/components/ProjectBubbles.jsx
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Gamepad2 } from 'lucide-react'
 import useFadeIn from '../hooks/useFadeIn'
@@ -64,18 +64,26 @@ const DELAYS = [-2, -6, -9, -4, -11, -1, -7, -3]
 // shrinks with the window now, and the pair that sits level with it is already
 // hidden below 900px, so what is left has the length of the screen to spread
 // down and room either side of the words.
+// Six rather than eight, and spaced for six. A phone cannot show the pair that
+// sits level with the title — there is no room beside the words — and dropping
+// two out of a ring of eight leaves a gap the width of two at each side, which
+// reads as two clusters with the title stranded between them. Six placed for six
+// closes evenly around it: one above, one below, and a pair down each side clear
+// of the text.
+const PHONE_RING_COUNT = 6
 const PHONE_SIZE = 0.5          // of each bubble's own size
 const PHONE_RING_RY = 36        // % of hero height — a taller oval on a tall screen
 
-const place = (phone) => Array.from({ length: RING_COUNT }, (_, i) => {
-  const baseDeg = RING_START + (360 / RING_COUNT) * i
+const place = (phone) => Array.from({ length: phone ? PHONE_RING_COUNT : RING_COUNT }, (_, i) => {
+  const count = phone ? PHONE_RING_COUNT : RING_COUNT
+  const baseDeg = RING_START + (360 / count) * i
   const angle = (baseDeg * Math.PI) / 180
   const cos = Math.cos(angle)
   const sin = Math.sin(angle)
 
   // The cap on the horizontal radius covers the bubble's own half-width plus
   // the wander and the pulse, so nothing reaches the edge of the screen.
-  const reach = phone ? '50% - 56px' : '50% - 110px'
+  const reach = phone ? '50% - 46px' : '50% - 110px'
   const scale = phone ? PHONE_SIZE : 1
 
   return {
@@ -219,8 +227,18 @@ export default function ProjectBubbles() {
   const placements = phone ? PHONE_PLACEMENTS : PLACEMENTS
 
   // Drawn once and held in state: recomputing on render would reshuffle the
-  // bubbles mid-animation every time anything on the page updated.
-  const [cast] = useState(() => drawCast(PLACEMENTS.length))
+  // bubbles mid-animation every time anything on the page updated. A phone has
+  // fewer places to put one, so a window crossing that width is the one thing
+  // that draws again — and only then, or a resize would keep reshuffling.
+  const slots = placements.length
+  const [cast, setCast] = useState(() => drawCast(slots))
+  const drawnFor = useRef(slots)
+
+  useEffect(() => {
+    if (drawnFor.current === slots) return
+    drawnFor.current = slots
+    setCast(drawCast(slots))
+  }, [slots])
 
   return (
     <div
