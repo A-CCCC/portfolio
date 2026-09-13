@@ -501,10 +501,19 @@ export default function Navbar() {
       {phone && menuOpen && (
         <>
           {/* Anywhere else on the page closes it. Starts below the bar so the
-              button that opened it can still be pressed to shut it. */}
+              button that opened it can still be pressed to shut it, and lies at
+              the same depth as the sheet — which is written after it, and so
+              covers it wherever the two meet, leaving the links pressable. */}
           <div
             onClick={() => setMenuOpen(false)}
-            style={{ position: 'absolute', top: '100%', left: 0, right: 0, height: 'var(--screen)' }}
+            style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              height: 'var(--screen)',
+              zIndex: -1,
+            }}
           />
 
           <div className="nav-sheet">

@@ -343,18 +343,21 @@
     height: 46vh !important;
     overflow: hidden;
   }
-  /* Sized to fit rather than to a common height. A photo held to the stack's
-     full height and then cut back to the width of a phone is no longer its own
-     shape, and `contain` fits the picture inside a box it no longer fills —
-     which shows as white down two sides of it, with the rounded corners and the
-     shadow drawn around the box rather than around the picture. Given both a
-     ceiling and no fixed size, each one keeps its shape and wears its own
-     edges. */
+  /* One box, filled. The stack is a ring of photographs standing in front of
+     each other, which only reads as one if they are all the same size: left to
+     find their own, the taller ones stood out below the front one as slabs with
+     hard edges. But a photograph held to a common height and then cut back to
+     the width of a phone is no longer its own shape, and `contain` fits the
+     picture inside a box it no longer fills — white down two sides, with the
+     rounded corners and the shadow drawn around the box rather than around the
+     picture. So they share a box and fill it: same size, no white, and the
+     edges belong to the photograph. What it costs is the sides of a wide one. */
   .photo-stack img {
-    height: auto !important;
-    width: auto !important;
-    max-height: 100% !important;
-    max-width: 88% !important;
+    width: 88% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
   }
 }
 
@@ -756,19 +759,25 @@ canvas {
    rather than relying on the bar's blur: the bar fades out a little way down
    and the list is taller than that. Scrolls if it ever outgrows the screen. */
 .nav-sheet {
-  position: absolute;
-  top: 100%;
+  /* From the top of the screen rather than from the underside of the bar, so
+     the bar is part of the same surface as the links and there is no strip of
+     page showing above them. Behind the bar's own contents — a negative index
+     inside the navbar's stacking context paints under Home and the button that
+     closes this, and still over the page — so both stay where they were and
+     stay pressable. The top padding is the bar's own height. */
+  position: fixed;
+  top: 0;
   left: 0;
   right: 0;
+  z-index: -1;
   display: flex;
   flex-direction: column;
-  padding: 6px 12px 14px;
+  padding: 72px 12px 14px;
   background: var(--panel);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
-  border-top: 1px solid var(--border);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
-  max-height: calc(var(--screen) - 68px);
+  max-height: var(--screen);
   overflow-y: auto;
   overscroll-behavior: contain;
   animation: nav-sheet-in 0.18s ease both;
@@ -888,13 +897,42 @@ canvas {
     text-align: center !important;
   }
 
-  /* A card began a bare 24px below the top of its section, which on a screen
-     this short put its own title behind the navbar as soon as the section
-     reached the top. Enough room now to clear the bar. */
-  .carousel-track { padding-top: 64px !important; }
   .split img,
   .split video,
   .split canvas { max-height: 74vh !important; }
+
+  /* The stack's photographs share a box and fill it here too — the columns are
+     narrow enough that `contain` would letterbox them exactly as on a phone
+     held upright. */
+  .photo-stack img {
+    width: 92% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
+  }
+}
+
+/* LANDSCAPE, with room for two columns.
+   A row here was wrapping — 360px of words, 420px of pictures and 64px between
+   them want 844px, and the window is 829 — which put the photographs directly
+   under the paragraph with nothing but the gap between them, on a screen with
+   no height to spare for either. Sharing the width keeps them side by side, the
+   way the same row reads on a laptop.
+
+   Held above the width where the portrait rules take over and make these same
+   rows a single column: a phone that narrow has no room for two either way, and
+   the two sets of rules would otherwise fight over the same row. */
+@media (max-height: 520px) and (min-width: 701px) {
+  .split {
+    flex-wrap: nowrap !important;
+    gap: 40px !important;
+  }
+  .split > *:not(.scroll-hint) {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
 }
 
 /* PHONE — the caption over the wheelchair render.
