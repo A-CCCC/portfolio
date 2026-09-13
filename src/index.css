@@ -467,15 +467,12 @@
   background-color: var(--count-hover);
 }
 
-/* The one link on the front page shades in more slowly than the ones on the
-   hubs. Nothing else on that screen arrives quickly — the title, the bubbles
-   and the link itself all fade — and a pill that snaps on under the pointer is
-   the only thing there that does. */
+/* The front page's link shades exactly as the ones below it do — the same
+   0.25s as every other pill on the site. It carries its own rule only because
+   of the fade it arrives on: written inline, a `transition` would replace the
+   whole property and the shading would have none at all. */
 .hero-link {
-  /* Both of its fades live here rather than on the element: a `transition`
-     written inline would replace this one wholesale and the shading would snap
-     on again. */
-  transition: opacity 1.5s ease, background-color 0.9s ease;
+  transition: opacity 1.5s ease, background-color 0.25s ease;
 }
 
 .count-link .count-arrow {
