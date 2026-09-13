@@ -55,3 +55,15 @@ mortar build
 # build falls back to an under-construction state when this is absent, which is
 # what GitHub produces, since it never receives it.
 src/data/private
+
+# Test harnesses dropped into public/ to measure the site at phone sizes. They
+# have to be served from the site's own origin to be able to read the page
+# inside them, which means living here — but they are not part of it.
+public/audit.html
+public/shot*.html
+public/probe*.html
+public/menutest.html
+public/canvastest.html
+public/typetest.html
+public/bubbletest.html
+public/check.html
