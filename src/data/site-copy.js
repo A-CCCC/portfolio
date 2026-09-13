@@ -36,3 +36,7 @@ export const describe = (page) => published[page] ?? copy?.descriptions?.[page] 
 // Email and LinkedIn, or null, in which case the ways to get in touch are not
 // built at all rather than being hidden with CSS.
 export const contact = copy?.contact ?? null
+
+// The résumé, or null. Same reasoning: what is not in the private copy is not
+// in the public build at all.
+export const resume = copy?.resume ?? null

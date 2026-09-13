@@ -3,6 +3,8 @@ import useFadeIn from '../hooks/useFadeIn'
 import { TYPE } from '../styles/type'
 import { contact } from '../data/site-copy'
 import { SHOP } from '../data/shop'
+import { resume } from '../data/site-copy'
+import Resume from '../components/Resume'
 
 // The address the home page also shows, in one place on each page so the two
 // cannot drift apart. It comes from the copy kept off the repository, so in
@@ -83,6 +85,20 @@ export default function Contact() {
           </div>
         )}
       </div>
+
+      {/* The résumé, where there is one. Like the address above it, it comes
+          from the copy kept off the repository — it carries a phone number and
+          a school, which is the sort of thing the public build must not have. */}
+      {resume && (
+        <div style={{
+          marginTop: 72,
+          width: '100%',
+          opacity: bodyOpacity,
+          transition: 'opacity 1.5s ease',
+        }}>
+          <Resume resume={resume} />
+        </div>
+      )}
     </div>
   )
 }
