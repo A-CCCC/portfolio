@@ -1,6 +1,6 @@
 // src/pages/Home.jsx
 import { Link } from 'react-router-dom'
-import { contact } from '../data/site-copy'
+import { contact, isFullSite } from '../data/site-copy'
 import { TYPE } from '../styles/type'
 import useFadeIn from '../hooks/useFadeIn'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
@@ -119,7 +119,7 @@ export default function Home() {
               </div>
             )}
 
-            <div style={{ marginTop: 18 }}>
+            <div style={{ marginTop: 18, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
               <Link
                 to="/about"
                 className="count-link"
@@ -134,6 +134,25 @@ export default function Home() {
                 More about me
                 <span className="count-arrow" aria-hidden="true">→</span>
               </Link>
+
+              {/* Beside the way to read more, on the site that has the page to
+                  lead to. In public there is nothing behind it. */}
+              {isFullSite && (
+                <Link
+                  to="/services"
+                  className="count-link"
+                  style={{
+                    color: 'var(--text)',
+                    textDecoration: 'none',
+                    fontSize: TYPE.small,
+                    '--count-hover': 'var(--hover)',
+                    margin: '-10px 0',
+                  }}
+                >
+                  Services
+                  <span className="count-arrow" aria-hidden="true">→</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>

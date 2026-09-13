@@ -41,7 +41,7 @@ export default function Contact() {
         opacity: titleOpacity,
         transition: 'opacity 1.5s ease',
       }}>
-        Contact
+        Services
       </h1>
       <div style={{
         color: 'var(--text-body)',

@@ -48,6 +48,9 @@ export default function App() {
             than their tabs in the navbar leading nowhere. */}
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        {/* The same page under the name the full site gives it: what can be
+            commissioned or bought, rather than just an address. */}
+        <Route path="/services" element={<Contact />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/clash-royale" element={<ClashRoyale />} />
         <Route path="/projects/clash-royale/skeleton-barrel" element={<SkeletonBarrel />} />

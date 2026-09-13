@@ -4,6 +4,7 @@ import { ArrowUp, Menu, X } from 'lucide-react'
 import { TYPE } from '../styles/type'
 import { Link, useLocation } from 'react-router-dom'
 import useIsPhone from '../hooks/useIsPhone'
+import { isFullSite } from '../data/site-copy'
 
 // The way back up appears once the end of a page is in sight — near the bottom,
 // where the walk back is longest and there is nothing below to go on to.
@@ -102,6 +103,13 @@ const tabs = [
     ],
   },
 ]
+
+// The full site calls this page Services: it lists what is for sale as well as
+// the ways to get in touch. In public the page is withheld anyway, so there it
+// keeps the plainer name and the plainer address.
+const REACH = isFullSite
+  ? { path: '/services', label: 'Services' }
+  : { path: '/contact', label: 'Contact' }
 
 const linkStyle = {
   color: 'var(--text)',
@@ -319,9 +327,9 @@ export default function Navbar() {
           ))}
 
           <Link
-            to="/contact"
+            to={REACH.path}
             className="nav-label"
-            data-label="Contact"
+            data-label={REACH.label}
             onMouseEnter={() => setHovered('contact')}
             onMouseLeave={() => setHovered(null)}
             style={{
@@ -330,7 +338,7 @@ export default function Navbar() {
               padding: '8px 14px',
             }}
           >
-            Contact
+            {REACH.label}
           </Link>
 
           <Link
@@ -517,7 +525,7 @@ export default function Navbar() {
               </div>
             ))}
 
-            <Link to="/contact" className="nav-sheet-link">Contact</Link>
+            <Link to={REACH.path} className="nav-sheet-link">{REACH.label}</Link>
             <Link to="/about" className="nav-sheet-link">About Me</Link>
           </div>
         </>
