@@ -38,6 +38,13 @@ const HEAD = '#3568c0'
 const DEATH_FLASH = 0.6          // seconds of blinking before the board rests
 const DEATH_BLINK = 0.1
 
+// How far into a step a turn has to arrive before the step is cut short and
+// taken at once. Without this a key pressed just after a step began waited the
+// best part of a step to be answered, which reads as the snake ignoring you.
+// Not from the very start of a step, or a second key inside the same square
+// would hurry the snake along faster than it should go.
+const ANSWER_AFTER = 0.4
+
 const HIGH_SCORE_KEY = 'model-snake-best'
 
 const readBest = () => {
@@ -49,13 +56,16 @@ const readBest = () => {
 }
 
 // Everything with a thumbnail, which is everything the snake can eat.
-const MODELS = [...clashRoyale, ...accessibility, ...convenience, ...misc].map((project) => {
+const MODELS = [...clashRoyale, ...accessibility, ...convenience, ...misc].map((project, i) => {
   // '/thumbnails/mortar.webp' -> 'mortar', which is how the two are keyed
   const look = MODEL_LOOK[project.image.split('/').pop().replace('.webp', '')]
   return {
     ...project,
     colour: look?.colour || '#888888',
     crop: look?.crop || [0, 0, 1, 1],
+    // One of the six card tints the carousels and the home page bubbles use, so
+    // a model sits on the board the way it sits everywhere else on the site.
+    tint: (i % 6) + 1,
   }
 })
 
@@ -86,7 +96,15 @@ export default function SnakeGame() {
     setState('running')
   }
 
-  const turn = (way) => ask(game.current, way)
+  const paceNow = () => Math.max(QUICKEST, FIRST_STEP - game.current.score * QUICKENS_BY)
+
+  const turn = (way) => {
+    const g = game.current
+    const asked = g.asked.length
+    ask(g, way)
+    // Taken now rather than whenever this step happens to run out
+    if (g.asked.length > asked && g.since >= paceNow() * ANSWER_AFTER) g.since = paceNow()
+  }
 
   // The models themselves, loaded once and drawn from then on. One is put out
   // on the board straight away, so the opening screen is a snake with something
@@ -197,11 +215,34 @@ export default function SnakeGame() {
       }
     }
 
+    // A model sits in a bubble of its own, the way it does on the home page —
+    // one of the six card tints, with the same soft shadow under it. Still,
+    // though: the ones on the home page drift because there is nothing else on
+    // that screen, and a board being played on has movement enough.
+    const drawBubble = (model, x, y) => {
+      const r = CELL * 0.47
+      const wash = ctx.createLinearGradient(x - r * 0.55, y - r, x + r * 0.55, y + r)
+      wash.addColorStop(0, colour(`--card-${model.tint}a`, '#eef1fb'))
+      wash.addColorStop(1, colour(`--card-${model.tint}b`, '#dde4f6'))
+      ctx.save()
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.18)'
+      ctx.shadowBlur = 7
+      ctx.shadowOffsetY = 3
+      ctx.fillStyle = wash
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.restore()
+    }
+
     const drawFood = (g) => {
       if (!g.food) return
       const img = images.current[g.food.model.image]
       const { x, y } = centre(g.food)
-      const room = CELL * 0.95
+      drawBubble(g.food.model, x, y)
+      // Inside the bubble rather than filling the square, so the tint reads as
+      // something the model is sitting in.
+      const room = CELL * 0.66
       if (img?.complete && img.naturalWidth) {
         // Only the part of the picture the model is actually in. Drawn whole, a
         // thumbnail's own margins would leave it a speck in the middle of the
@@ -214,17 +255,12 @@ export default function SnakeGame() {
         const scale = Math.min(room / sw, room / sh)
         const w = sw * scale
         const h = sh * scale
-        ctx.save()
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.25)'
-        ctx.shadowBlur = 6
-        ctx.shadowOffsetY = 2
         ctx.drawImage(img, sx, sy, sw, sh, x - w / 2, y - h / 2, w, h)
-        ctx.restore()
       } else {
-        // Until the picture is here, its colour stands in for it
+        // Until the picture is here, the model's colour stands in for it
         ctx.fillStyle = g.food.model.colour
         ctx.beginPath()
-        ctx.arc(x, y, room / 2, 0, Math.PI * 2)
+        ctx.arc(x, y, room / 2.6, 0, Math.PI * 2)
         ctx.fill()
       }
     }
@@ -286,21 +322,34 @@ export default function SnakeGame() {
   // A swipe turns it; a tap starts it. Kept on the canvas rather than the page,
   // so scrolling the page around the board still works.
   const swipe = useRef(null)
+  const SWIPE = 18                 // px before a drag counts as a swipe
+
   const onDown = (e) => {
-    swipe.current = { x: e.clientX, y: e.clientY }
+    swipe.current = { x: e.clientX, y: e.clientY, turned: false }
   }
+
+  // Answered while the finger is still moving. Waiting for it to lift put the
+  // length of the swipe between asking and being answered, which on a phone is
+  // most of what made the game feel slow to respond.
+  const onMove = (e) => {
+    const from = swipe.current
+    if (!from || state !== 'running') return
+    const dx = e.clientX - from.x
+    const dy = e.clientY - from.y
+    if (Math.abs(dx) < SWIPE && Math.abs(dy) < SWIPE) return
+    turn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'))
+    // The finger stays down for the next swipe, measured from here
+    swipe.current = { x: e.clientX, y: e.clientY, turned: true }
+  }
+
   const onUp = (e) => {
     const from = swipe.current
     swipe.current = null
-    if (!from) return
+    if (!from || from.turned) return
     const dx = e.clientX - from.x
     const dy = e.clientY - from.y
-    if (Math.abs(dx) < 24 && Math.abs(dy) < 24) {
-      if (state !== 'running') restart()
-      return
-    }
-    if (state !== 'running') return
-    turn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'))
+    // A tap rather than a swipe
+    if (Math.abs(dx) < SWIPE && Math.abs(dy) < SWIPE && state !== 'running') restart()
   }
 
   const prompt = state === 'ready'
@@ -347,7 +396,9 @@ export default function SnakeGame() {
         <canvas
           ref={canvasRef}
           onPointerDown={(e) => { e.preventDefault(); onDown(e) }}
+          onPointerMove={onMove}
           onPointerUp={onUp}
+          onPointerCancel={() => { swipe.current = null }}
           style={{
             width: '100%',
             height: 'auto',
