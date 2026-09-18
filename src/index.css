@@ -475,7 +475,10 @@
   transition: opacity 1.5s ease, background-color 0.25s ease;
 }
 
-.count-link .count-arrow {
+/* On the arrow itself rather than on the links it happens to sit in: scoped to
+   .count-link it left the same arrow on the Services cards with no transition
+   at all, so that one jumped to its hovered position instead of travelling. */
+.count-arrow {
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
