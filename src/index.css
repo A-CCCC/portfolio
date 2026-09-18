@@ -742,6 +742,80 @@ canvas {
   .nav-top:hover { transform: translate(-50%, -50%); }
 }
 
+/* THE SERVICES PAGE */
+
+/* One piece for sale. A quiet panel that lifts under the pointer, with the
+   model sitting in a tinted disc — the same disc the home page floats its
+   projects in, standing still here. */
+.shop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 24px 26px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--bg);
+  color: var(--text);
+  text-decoration: none;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.3s ease;
+}
+.shop-card:hover,
+.shop-card:focus-visible {
+  transform: translateY(-5px);
+  border-color: transparent;
+  box-shadow: var(--card-shadow);
+}
+
+.shop-card-disc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+}
+.shop-card-disc img {
+  max-width: 64%;
+  max-height: 64%;
+  display: block;
+}
+
+/* Reads as the way on rather than as a second link inside the card, so it
+   answers to the card being hovered rather than to itself. */
+.shop-card-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+.shop-card:hover .shop-card-go,
+.shop-card:focus-visible .shop-card-go { color: var(--text); }
+.shop-card:hover .count-arrow,
+.shop-card:focus-visible .count-arrow { transform: translateX(4px); }
+
+/* An address or a profile: plain, underlined on approach rather than always. */
+.reach-link {
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--text-body);
+  text-decoration: none;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+.reach-link:hover,
+.reach-link:focus-visible {
+  background: var(--hover);
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-card { transition: border-color 0.3s ease; }
+  .shop-card:hover, .shop-card:focus-visible { transform: none; }
+}
+
 /* THE PHONE MENU */
 
 /* The button that stands in for the links, sized to be hit with a thumb rather

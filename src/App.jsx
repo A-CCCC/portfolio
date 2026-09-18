@@ -33,6 +33,7 @@ import SnakeGame from './components/SnakeGame'
 import Navbar from './components/Navbar'
 import ScrollToTop from './components/ScrollToTop'
 import ThemeToggle from './components/ThemeToggle'
+import SiteFooter from './components/SiteFooter'
 
 export default function App() {
   // Under a subfolder, /solutions is really /Portfolio/solutions. Vite puts the
@@ -79,6 +80,7 @@ export default function App() {
         <Route path="/snake" element={<SnakeGame />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <SiteFooter />
     </BrowserRouter>
   )
 }
