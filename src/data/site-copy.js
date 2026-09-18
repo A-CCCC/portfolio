@@ -11,6 +11,7 @@
 // import.meta.glob is how a module can be optional: a plain import of a missing
 // file stops the build, while this simply finds nothing.
 import { RESUME } from './resume'
+import { CONTACT } from './contact'
 
 const found = import.meta.glob('./private/copy.js', { eager: true })
 const copy = Object.values(found)[0]?.default ?? null
@@ -35,9 +36,9 @@ const published = {
 // public is nothing, and PageIntro then says the page is coming instead.
 export const describe = (page) => published[page] ?? copy?.descriptions?.[page] ?? ''
 
-// Email and LinkedIn, or null, in which case the ways to get in touch are not
-// built at all rather than being hidden with CSS.
-export const contact = copy?.contact ?? null
+// Email and LinkedIn. Published, so the footer under every page works on the
+// published site too; the private copy still takes precedence where it exists.
+export const contact = copy?.contact ?? CONTACT
 
 // The résumé. Unlike the address above it, this one is published — so there is
 // a version of it in the repository, and the private copy overrides it where it
