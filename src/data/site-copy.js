@@ -10,6 +10,8 @@
 //
 // import.meta.glob is how a module can be optional: a plain import of a missing
 // file stops the build, while this simply finds nothing.
+import { RESUME } from './resume'
+
 const found = import.meta.glob('./private/copy.js', { eager: true })
 const copy = Object.values(found)[0]?.default ?? null
 
@@ -37,6 +39,7 @@ export const describe = (page) => published[page] ?? copy?.descriptions?.[page] 
 // built at all rather than being hidden with CSS.
 export const contact = copy?.contact ?? null
 
-// The résumé, or null. Same reasoning: what is not in the private copy is not
-// in the public build at all.
-export const resume = copy?.resume ?? null
+// The résumé. Unlike the address above it, this one is published — so there is
+// a version of it in the repository, and the private copy overrides it where it
+// exists. The difference between the two is the phone number.
+export const resume = copy?.resume ?? RESUME
