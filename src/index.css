@@ -797,6 +797,30 @@ canvas {
 .shop-card:hover .count-arrow,
 .shop-card:focus-visible .count-arrow { transform: translateX(4px); }
 
+/* Takes a copy of the address beside it. Quiet until approached — it is an
+   alternative to the link, not a second thing to read. */
+.copy-email {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-left: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+.copy-email:hover,
+.copy-email:focus-visible {
+  background: var(--hover);
+  color: var(--text);
+}
+
 /* An address or a profile: plain, underlined on approach rather than always. */
 .reach-link {
   padding: 8px 14px;

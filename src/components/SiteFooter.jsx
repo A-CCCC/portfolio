@@ -12,6 +12,7 @@
 // is an invitation to stop playing.
 import { useLocation } from 'react-router-dom'
 import { contact } from '../data/site-copy'
+import EmailLink from './EmailLink'
 import { TYPE } from '../styles/type'
 
 const PLAYFIELDS = ['/log', '/barrel', '/snake']
@@ -24,7 +25,7 @@ export default function SiteFooter() {
     <footer style={{
       borderTop: '1px solid var(--border)',
       background: 'var(--bg)',
-      padding: '44px var(--gutter) 52px',
+      padding: '24px var(--gutter) 28px',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -36,15 +37,17 @@ export default function SiteFooter() {
         letterSpacing: '0.12em',
         textTransform: 'uppercase',
         color: 'var(--text-muted)',
-        margin: '0 0 12px',
+        margin: '0 0 6px',
       }}>
         Get in touch
       </p>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
-        <a href={`mailto:${contact.email}`} className="reach-link" style={{ fontSize: TYPE.small }}>
-          {contact.email}
-        </a>
+        <EmailLink
+          email={contact.email}
+          className="reach-link"
+          style={{ fontSize: TYPE.small }}
+        />
         <a
           href={contact.linkedin}
           target="_blank"

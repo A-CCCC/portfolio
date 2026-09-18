@@ -6,6 +6,7 @@ import useFadeIn from '../hooks/useFadeIn'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
 import ProjectBubbles from '../components/ProjectBubbles'
 import Portrait from '../components/Portrait'
+import EmailLink from '../components/EmailLink'
 
 // The same address and profile the Contact page publishes, kept in one place so
 // the two cannot drift apart.
@@ -127,13 +128,11 @@ export default function Home() {
                 <span style={{ color: 'var(--text-muted)', fontSize: TYPE.small }}>
                   Contact <span aria-hidden="true">→</span>
                 </span>
-                <a
-                  href={`mailto:${REACH.email}`}
+<EmailLink
+                  email={REACH.email}
                   className="hub-link"
                   style={{ color: 'var(--text-body)', fontSize: TYPE.small }}
-                >
-                  {REACH.email}
-                </a>
+                />
                 <a
                   href={REACH.linkedin}
                   target="_blank"
