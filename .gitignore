@@ -68,3 +68,7 @@ public/typetest.html
 public/bubbletest.html
 public/check.html
 rafrun.html
+
+# A small DevTools Protocol driver used to check the site in a real browser
+# (see the memory note): launch, navigate, hover, screenshot. Not part of the site.
+cdp.mjs
