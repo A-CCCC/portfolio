@@ -8,7 +8,7 @@
 // Shown once a visit on the way into the games, and on demand at /loading.
 import { useEffect, useRef, useState } from 'react'
 import { TYPE } from '../styles/type'
-import { percentAt, TOTAL } from './loading-curve'
+import { estimateAt, percentAt, TOTAL } from './loading-curve'
 
 // Anyone who has asked for less movement gets the short version: the bar fills
 // and is done. The gag is entirely in the motion, and it is not worth making
@@ -17,21 +17,28 @@ const CALM_MS = 500
 
 export default function LoadingScreen({ onDone, label = 'Loading' }) {
   const [percent, setPercent] = useState(0)
+  const [estimate, setEstimate] = useState(() => estimateAt(0))
   const barRef = useRef(null)
   const done = useRef(false)
 
   useEffect(() => {
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const runs = calm ? CALM_MS : TOTAL
-    const started = performance.now()
+    // Timed from the first frame rather than from now: the frame's stamp and
+    // performance.now() are the same clock in a browser, but not when the
+    // frames are being driven by hand, and mixing the two made the bar start
+    // somewhere in the middle of its own curve.
+    let started = 0
     let frame = 0
 
     const tick = (now) => {
+      if (!started) started = now
       const gone = now - started
       const claimed = calm
         ? Math.min(100, (gone / CALM_MS) * 100)
         : percentAt(gone)
       setPercent(claimed)
+      setEstimate(calm ? '' : estimateAt(gone))
 
       if (gone >= runs) {
         if (!done.current) {
@@ -102,6 +109,17 @@ export default function LoadingScreen({ onDone, label = 'Loading' }) {
             }}
           />
         </div>
+
+        {/* What it reckons is left. Given room whether or not it is saying
+            anything, so the bar does not shift when it changes its mind. */}
+        <p style={{
+          margin: '12px 0 0',
+          minHeight: '1.3em',
+          fontSize: TYPE.caption,
+          color: 'var(--text-muted)',
+        }}>
+          {estimate}
+        </p>
       </div>
     </div>
   )
