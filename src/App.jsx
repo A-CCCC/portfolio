@@ -34,6 +34,8 @@ import Navbar from './components/Navbar'
 import ScrollToTop from './components/ScrollToTop'
 import ThemeToggle from './components/ThemeToggle'
 import SiteFooter from './components/SiteFooter'
+import Loads from './components/Loads'
+import Loading from './pages/Loading'
 
 export default function App() {
   // Under a subfolder, /solutions is really /Portfolio/solutions. Vite puts the
@@ -74,10 +76,13 @@ export default function App() {
         <Route path="/solutions/convenience/car-key-holder" element={<CarKeyHolder />} />
         <Route path="/solutions/convenience/ketchup-extruder" element={<KetchupExtruder />} />
         {/* Anything unmatched — mistyped, or a page that has been removed */}
-        <Route path="/games" element={<Games />} />
-        <Route path="/log" element={<LogRunner />} />
-        <Route path="/barrel" element={<BarrelDrop />} />
-        <Route path="/snake" element={<SnakeGame />} />
+        <Route path="/games" element={<Loads><Games /></Loads>} />
+        <Route path="/log" element={<Loads><LogRunner /></Loads>} />
+        <Route path="/barrel" element={<Loads><BarrelDrop /></Loads>} />
+        <Route path="/snake" element={<Loads><SnakeGame /></Loads>} />
+
+        {/* The same screen with nothing behind it, for anyone who finds it. */}
+        <Route path="/loading" element={<Loading />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <SiteFooter />

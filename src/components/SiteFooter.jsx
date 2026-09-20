@@ -15,7 +15,7 @@ import { contact } from '../data/site-copy'
 import EmailLink from './EmailLink'
 import { TYPE } from '../styles/type'
 
-const PLAYFIELDS = ['/log', '/barrel', '/snake']
+const PLAYFIELDS = ['/log', '/barrel', '/snake', '/loading']
 
 export default function SiteFooter() {
   const { pathname } = useLocation()
