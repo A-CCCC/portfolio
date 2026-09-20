@@ -12,7 +12,11 @@ import { Check, Copy } from 'lucide-react'
 // Long enough to be read, short enough not to be a state the page is stuck in.
 const SAYS_COPIED = 1800
 
-export default function EmailLink({ email, className, style }) {
+// `className` and `style` dress the address itself. `boxClassName` dresses the
+// pair — the address and its button together — for the places that put the two
+// inside something, so that something's padding falls outside both rather than
+// between them.
+export default function EmailLink({ email, className, style, boxClassName }) {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -32,7 +36,7 @@ export default function EmailLink({ email, className, style }) {
   }
 
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+    <span className={boxClassName} style={{ display: 'inline-flex', alignItems: 'center' }}>
       <a href={`mailto:${email}`} className={className} style={style}>{email}</a>
 
       <button

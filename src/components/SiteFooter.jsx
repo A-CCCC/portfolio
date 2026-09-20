@@ -43,9 +43,13 @@ export default function SiteFooter() {
       </p>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
+        {/* The pill holds the address and its copy button together, so the
+            two sit as close here as they do anywhere else on the site and the
+            padding stays on the outside where it belongs. */}
         <EmailLink
           email={contact.email}
-          className="reach-link"
+          boxClassName="reach-link"
+          className="reach-address"
           style={{ fontSize: TYPE.small }}
         />
         {/* The bar marks where one link ends and the next begins, so the two
