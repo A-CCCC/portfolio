@@ -48,15 +48,22 @@ export default function SiteFooter() {
           className="reach-link"
           style={{ fontSize: TYPE.small }}
         />
-        <a
-          href={contact.linkedin}
-          target="_blank"
-          rel="noreferrer"
-          className="reach-link"
-          style={{ fontSize: TYPE.small }}
-        >
-          LinkedIn
-        </a>
+        {/* The bar marks where one link ends and the next begins, so the two
+            read as two things rather than one run of words. Not read aloud: it
+            is punctuation for the eye, and the links announce themselves. It
+            travels with LinkedIn so a wrap never strands it. */}
+        <span className="reach-pair">
+          <span className="reach-sep" aria-hidden="true">|</span>
+          <a
+            href={contact.linkedin}
+            target="_blank"
+            rel="noreferrer"
+            className="reach-link"
+            style={{ fontSize: TYPE.small }}
+          >
+            LinkedIn
+          </a>
+        </span>
       </div>
     </footer>
   )

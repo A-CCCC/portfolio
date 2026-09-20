@@ -838,6 +838,44 @@ canvas {
   color: var(--text);
 }
 
+/* A button that is one of those links rather than a control: the browser's own
+   chrome off. Set here and not inline, because an inline background is a
+   declaration no stylesheet can beat — which is why the hover never showed. */
+.reach-button {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* The bar between two links. Faint, and held to the middle of the line so it
+   sits between the words rather than on the baseline under them. */
+.reach-sep {
+  align-self: center;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+/* The bar and the link after it, kept on one line. A row of links wraps on a
+   narrow phone, and a separator that wrapped on its own would be left hanging
+   at the end of a line, separating nothing. This way it always leads the link
+   it belongs to, or moves down with it. */
+.reach-pair {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: var(--pair-gap, 8px);
+}
+
+/* Both ways of getting in touch, so they wrap away from whatever labels them
+   rather than away from each other. */
+.reach-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--pair-gap, 8px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shop-card { transition: border-color 0.3s ease; }
   .shop-card:hover, .shop-card:focus-visible { transform: none; }

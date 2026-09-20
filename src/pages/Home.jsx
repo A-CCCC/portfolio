@@ -128,20 +128,28 @@ export default function Home() {
                 <span style={{ color: 'var(--text-muted)', fontSize: TYPE.small }}>
                   Contact <span aria-hidden="true">→</span>
                 </span>
-<EmailLink
-                  email={REACH.email}
-                  className="hub-link"
-                  style={{ color: 'var(--text-body)', fontSize: TYPE.small }}
-                />
-                <a
-                  href={REACH.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hub-link"
-                  style={{ color: 'var(--text-body)', fontSize: TYPE.small }}
-                >
-                  LinkedIn
-                </a>
+                {/* The two together, so a narrow screen wraps them away from
+                    the label rather than away from each other. See the footer
+                    for the bar between them. */}
+                <span className="reach-group" style={{ '--pair-gap': '20px' }}>
+                  <EmailLink
+                    email={REACH.email}
+                    className="hub-link"
+                    style={{ color: 'var(--text-body)', fontSize: TYPE.small }}
+                  />
+                  <span className="reach-pair" style={{ '--pair-gap': '20px' }}>
+                    <span className="reach-sep" aria-hidden="true">|</span>
+                    <a
+                      href={REACH.linkedin}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="hub-link"
+                      style={{ color: 'var(--text-body)', fontSize: TYPE.small }}
+                    >
+                      LinkedIn
+                    </a>
+                  </span>
+                </span>
               </div>
             )}
 

@@ -56,13 +56,12 @@ function Loaded({ onAgain }) {
       </p>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10, marginTop: 28 }}>
-        <button type="button" onClick={onAgain} className="reach-link" style={{
-          border: 0,
-          background: 'transparent',
-          font: 'inherit',
-          fontSize: TYPE.small,
-          cursor: 'pointer',
-        }}>
+        <button
+          type="button"
+          onClick={onAgain}
+          className="reach-link reach-button"
+          style={{ fontSize: TYPE.small }}
+        >
           Watch it again
         </button>
         <Link to="/games" className="reach-link" style={{ fontSize: TYPE.small }}>

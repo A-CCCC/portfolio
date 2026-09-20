@@ -13,9 +13,8 @@
 // straight from the scroll event — the same event the browser already limits to
 // one per frame. Drawing a loaded image onto a canvas is a copy, not a decode.
 import { useEffect, useRef } from 'react'
-import asset from '../lib-asset'
+import { frameSrc, held, want } from './frame-store'
 
-const AT_ONCE = 6            // fetches in flight; enough to fill a connection
 const NEARBY = '200% 0px'    // start fetching about two screens ahead
 
 export default function ScrubFrames({
@@ -58,25 +57,26 @@ export default function ScrubFrames({
       drawn = wanted
     }
 
+    // Asked for all at once, in order. The store fetches a few at a time and
+    // hands back anything the background sweep has already brought in, so a
+    // sequence that was warmed before you arrived is simply here.
     const fetchAll = () => {
-      let next = 0
-      const pull = () => {
-        if (!alive || next >= count) return
-        const at = next
-        next += 1
-        const img = new Image()
-        img.decoding = 'async'
-        img.onload = () => {
-          if (!alive) return
+      for (let at = 0; at < count; at += 1) {
+        const src = frameSrc(folder, start + at)
+        const ready = held(src)
+        if (ready) {
+          frames[at] = ready
+          continue
+        }
+        want(src, true).then((img) => {
+          if (!alive || !img) return
           frames[at] = img
           drawn = -1                 // a better frame may now be available
           draw()
-          pull()
-        }
-        img.onerror = () => { if (alive) pull() }
-        img.src = asset(`/${folder}/${String(start + at).padStart(4, '0')}.webp`)
+        })
       }
-      for (let i = 0; i < AT_ONCE; i += 1) pull()
+      drawn = -1
+      draw()
     }
 
     // Nothing is fetched, and nothing is drawn, until the section is close.
