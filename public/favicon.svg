@@ -6,7 +6,7 @@
        curved surface does with it.
 
        The silhouette is one path: the fruit's circle, then the bite's circle
-       cut back across it. Everything else is clipped to that path, so the
+       cut back across it, level with the fruit's middle. Everything else is clipped to that path, so the
        bite goes through the gloss and the shade and the glass edge alike.
 
        A tab draws this at about sixteen pixels across, so everything here is a
@@ -48,11 +48,11 @@
       <stop offset="1" stop-color="#d4eea6"/>
     </linearGradient>
 
-    <clipPath id="orb"><path d="M49.74 19.38 A25 25 0 1 0 56.94 38.82 A12 12 0 0 1 49.74 19.38 Z"/></clipPath>
+    <clipPath id="orb"><path d="M54.41 25.91 A25 25 0 1 0 54.41 48.09 A12 12 0 0 1 54.41 25.91 Z"/></clipPath>
   </defs>
 
   <!-- the fruit -->
-  <path d="M49.74 19.38 A25 25 0 1 0 56.94 38.82 A12 12 0 0 1 49.74 19.38 Z" fill="url(#flesh)"/>
+  <path d="M54.41 25.91 A25 25 0 1 0 54.41 48.09 A12 12 0 0 1 54.41 25.91 Z" fill="url(#flesh)"/>
   <g clip-path="url(#orb)">
     <rect width="64" height="64" fill="url(#shade)"/>
     <rect width="64" height="64" fill="url(#gleam)"/>
@@ -62,7 +62,7 @@
            transform="rotate(-32 22.5 24)"/>
   <!-- drawn on the outline and clipped to it, so half the stroke shows —
        along the bite as well, where the glass has been cut -->
-  <path d="M49.74 19.38 A25 25 0 1 0 56.94 38.82 A12 12 0 0 1 49.74 19.38 Z" fill="none" stroke="url(#rim)" stroke-width="3" clip-path="url(#orb)"/>
+  <path d="M54.41 25.91 A25 25 0 1 0 54.41 48.09 A12 12 0 0 1 54.41 25.91 Z" fill="none" stroke="url(#rim)" stroke-width="3" clip-path="url(#orb)"/>
 
   <!-- the stem, and one leaf off it -->
   <path d="M32 13 V8" stroke="#6d4a1c" stroke-width="3" stroke-linecap="round"/>
