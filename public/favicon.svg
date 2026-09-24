@@ -1,8 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- An orange. The fruit on its own, the way a certain apple stands on its
-       own, and in glass rather than paint: lit from the upper left, the shade
-       gathering along the underside, and the edge catching the light again on
-       the far side, which is what a thick curved surface does with it.
+  <!-- An orange, with a bite out of it. The fruit on its own, the way a
+       certain apple stands on its own, and in glass rather than paint: lit
+       from the upper left, the shade gathering along the underside, and the
+       edge catching the light again on the far side, which is what a thick
+       curved surface does with it.
+
+       The silhouette is one path: the fruit's circle, then the bite's circle
+       cut back across it. Everything else is clipped to that path, so the
+       bite goes through the gloss and the shade and the glass edge alike.
 
        A tab draws this at about sixteen pixels across, so everything here is a
        soft gradient — at that size a hard highlight is a smudge — and the fruit
@@ -43,11 +48,11 @@
       <stop offset="1" stop-color="#d4eea6"/>
     </linearGradient>
 
-    <clipPath id="orb"><circle cx="32" cy="37" r="25"/></clipPath>
+    <clipPath id="orb"><path d="M49.74 19.38 A25 25 0 1 0 56.94 38.82 A12 12 0 0 1 49.74 19.38 Z"/></clipPath>
   </defs>
 
   <!-- the fruit -->
-  <circle cx="32" cy="37" r="25" fill="url(#flesh)"/>
+  <path d="M49.74 19.38 A25 25 0 1 0 56.94 38.82 A12 12 0 0 1 49.74 19.38 Z" fill="url(#flesh)"/>
   <g clip-path="url(#orb)">
     <rect width="64" height="64" fill="url(#shade)"/>
     <rect width="64" height="64" fill="url(#gleam)"/>
@@ -55,7 +60,9 @@
   <!-- one sharp point of light, where the room's window would be -->
   <ellipse cx="22.5" cy="24" rx="5" ry="3.2" fill="#ffffff" fill-opacity="0.7"
            transform="rotate(-32 22.5 24)"/>
-  <circle cx="32" cy="37" r="24.2" fill="none" stroke="url(#rim)" stroke-width="1.5"/>
+  <!-- drawn on the outline and clipped to it, so half the stroke shows —
+       along the bite as well, where the glass has been cut -->
+  <path d="M49.74 19.38 A25 25 0 1 0 56.94 38.82 A12 12 0 0 1 49.74 19.38 Z" fill="none" stroke="url(#rim)" stroke-width="3" clip-path="url(#orb)"/>
 
   <!-- the stem, and one leaf off it -->
   <path d="M32 13 V8" stroke="#6d4a1c" stroke-width="3" stroke-linecap="round"/>
