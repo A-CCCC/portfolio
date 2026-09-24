@@ -3,21 +3,19 @@
 // The Services page, at /services (and still at /contact, which is what the
 // public build's navbar used to call it).
 //
-// Two halves, and which of them exists depends on the build. The listings are
-// public — being found is the point of them — while the ways to get in touch
-// and the résumé come from the copy kept off the repository, so in public they
-// are not hidden, they are simply not there.
+// What can be bought: the models listed on Etsy, each on a card that is
+// nothing but the way through to its listing.
+//
+// The résumé used to sit under these. It reads as who I am rather than what is
+// for sale, so it lives on About Me now.
 import useFadeIn from '../hooks/useFadeIn'
 import { TYPE } from '../styles/type'
-import { resume } from '../data/site-copy'
 import { SHOP } from '../data/shop'
-import Resume from '../components/Resume'
 
 export default function Contact() {
   const titleOpacity = useFadeIn(100)
   const leadOpacity = useFadeIn(500)
   const shopOpacity = useFadeIn(800)
-  const resumeOpacity = useFadeIn(1100)
 
   return (
     <div style={{
@@ -108,23 +106,6 @@ export default function Contact() {
               </span>
             </a>
           ))}
-        </div>
-      )}
-
-      {/* The résumé, where there is one. Like the address above it, it comes
-          from the copy kept off the repository — it carries a phone number and
-          a school, which is the sort of thing the public build must not have. */}
-      {resume && (
-        <div style={{
-          width: '100%',
-          maxWidth: 760,
-          margin: '72px 0 0',
-          paddingTop: 56,
-          borderTop: '1px solid var(--border)',
-          opacity: resumeOpacity,
-          transition: 'opacity 1.5s ease',
-        }}>
-          <Resume resume={resume} />
         </div>
       )}
     </div>

@@ -26,6 +26,12 @@ export const frameSrc = (folder, n) =>
 
 const AT_ONCE = 6          // fetches in flight; enough to fill a connection
 
+// How much of each sequence to fetch ahead of being asked for it. The opening
+// is what a scroll reaches first, and by the time it has been scrubbed that far
+// the rest has arrived behind it — so half buys most of the smoothness for half
+// of the sixteen megabytes.
+const AHEAD = 0.5
+
 const kept = new Map()     // src -> the image, loaded
 const going = new Map()    // src -> the promise for one already asked for
 const soon = []            // wanted by the page on screen
@@ -85,7 +91,7 @@ export function want(src, urgent = false) {
 }
 
 // Whether to spend someone's data on this. A phone asked to save data, or on a
-// connection that would take minutes over sixteen megabytes, is left alone —
+// connection that would take minutes over eight megabytes, is left alone —
 // the pages still fetch their own frames when opened, exactly as before.
 function worthIt() {
   const link = navigator.connection
@@ -100,7 +106,8 @@ export function warmFrames() {
   if (swept || !worthIt()) return
   swept = true
   for (const seq of SEQUENCES) {
-    for (let i = 0; i < seq.count; i += 1) want(frameSrc(seq.folder, seq.start + i))
+    const ahead = Math.ceil(seq.count * AHEAD)
+    for (let i = 0; i < ahead; i += 1) want(frameSrc(seq.folder, seq.start + i))
   }
 }
 

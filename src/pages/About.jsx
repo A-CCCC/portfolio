@@ -1,21 +1,22 @@
 // src/pages/About.jsx
+//
+// Who I am, at length: the portrait and the paragraph from the home page, and
+// under them the résumé.
+//
+// Everything here is published. The page used to say it was not available in
+// the public build, from when it was going to hold things that could not be —
+// but the paragraph is on the public home page word for word, and the résumé
+// is written to be read by people I have not met.
 import useFadeIn from '../hooks/useFadeIn'
 import { TYPE } from '../styles/type'
 import Portrait from '../components/Portrait'
-import PageIntro from '../components/PageIntro'
-import { isFullSite } from '../data/site-copy'
+import Resume from '../components/Resume'
+import { resume } from '../data/site-copy'
 
 export default function About() {
   const titleOpacity = useFadeIn(100)
   const bodyOpacity = useFadeIn(600)
-
-  // The tab leads here in public too, but what would be on the page is
-  // not in this build — so it says it is coming rather than showing a
-  // stripped-out version of itself. Below the hooks, which have to run
-  // the same way on every render.
-  if (!isFullSite) {
-    return <PageIntro title="About Me" description="" comingSoon notice="(Not Available Here)" />
-  }
+  const resumeOpacity = useFadeIn(1000)
 
   return (
     <div style={{
@@ -58,6 +59,24 @@ export default function About() {
         high school with interests in engineering and science, and outside of school I row.
         I hid some fun easter eggs across this website, so look everywhere!
       </p>
+
+      {/* Behind a rule, because it is a different kind of reading: the
+          paragraph above is for anyone, and this is for whoever wants the
+          dates. Left-aligned by the component itself — a résumé read down a
+          centered column is a poster rather than a document. */}
+      {resume && (
+        <div style={{
+          width: '100%',
+          maxWidth: 760,
+          margin: '72px 0 0',
+          paddingTop: 56,
+          borderTop: '1px solid var(--border)',
+          opacity: resumeOpacity,
+          transition: 'opacity 1.5s ease',
+        }}>
+          <Resume resume={resume} />
+        </div>
+      )}
     </div>
   )
 }
