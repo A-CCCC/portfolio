@@ -1,9 +1,70 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- A tab icon is read at about sixteen pixels across, so it is a solid
-       ground and one letter: anything finer than this turns to mush. -->
-  <rect width="64" height="64" rx="15" fill="#5aa832"/>
-  <path d="M19 47 L32 17 L45 47" fill="none" stroke="#ffffff" stroke-width="7"
-        stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M24.5 38 H39.5" fill="none" stroke="#ffffff" stroke-width="7"
-        stroke-linecap="round"/>
+  <!-- A tab icon is read at about sixteen pixels across, so this is still a
+       ground and one letter. What it is not any more is flat: the tile is a
+       piece of pale orange glass with a thickness to it. Light comes in over
+       the top-left shoulder, gathers where it leaves the bottom, and catches
+       the edge twice — brightest along the top, again underneath.
+
+       Every part of that is a soft gradient rather than a hard-edged gloss.
+       At sixteen pixels a hard edge is not a highlight, it is a smudge.
+
+       The letter is amber rather than white. White on a pale ground is a pale
+       ground at this size; the amber holds its shape down to the tab. -->
+  <defs>
+    <linearGradient id="body" x1="16" y1="0" x2="48" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffeada"/>
+      <stop offset="0.45" stop-color="#ffcda2"/>
+      <stop offset="1" stop-color="#f7ad6e"/>
+    </linearGradient>
+
+    <!-- The light coming in -->
+    <radialGradient id="sheen" cx="18" cy="2" r="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.72"/>
+      <stop offset="0.38" stop-color="#ffffff" stop-opacity="0.2"/>
+      <stop offset="0.78" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- and what of it reaches the far side and pools there -->
+    <radialGradient id="pool" cx="38" cy="66" r="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffd9b0" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#ffd9b0" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- The edge: lit, shaded through the middle, lit again along the underside -->
+    <linearGradient id="rim" x1="10" y1="0" x2="54" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="0.32" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="0.62" stop-color="#7a3406" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.62"/>
+    </linearGradient>
+
+    <clipPath id="tile"><rect width="64" height="64" rx="14.3"/></clipPath>
+  </defs>
+
+  <rect width="64" height="64" rx="14.3" fill="url(#body)"/>
+
+  <g clip-path="url(#tile)">
+    <rect width="64" height="64" fill="url(#pool)"/>
+    <rect width="64" height="64" fill="url(#sheen)"/>
+  </g>
+
+  <!-- The letter sits in the glass rather than on it: its own shadow just
+       under it, and the lit edge of its own thickness just above. -->
+  <g fill="none" stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#7a3406" stroke-opacity="0.26" transform="translate(0 1.2)">
+      <path d="M19.2 47.2 L32 17.4 L44.8 47.2"/>
+      <path d="M24.6 38.2 H39.4"/>
+    </g>
+    <g stroke="#ffffff" stroke-opacity="0.45" transform="translate(0 -0.9)">
+      <path d="M19.2 47.2 L32 17.4 L44.8 47.2"/>
+      <path d="M24.6 38.2 H39.4"/>
+    </g>
+    <g stroke="#a4490f">
+      <path d="M19.2 47.2 L32 17.4 L44.8 47.2"/>
+      <path d="M24.6 38.2 H39.4"/>
+    </g>
+  </g>
+
+  <rect x="0.8" y="0.8" width="62.4" height="62.4" rx="13.5" fill="none"
+        stroke="url(#rim)" stroke-width="1.6"/>
 </svg>
