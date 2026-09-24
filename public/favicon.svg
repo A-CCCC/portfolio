@@ -1,70 +1,65 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- A tab icon is read at about sixteen pixels across, so this is still a
-       ground and one letter. What it is not any more is flat: the tile is a
-       piece of pale orange glass with a thickness to it. Light comes in over
-       the top-left shoulder, gathers where it leaves the bottom, and catches
-       the edge twice — brightest along the top, again underneath.
+  <!-- An orange. The fruit on its own, the way a certain apple stands on its
+       own, and in glass rather than paint: lit from the upper left, the shade
+       gathering along the underside, and the edge catching the light again on
+       the far side, which is what a thick curved surface does with it.
 
-       Every part of that is a soft gradient rather than a hard-edged gloss.
-       At sixteen pixels a hard edge is not a highlight, it is a smudge.
-
-       The letter is amber rather than white. White on a pale ground is a pale
-       ground at this size; the amber holds its shape down to the tab. -->
+       A tab draws this at about sixteen pixels across, so everything here is a
+       soft gradient — at that size a hard highlight is a smudge — and the fruit
+       is as large as the box allows, with the leaf tucked into the corner it
+       leaves free. -->
   <defs>
-    <linearGradient id="body" x1="16" y1="0" x2="48" y2="64" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffeada"/>
-      <stop offset="0.45" stop-color="#ffcda2"/>
-      <stop offset="1" stop-color="#f7ad6e"/>
-    </linearGradient>
-
-    <!-- The light coming in -->
-    <radialGradient id="sheen" cx="18" cy="2" r="54" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.72"/>
-      <stop offset="0.38" stop-color="#ffffff" stop-opacity="0.2"/>
-      <stop offset="0.78" stop-color="#ffffff" stop-opacity="0"/>
+    <!-- the flesh: lit from the upper left, deepest at the far side -->
+    <radialGradient id="flesh" cx="23" cy="26" r="37" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffdcb4"/>
+      <stop offset="0.45" stop-color="#ffbb6f"/>
+      <stop offset="1" stop-color="#ef8f36"/>
     </radialGradient>
 
-    <!-- and what of it reaches the far side and pools there -->
-    <radialGradient id="pool" cx="38" cy="66" r="34" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffd9b0" stop-opacity="0.6"/>
-      <stop offset="1" stop-color="#ffd9b0" stop-opacity="0"/>
+    <!-- the gloss where the light strikes -->
+    <radialGradient id="gleam" cx="23" cy="24" r="14" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.8"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
     </radialGradient>
 
-    <!-- The edge: lit, shaded through the middle, lit again along the underside -->
-    <linearGradient id="rim" x1="10" y1="0" x2="54" y2="64" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
-      <stop offset="0.32" stop-color="#ffffff" stop-opacity="0.18"/>
-      <stop offset="0.62" stop-color="#7a3406" stop-opacity="0.22"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0.62"/>
+    <!-- the shade gathering along the underside -->
+    <radialGradient id="shade" cx="39" cy="55" r="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#b95d14" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#b95d14" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- the edge, bright where the light enters and again where it leaves -->
+    <linearGradient id="rim" x1="12" y1="14" x2="52" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="0.35" stop-color="#ffffff" stop-opacity="0.04"/>
+      <stop offset="0.7" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.6"/>
     </linearGradient>
 
-    <clipPath id="tile"><rect width="64" height="64" rx="14.3"/></clipPath>
+    <linearGradient id="leaf" x1="34" y1="13" x2="49" y2="2" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5a9e2f"/>
+      <stop offset="0.6" stop-color="#8fca55"/>
+      <stop offset="1" stop-color="#d4eea6"/>
+    </linearGradient>
+
+    <clipPath id="orb"><circle cx="32" cy="37" r="25"/></clipPath>
   </defs>
 
-  <rect width="64" height="64" rx="14.3" fill="url(#body)"/>
-
-  <g clip-path="url(#tile)">
-    <rect width="64" height="64" fill="url(#pool)"/>
-    <rect width="64" height="64" fill="url(#sheen)"/>
+  <!-- the fruit -->
+  <circle cx="32" cy="37" r="25" fill="url(#flesh)"/>
+  <g clip-path="url(#orb)">
+    <rect width="64" height="64" fill="url(#shade)"/>
+    <rect width="64" height="64" fill="url(#gleam)"/>
   </g>
+  <!-- one sharp point of light, where the room's window would be -->
+  <ellipse cx="22.5" cy="24" rx="5" ry="3.2" fill="#ffffff" fill-opacity="0.7"
+           transform="rotate(-32 22.5 24)"/>
+  <circle cx="32" cy="37" r="24.2" fill="none" stroke="url(#rim)" stroke-width="1.5"/>
 
-  <!-- The letter sits in the glass rather than on it: its own shadow just
-       under it, and the lit edge of its own thickness just above. -->
-  <g fill="none" stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round">
-    <g stroke="#7a3406" stroke-opacity="0.26" transform="translate(0 1.2)">
-      <path d="M19.2 47.2 L32 17.4 L44.8 47.2"/>
-      <path d="M24.6 38.2 H39.4"/>
-    </g>
-    <g stroke="#ffffff" stroke-opacity="0.45" transform="translate(0 -0.9)">
-      <path d="M19.2 47.2 L32 17.4 L44.8 47.2"/>
-      <path d="M24.6 38.2 H39.4"/>
-    </g>
-    <g stroke="#a4490f">
-      <path d="M19.2 47.2 L32 17.4 L44.8 47.2"/>
-      <path d="M24.6 38.2 H39.4"/>
-    </g>
-  </g>
-
-  <rect x="0.8" y="0.8" width="62.4" height="62.4" rx="13.5" fill="none"
-        stroke="url(#rim)" stroke-width="1.6"/>
+  <!-- the stem, and one leaf off it -->
+  <path d="M32 13 V8" stroke="#6d4a1c" stroke-width="3" stroke-linecap="round"/>
+  <path d="M33.5 11 C36 3 45 1 50.5 3 C48.5 10 40.5 14 33.5 11 Z" fill="url(#leaf)"/>
+  <path d="M35 10 C39 6 44 4 49 3.5" fill="none" stroke="#ffffff" stroke-opacity="0.55"
+        stroke-width="0.9" stroke-linecap="round"/>
 </svg>
