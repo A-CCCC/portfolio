@@ -6,7 +6,9 @@ import useFadeInOnScroll from '../../hooks/useFadeInOnScroll'
 import ScrollHint from '../../components/ScrollHint'
 import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
+import ModelStage from '../../components/ModelStage'
 import asset from '../../lib-asset'
+import { modelFor } from '../../data/models'
 import ScrubFrames from '../../components/ScrubFrames'
 import pagePhotos from '../../data/pagePhotos'
 
@@ -169,6 +171,9 @@ export default function ElixirCollector() {
 
         <BuildVideo src={asset("/videos/elixir-collector-build.mp4")} label="Elixir Collector build" />
       </div>
+
+      {/* The model itself, where there is a file for it — see data/models.js */}
+      <ModelStage model={modelFor('elixir-collector')} label="Elixir Collector model, to turn around" />
 
     </div>
   )

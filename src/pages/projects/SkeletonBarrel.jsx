@@ -8,9 +8,11 @@ import useIsPhone from '../../hooks/useIsPhone'
 import ScrollHint from '../../components/ScrollHint'
 import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
+import ModelStage from '../../components/ModelStage'
 import ScrubFrames from '../../components/ScrubFrames'
 import pagePhotos from '../../data/pagePhotos'
 import asset from '../../lib-asset'
+import { modelFor } from '../../data/models'
 import { describe } from '../../data/site-copy'
 
 const TOTAL_FRAMES = 457
@@ -328,6 +330,10 @@ export default function SkeletonBarrel() {
 
         <BuildVideo src={asset("/videos/skeleton-barrel-build.mp4")} label="Skeleton Barrel build" />
       </div>
+
+      {/* The model itself, where there is a file for it — see data/models.js */}
+      <ModelStage model={modelFor('skeleton-barrel')} label="Skeleton Barrel model, to turn around" />
+
     </div>
   )
 }

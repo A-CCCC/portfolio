@@ -5,8 +5,10 @@ import useScrollFrames from '../../hooks/useScrollFrames'
 import PageIntro from '../../components/PageIntro'
 import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
+import ModelStage from '../../components/ModelStage'
 import ScrollHint from '../../components/ScrollHint'
 import asset from '../../lib-asset'
+import { modelFor } from '../../data/models'
 import ScrubFrames from '../../components/ScrubFrames'
 import { describe } from '../../data/site-copy'
 
@@ -97,6 +99,9 @@ export default function Mortar() {
 
         <BuildVideo src={asset("/videos/mortar-build.mp4")} label="Mortar build" />
       </div>
+
+      {/* The model itself, where there is a file for it — see data/models.js */}
+      <ModelStage model={modelFor('mortar')} label="Mortar model, to turn around" />
 
     </div>
   )
