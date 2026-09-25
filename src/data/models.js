@@ -10,9 +10,12 @@
 import asset from '../lib-asset'
 
 const MODELS = {
-  'skeleton-barrel': { file: '/models/skeleton-barrel.glb', turn: [-90, 0, 0] },
+  // From the animation files, via scripts/blend-to-glb.py: already the right way up
+  'skeleton-barrel': { file: '/models/skeleton-barrel.glb', turn: [0, 90, 0] },
+  'elixir-collector': { file: '/models/elixir-collector.glb' },
+  // From a Fusion export, via scripts/fbx-to-glb.py: lying down until turned
   mortar: { file: '/models/mortar.glb', turn: [-90, 0, 0] },
-  // 'elixir-collector' and 'cannon-cart': no export yet
+  // 'cannon-cart': no export yet
 }
 
 export const modelFor = (page) => {

@@ -5,7 +5,25 @@ foot of that page loads:
 
     public/models/<page>.glb    e.g. skeleton-barrel.glb, mortar.glb
 
-A page with no file here shows no viewer at all. To add one:
+A page with no file here shows no viewer at all.
+
+## From the animation's Blender file (the best source)
+
+Where a model was animated in Blender — the Skeleton Barrel and the Elixir
+Collector — the .blend at the root of the project already has the look of the
+rendered animation: the wood grain, the painted skull, the elixir. That comes
+out with one command, which freezes the parts at the last frame, bakes the
+procedural materials into an image, and exports:
+
+    /Applications/Blender.app/Contents/MacOS/Blender -b \
+      --python scripts/blend-to-glb.py -- "Skeleton Barrel Fly.blend" source-models/skeleton-barrel-full.glb
+
+then step 3 below, with `--texture-compress webp` added. These arrive the
+right way up; `turn` in src/data/models.js is only for facing the camera.
+
+## From a Fusion export
+
+To add one:
 
 1. In Fusion, give each body a colour appearance (Modify → Appearance), then
    File → Export → FBX into source-models/. Fusion's own woods and metals are
