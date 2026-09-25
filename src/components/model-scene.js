@@ -27,16 +27,22 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0] } = {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.setClearColor(0x000000, 0)          // the page shows through
   renderer.toneMapping = ACESFilmicToneMapping
+  // Turned down from the default: with a lit room reflected in everything, a
+  // dark wood came out tan and near-black iron came out mid-grey. This is
+  // where the game's own renders sit.
+  renderer.toneMappingExposure = 0.75
 
   const scene = new Scene()
   // A room to reflect: the steel of the Mortar reads as steel only with
   // something to mirror, and a generated room costs no file.
   const rooms = new PMREMGenerator(renderer)
   scene.environment = rooms.fromScene(new RoomEnvironment(), 0.04).texture
+  // Half strength: at full, the room is in every surface and nothing is dark.
+  scene.environmentIntensity = 0.5
   rooms.dispose()
 
   scene.add(new HemisphereLight(0xffffff, 0x8899aa, 0.5))
-  const key = new DirectionalLight(0xffffff, 1.6)
+  const key = new DirectionalLight(0xffffff, 1.3)
   key.position.set(3, 5, 4)
   scene.add(key)
   scene.add(new AmbientLight(0xffffff, 0.15))
