@@ -5,12 +5,27 @@ foot of that page loads:
 
     public/models/<page>.glb    e.g. skeleton-barrel.glb, mortar.glb
 
-A page with no file here shows no viewer at all. To add one, export the model
-as glTF/GLB (Fusion: File → Export; or Blender), then shrink it — the Skeleton
-Barrel came out of the exporter at 37 MB and goes on the site at 1 MB:
+A page with no file here shows no viewer at all. To add one:
 
-    npx @gltf-transform/cli optimize in.glb public/models/<page>.glb \
-      --compress draco --simplify true --simplify-ratio 0.5 --simplify-error 0.001
+1. In Fusion, give each body a colour appearance (Modify → Appearance), then
+   File → Export → FBX into source-models/. Fusion's own woods and metals are
+   procedural and export as a single flat colour — black, for the woods — so
+   the next step recolours them by name.
+2. Make the GLB with Blender, which keeps the appearances:
+
+       /Applications/Blender.app/Contents/MacOS/Blender -b \
+         --python scripts/fbx-to-glb.py -- source-models/<export>.fbx source-models/<page>-full.glb
+
+   The colours it substitutes are the LOOKS table at the top of that script.
+3. Shrink it for the site — the Skeleton Barrel is 6 MB out of Blender and
+   half a megabyte here, with every triangle kept:
+
+       npx @gltf-transform/cli optimize source-models/<page>-full.glb public/models/<page>.glb \
+         --compress draco --simplify false
+
+   Add `--simplify true --simplify-ratio 0.5` for a model that is still too big.
+4. Fusion exports lie on their side (z up). Set `turn: [-90, 0, 0]` for the
+   page in src/data/models.js, and check it stands the right way up.
 
 The Draco decoder the browser needs for those files lives in public/draco/,
 copied from node_modules/three/examples/jsm/libs/draco/gltf/. Keep it in step
