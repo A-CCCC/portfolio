@@ -115,7 +115,8 @@ export default function ElixirCollector() {
       <ContextNote title="Inspiration" images={INSPIRATION} alt="">
         I built this model to showcase the sweep tool for a class — the angled tube was a
         perfect opportunity to challenge myself with it. I referenced multiple online images
-        to get the proportions, shapes, and angles right.
+        to get the proportions, shapes, and angles right. The corner view in particular
+        showed me how the tube was actually angled.
       </ContextNote>
 
       {/* ---- SECTION 3: Build video (plays when scrolled to) ---- */}
