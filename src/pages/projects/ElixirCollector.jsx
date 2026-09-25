@@ -112,10 +112,10 @@ export default function ElixirCollector() {
         </div>
       </div>
 
-      {/* TODO: the words are a placeholder until Alex writes the real ones. */}
       <ContextNote title="Inspiration" images={INSPIRATION} alt="">
-        [Why this model was made — the class, the choice, what it was worked from.
-        Text to come.]
+        I built this model to showcase the sweep tool for a class — the angled tube was a
+        perfect opportunity to challenge myself with it. I referenced multiple online images
+        to get the proportions, shapes, and angles right.
       </ContextNote>
 
       {/* ---- SECTION 3: Build video (plays when scrolled to) ---- */}
