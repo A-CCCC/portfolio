@@ -8,6 +8,11 @@ import BuildVideo from '../../components/BuildVideo'
 import ContextNote from '../../components/ContextNote'
 import asset from '../../lib-asset'
 import ScrubFrames from '../../components/ScrubFrames'
+import pagePhotos from '../../data/pagePhotos'
+
+// Whatever is in public/photos/elixir-collector/, in filename order: the
+// in-game render and the card, beside the note — as on the Skeleton Barrel page.
+const INSPIRATION = (pagePhotos['elixir-collector'] ?? []).map(asset)
 
 export default function ElixirCollector() {
   const [sectionRef, frameRef, scrubProgress] = useScrollFrames(201, 0)
@@ -107,8 +112,11 @@ export default function ElixirCollector() {
         </div>
       </div>
 
-{/* TODO: why this model was made, as on the Skeleton Barrel page. */}
-      <ContextNote></ContextNote>
+      {/* TODO: the words are a placeholder until Alex writes the real ones. */}
+      <ContextNote title="Inspiration" images={INSPIRATION} alt="">
+        [Why this model was made — the class, the choice, what it was worked from.
+        Text to come.]
+      </ContextNote>
 
       {/* ---- SECTION 3: Build video (plays when scrolled to) ---- */}
       <div className="split" style={{

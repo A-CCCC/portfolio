@@ -5,6 +5,10 @@ export default {
   "about": [
     "/photos/about/profile.jpg"
   ],
+  "elixir-collector": [
+    "/photos/elixir-collector/1-elixir-collector.webp",
+    "/photos/elixir-collector/2-elixir-collector-card.webp"
+  ],
   "skeleton-barrel": [
     "/photos/skeleton-barrel/1-skeleton-barrel.webp",
     "/photos/skeleton-barrel/2-skeleton-barrel-card.webp"
