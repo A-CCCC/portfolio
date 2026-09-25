@@ -1,6 +1,6 @@
 # scripts/fbx-to-glb.py
 #
-# A Fusion FBX export, made into the GLB the model viewer loads — run inside
+# A Fusion FBX (or OBJ) export, made into the GLB the model viewer loads — run inside
 # Blender, which does the format conversion with the appearances intact:
 #
 #     /Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/fbx-to-glb.py \
@@ -27,7 +27,12 @@ LOOKS = {
 
 src, out = sys.argv[sys.argv.index('--') + 1:][:2]
 bpy.ops.wm.read_factory_settings(use_empty=True)
-bpy.ops.import_scene.fbx(filepath=src)
+# FBX or OBJ, whichever Fusion was asked for: both carry the appearances, and
+# OBJ keeps one painted onto faces as its own material group on the body.
+if src.lower().endswith('.obj'):
+    bpy.ops.wm.obj_import(filepath=src)
+else:
+    bpy.ops.import_scene.fbx(filepath=src)
 
 for m in bpy.data.materials:
     if not (m.use_nodes and m.node_tree):
