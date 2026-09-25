@@ -3,10 +3,10 @@
 // Not in the navbar and not linked from anywhere obvious: the way in is the
 // Skeleton Barrel on the projects hub. Anyone who lands here found it.
 //
-// The three games sit on cards cut from the same cloth as the project
-// carousels — the site's own tints, each picked to suit the game it carries —
-// and each one shows what the person at this browser has managed, which is the
-// only thing a hub for games can say that a list of names cannot.
+// The three games sit on the same cards as the listings on the Services page:
+// the model in a tinted disc, a name, a line, and the way on. Each one also
+// shows what the person at this browser has managed, which is the only thing
+// a hub for games can say that a list of names cannot.
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import useFadeIn from '../hooks/useFadeIn'
@@ -126,66 +126,53 @@ export default function Games() {
         transition: 'opacity 1.5s ease',
       }}>
         {GAMES.map((game) => (
-          // The whole card is the control, unlike the hub bands: there is
-          // nothing else on it to click, so a picture that navigates is no trap.
+          // The whole card is the control, as on Services: there is nothing
+          // else on it to press, so a picture that navigates is no trap.
           <Link
             key={game.path}
             to={game.path}
-            className="game-card"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              padding: short ? '14px 16px 14px' : '26px 22px 24px',
-              borderRadius: 28,
-              background: `var(--card-${game.tint})`,
-              color: 'var(--text)',
-              textDecoration: 'none',
-            }}
+            className="shop-card"
+            // Everything gives up a little sideways on a phone: the card's own
+            // padding, and the disc, which is sized for a page with height.
+            style={short ? { padding: '14px 16px 12px' } : undefined}
           >
-            <div style={{
-              // Room for the art, given as a share of a short screen so a phone
-              // held sideways still shows all three cards at once.
-              height: short ? 'clamp(48px, 15vh, 74px)' : 'clamp(88px, 17vh, 150px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: short ? 10 : 18,
-            }}>
-              <img
-                src={game.image}
-                alt=""
-                style={{ maxHeight: '100%', maxWidth: '76%', display: 'block' }}
-              />
-            </div>
+            <span
+              className="shop-card-disc"
+              style={{
+                background: `var(--card-${game.tint})`,
+                ...(short ? { width: 68, height: 68 } : {}),
+              }}
+            >
+              <img src={game.image} alt="" />
+            </span>
 
-            <h2 style={{
+            <span style={{
               fontSize: TYPE.card,
               fontWeight: 400,
               letterSpacing: '-0.01em',
-              margin: short ? '0 0 6px' : '0 0 10px',
+              margin: short ? '10px 0 0' : '20px 0 0',
             }}>
               {game.title}
-            </h2>
+            </span>
 
             {/* Held back on a screen with no height for it. The name and the
                 model between them say which game this is, and the game itself
                 says the rest. */}
             {!short && (
-              <p style={{
-                margin: 0,
+              <span style={{
                 fontSize: TYPE.small,
                 lineHeight: 1.6,
                 color: 'var(--text-body)',
+                margin: '8px 0 0',
               }}>
                 {game.blurb}
-              </p>
+              </span>
             )}
 
             {/* Only where there is something to say. A game not yet played says
                 nothing rather than boasting a nought. */}
-            <p style={{
-              margin: short ? '8px 0 0' : '16px 0 0',
+            <span style={{
+              margin: short ? '6px 0 0' : '12px 0 0',
               fontSize: TYPE.caption,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
@@ -193,7 +180,15 @@ export default function Games() {
               minHeight: '1.2em',
             }}>
               {bests[game.best] ? `Best ${bests[game.best]} ${game.counts}` : ''}
-            </p>
+            </span>
+
+            <span
+              className="shop-card-go"
+              style={{ fontSize: TYPE.small, ...(short ? { marginTop: 8 } : {}) }}
+            >
+              Play
+              <span className="count-arrow" aria-hidden="true">→</span>
+            </span>
           </Link>
         ))}
       </div>

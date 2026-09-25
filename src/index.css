@@ -703,19 +703,6 @@ canvas {
     0 1px 3px var(--caption-shade-1),
     0 8px 20px var(--caption-shade-2);
 }
-/* Games page: the card lifts a little on hover, so it reads as a control
-   without needing a border or a button around it. */
-.game-card {
-  display: block;
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.game-card:hover { transform: translateY(-6px); }
-.game-card:hover h2 { text-decoration: underline; text-underline-offset: 4px; }
-@media (prefers-reduced-motion: reduce) {
-  .game-card { transition: none; }
-  .game-card:hover { transform: none; }
-}
-
 /* The way back to the top, in the middle of the navbar. Fades rather than
    appears, since it comes and goes with the scroll and a control that pops in
    catches the eye harder than one that arrives. */
