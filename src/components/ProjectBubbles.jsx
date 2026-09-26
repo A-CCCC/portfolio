@@ -167,21 +167,25 @@ const GAMES_CHANCE = 1 / 12
 const ALWAYS_PATHS = ['/solutions/convenience/backup-camera-wiper']
 const ALWAYS = bubbleProjects.filter((project) => ALWAYS_PATHS.includes(project.path))
 
+// Only projects with a thumbnail can be a bubble. A project listed before its
+// render exists shows on its hub as "coming soon" and nowhere here.
+const shown = (list) => list.filter((project) => project.image)
+
 const QUOTAS = [
-  { group: accessibility, take: accessibility.length },   // always all of them
-  { group: clashRoyale, take: 2 },
-  { group: convenience, take: 2 },
+  { group: shown(accessibility), take: shown(accessibility).length },   // always all of them
+  { group: shown(clashRoyale), take: 2 },
+  { group: shown(convenience), take: 2 },
   // One Miscellaneous project always appears; which one is random. Its cap below
   // is also 1, so the quota fills that slot and the leftovers cannot add more.
-  { group: [...halloween, ...misc], take: 1 },
+  { group: shown([...halloween, ...misc]), take: 1 },
 ]
 
 // Hard ceiling on how many bubbles a group may occupy in total — quota picks
 // included, not just the leftover slots. Without a ceiling a group's quota is a
 // floor only, since the leftover slots can keep drawing from it.
 const GROUP_CAPS = [
-  { group: clashRoyale, max: 2 },
-  { group: [...halloween, ...misc], max: 1 },
+  { group: shown(clashRoyale), max: 2 },
+  { group: shown([...halloween, ...misc]), max: 1 },
 ]
 
 function shuffled(list) {
@@ -220,7 +224,7 @@ function drawCast(slots) {
 
   // Leftover slots draw from everything not already picked, Miscellaneous
   // included — subject to the caps above.
-  for (const project of shuffled(eligible([...bubbleProjects, ...halloween, ...misc]))) {
+  for (const project of shuffled(eligible(shown([...bubbleProjects, ...halloween, ...misc])))) {
     if (chosen.length >= slots) break
     if (chosen.includes(project)) continue
 
