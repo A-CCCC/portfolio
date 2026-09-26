@@ -53,18 +53,17 @@ export const bubbleProjects = [...clashRoyale, ...accessibility, ...convenience]
 // at a time; change it here and the home page follows. `page` is the key the
 // line under its name is written against in the copy.
 export const featured = {
-  label: 'Lightsaber',
-  page: 'lightsaber',
-  path: '/projects/misc/lightsaber',
-  image: undefined,          // as above: the thumbnail, once there is one
-  tint: 4,
+  label: 'Halloween Helmets',
+  page: 'halloween-helmets',
+  path: '/projects/misc/halloween-helmets',
+  image: asset('/thumbnails/halloween-helmets.webp'),
+  tint: 2,
 }
 
 // The projects underway, shown under the featured one on the home page. Add
 // and remove freely; the section disappears when the list is empty. The
 // featured project is not repeated here.
 export const current = [
-  { label: 'RC Car Repair', path: '/projects/misc/rc-car-repair', image: asset('/thumbnails/rc-car-repair.webp'), tint: 3 },
-  { label: 'Halloween Helmets', path: '/projects/misc/halloween-helmets', image: asset('/thumbnails/halloween-helmets.webp'), tint: 2 },
-  { label: 'Backup Camera Wiper', path: '/solutions/convenience/backup-camera-wiper', image: asset('/thumbnails/backup-camera-wiper.webp'), tint: 6 },
+  // No thumbnail yet: the card says so until there is a render
+  { label: 'Lightsaber', path: '/projects/misc/lightsaber', image: undefined, tint: 4 },
 ]

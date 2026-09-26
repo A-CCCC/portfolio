@@ -29,7 +29,8 @@ const published = {
   mortar: 'A model combining extruded and mirrored geometry around an angled barrel.',
   'wheelchair-storage': 'A custom container to bring daily materials within reach.',
   'smart-kinesiology-tape': 'Disposable tape to track joint movement and hydration for recovery.',
-  // Featured on the home page, so it has to be here rather than in the private copy
+  // Shown on the home page, so they have to be here rather than in the private copy
+  'halloween-helmets': 'Wearable cardboard helmets and functional accessories, built from scratch for Halloween.',
   lightsaber: 'A working lightsaber, hopefully built in time for Halloween.',
 }
 
