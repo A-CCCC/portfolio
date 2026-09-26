@@ -59,3 +59,12 @@ export const featured = {
   image: undefined,          // as above: the thumbnail, once there is one
   tint: 4,
 }
+
+// The projects underway, shown under the featured one on the home page. Add
+// and remove freely; the section disappears when the list is empty. The
+// featured project is not repeated here.
+export const current = [
+  { label: 'RC Car Repair', path: '/projects/misc/rc-car-repair', image: asset('/thumbnails/rc-car-repair.webp'), tint: 3 },
+  { label: 'Halloween Helmets', path: '/projects/misc/halloween-helmets', image: asset('/thumbnails/halloween-helmets.webp'), tint: 2 },
+  { label: 'Backup Camera Wiper', path: '/solutions/convenience/backup-camera-wiper', image: asset('/thumbnails/backup-camera-wiper.webp'), tint: 6 },
+]

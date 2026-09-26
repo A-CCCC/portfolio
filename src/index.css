@@ -804,6 +804,10 @@ canvas {
   .feature-card { flex-direction: column; text-align: center; padding: 30px 24px 26px; }
 }
 
+/* The current projects on the home page: the same card, smaller. */
+.current-card { padding: 22px 16px 20px; }
+.current-card .shop-card-disc { width: 96px; height: 96px; }
+
 /* Takes a copy of the address beside it. Quiet until approached — it is an
    alternative to the link, not a second thing to read. */
 .copy-email {

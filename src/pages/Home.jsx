@@ -6,7 +6,7 @@ import useFadeIn from '../hooks/useFadeIn'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
 import ProjectBubbles from '../components/ProjectBubbles'
 import Portrait from '../components/Portrait'
-import { featured } from '../data/projects'
+import { featured, current } from '../data/projects'
 import { describe } from '../data/site-copy'
 import EmailLink from '../components/EmailLink'
 
@@ -20,6 +20,7 @@ const FEATURED_LINE = describe(featured.page)
 
 export default function Home() {
   const [featuredRef, featuredOpacity] = useFadeInOnScroll(0)
+  const [currentRef, currentOpacity] = useFadeInOnScroll(0)
   const titleOpacity = useFadeIn(100)
   // Last of everything on the opening screen. The bubbles begin at 1.2s and
   // arrive one after another over half a second more, so this waits for the
@@ -248,6 +249,67 @@ export default function Home() {
           </span>
         </Link>
       </div>
+
+      {/* ---- Current projects ---- */}
+      {/* What is on the bench right now, under the one put forward: the same
+          card again, smaller, three across where there is room. */}
+      {current.length > 0 && (
+        <div
+          ref={currentRef}
+          style={{
+            padding: '0 var(--gutter) 96px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            opacity: currentOpacity,
+            transition: 'opacity 1.5s ease',
+          }}
+        >
+          <h2 style={{
+            margin: '0 0 20px',
+            fontSize: TYPE.caption,
+            fontWeight: 400,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted)',
+          }}>
+            {current.length > 1 ? 'Current projects' : 'Current project'}
+          </h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: 16,
+            width: '100%',
+            maxWidth: 720,
+          }}>
+            {current.map((item) => (
+              <Link key={item.path} to={item.path} className="shop-card current-card">
+                <span
+                  className="shop-card-disc"
+                  style={{ background: `var(--card-${item.tint})` }}
+                >
+                  {item.image
+                    ? <img src={item.image} alt="" />
+                    : <span style={{ fontSize: TYPE.caption, color: 'var(--text-body)', opacity: 0.7 }}>Coming soon</span>}
+                </span>
+                <span style={{
+                  fontSize: TYPE.small,
+                  fontWeight: 400,
+                  letterSpacing: '-0.01em',
+                  margin: '14px 0 0',
+                  textAlign: 'center',
+                }}>
+                  {item.label}
+                </span>
+                <span className="shop-card-go" style={{ fontSize: TYPE.caption, marginTop: 10 }}>
+                  See the project
+                  <span className="count-arrow" aria-hidden="true">→</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
     </div>
   )
