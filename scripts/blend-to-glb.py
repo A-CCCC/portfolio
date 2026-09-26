@@ -162,6 +162,14 @@ for o in to_bake:
     o.data = o.data.copy()
     o.select_set(True)
 bpy.context.view_layer.objects.active = to_bake[0]
+# The FBX Fusion wrote carries custom normals, and on some parts they are
+# wrong — the Elixir Collector's wheel came out mottled in Blender's own
+# viewport. Cleared, part by part (the operator only reaches the active
+# object), so the smoothing below computes fresh ones from the geometry.
+for o in to_bake:
+    bpy.context.view_layer.objects.active = o
+    bpy.ops.mesh.customdata_custom_splitnormals_clear()
+bpy.context.view_layer.objects.active = to_bake[0]
 # Its own copies of the materials, shared among the baked parts, so the flat
 # parts keep the originals.
 copies = {}
@@ -175,6 +183,10 @@ for o in to_bake:
 bpy.ops.object.mode_set(mode='EDIT')
 bpy.ops.mesh.select_all(action='SELECT')
 bpy.ops.mesh.remove_doubles(threshold=0.0001)
+# Fusion winds some faces backwards, which the split vertices hid: welded,
+# those faces are lit as if facing away and a smooth rim comes out hatched
+# with dark. Every face is made to wind the same way, outward.
+bpy.ops.mesh.normals_make_consistent(inside=False)
 bpy.ops.uv.smart_project(angle_limit=1.15, island_margin=0.01)
 bpy.ops.uv.pack_islands(margin=0.01)
 bpy.ops.object.mode_set(mode='OBJECT')
