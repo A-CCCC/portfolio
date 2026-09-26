@@ -1,4 +1,4 @@
-// src/pages/projects/misc/Lightsaber.jsx
+// src/pages/projects/misc/Stormtrooper.jsx
 import pagePhotos from '../../../data/pagePhotos'
 import useFadeInOnScroll from '../../../hooks/useFadeInOnScroll'
 import PageIntro from '../../../components/PageIntro'
@@ -7,21 +7,21 @@ import asset from '../../../lib-asset'
 import { describe } from '../../../data/site-copy'
 
 // One line on what this is. The note below it clears itself once there are
-// photos in the folder — see public/photos/lightsaber/README.md.
-const DESCRIPTION = describe('lightsaber')
+// photos in the folder — see public/photos/stormtrooper/README.md.
+const DESCRIPTION = describe('stormtrooper')
 
-// Every photo in public/photos/lightsaber/, in filename order. The folder is
+// Every photo in public/photos/stormtrooper/, in filename order. The folder is
 // read at build time (see scripts/photo-manifest.mjs), so adding a photo is a
 // matter of dropping the file in.
-const PHOTOS = (pagePhotos['lightsaber'] ?? []).map(asset)
+const PHOTOS = (pagePhotos['stormtrooper'] ?? []).map(asset)
 
-export default function Lightsaber() {
+export default function Stormtrooper() {
   const [photosRef, photosOpacity] = useFadeInOnScroll(0)
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
       <PageIntro
-        title="Lightsaber"
+        title="Stormtrooper"
         description={DESCRIPTION}
         comingSoon={PHOTOS.length === 0}
         full={PHOTOS.length === 0}
@@ -40,7 +40,7 @@ export default function Lightsaber() {
             transition: 'opacity 1.5s ease',
           }}
         >
-          <PhotoGroup photos={PHOTOS} heading="Lightsaber" />
+          <PhotoGroup photos={PHOTOS} heading="Stormtrooper" />
         </div>
       )}
     </div>

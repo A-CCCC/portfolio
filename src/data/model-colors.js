@@ -16,7 +16,7 @@ export const MODEL_LOOK = {
   'cannon-cart': { color: '#8e714a', crop: [0.2371, 0.165, 0.525, 0.67] },
   'car-key-holder': { color: '#3d3d3d', crop: [0.3371, 0.165, 0.325, 0.67] },
   'elixir-collector': { color: '#b947e0', crop: [0.275, 0.165, 0.4493, 0.67] },
-  'halloween-helmets': { color: '#424337', crop: [0.165, 0.2057, 0.67, 0.5886] },
+  'darth-vader': { color: '#424337', crop: [0.165, 0.2057, 0.67, 0.5886] },
   'ketchup-extruder': { color: '#aa110f', crop: [0.3543, 0.165, 0.2914, 0.67] },
   'modular-car-container': { color: '#3d3d3d', crop: [0.165, 0.3579, 0.67, 0.2843] },
   'mortar': { color: '#29547a', crop: [0.17, 0.165, 0.66, 0.67] },

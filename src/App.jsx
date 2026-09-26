@@ -1,5 +1,5 @@
 // src/App.jsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -11,10 +11,15 @@ import CannonCart from './pages/projects/CannonCart'
 import Mortar from './pages/projects/Mortar'
 // the-log: held back for now, see src/data/projects.js
 // import TheLog from './pages/projects/TheLog'
+import Halloween from './pages/projects/Halloween'
+import DarthVader from './pages/projects/halloween/DarthVader'
+import Stormtrooper from './pages/projects/halloween/Stormtrooper'
+import ScoutTrooper from './pages/projects/halloween/ScoutTrooper'
+import Electrobinoculars from './pages/projects/halloween/Electrobinoculars'
+import Lightsaber from './pages/projects/halloween/Lightsaber'
+import Minecraft from './pages/projects/halloween/Minecraft'
 import Misc from './pages/projects/Misc'
-import HalloweenHelmets from './pages/projects/misc/HalloweenHelmets'
 import RCCarRepair from './pages/projects/misc/RCCarRepair'
-import Lightsaber from './pages/projects/misc/Lightsaber'
 import Solutions from './pages/Solutions'
 import Accessibility from './pages/solutions/Accessibility'
 import WheelchairStorage from './pages/solutions/accessibility/WheelchairStorage'
@@ -63,10 +68,18 @@ export default function App() {
         <Route path="/projects/clash-royale/cannon-cart" element={<CannonCart />} />
         <Route path="/projects/clash-royale/mortar" element={<Mortar />} />
         {/* the-log: <Route path="/projects/clash-royale/the-log" element={<TheLog />} /> */}
+        <Route path="/projects/halloween" element={<Halloween />} />
+        <Route path="/projects/halloween/darth-vader" element={<DarthVader />} />
+        <Route path="/projects/halloween/stormtrooper" element={<Stormtrooper />} />
+        <Route path="/projects/halloween/scout-trooper" element={<ScoutTrooper />} />
+        <Route path="/projects/halloween/electrobinoculars" element={<Electrobinoculars />} />
+        <Route path="/projects/halloween/lightsaber" element={<Lightsaber />} />
+        <Route path="/projects/halloween/minecraft" element={<Minecraft />} />
         <Route path="/projects/misc" element={<Misc />} />
-        <Route path="/projects/misc/halloween-helmets" element={<HalloweenHelmets />} />
         <Route path="/projects/misc/rc-car-repair" element={<RCCarRepair />} />
-        <Route path="/projects/misc/lightsaber" element={<Lightsaber />} />
+        {/* Where these two used to live, for anyone holding an old link */}
+        <Route path="/projects/misc/halloween-helmets" element={<Navigate to="/projects/halloween/darth-vader" replace />} />
+        <Route path="/projects/misc/lightsaber" element={<Navigate to="/projects/halloween/lightsaber" replace />} />
         <Route path="/solutions" element={<Solutions />} />
         <Route path="/solutions/accessibility" element={<Accessibility />} />
         <Route path="/solutions/accessibility/wheelchair-storage" element={<WheelchairStorage />} />

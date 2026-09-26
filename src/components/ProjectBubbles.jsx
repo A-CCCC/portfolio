@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Gamepad2 } from 'lucide-react'
 import useFadeIn from '../hooks/useFadeIn'
-import { accessibility, clashRoyale, convenience, misc, bubbleProjects } from '../data/projects'
+import { accessibility, clashRoyale, convenience, halloween, misc, bubbleProjects } from '../data/projects'
 import useIsPhone, { useIsShort } from '../hooks/useIsPhone'
 
 // Hand-placed as two arcs — one above the hero title, one below — plus a pair
@@ -173,7 +173,7 @@ const QUOTAS = [
   { group: convenience, take: 2 },
   // One Miscellaneous project always appears; which one is random. Its cap below
   // is also 1, so the quota fills that slot and the leftovers cannot add more.
-  { group: misc, take: 1 },
+  { group: [...halloween, ...misc], take: 1 },
 ]
 
 // Hard ceiling on how many bubbles a group may occupy in total — quota picks
@@ -181,7 +181,7 @@ const QUOTAS = [
 // floor only, since the leftover slots can keep drawing from it.
 const GROUP_CAPS = [
   { group: clashRoyale, max: 2 },
-  { group: misc, max: 1 },
+  { group: [...halloween, ...misc], max: 1 },
 ]
 
 function shuffled(list) {
@@ -220,7 +220,7 @@ function drawCast(slots) {
 
   // Leftover slots draw from everything not already picked, Miscellaneous
   // included — subject to the caps above.
-  for (const project of shuffled(eligible([...bubbleProjects, ...misc]))) {
+  for (const project of shuffled(eligible([...bubbleProjects, ...halloween, ...misc]))) {
     if (chosen.length >= slots) break
     if (chosen.includes(project)) continue
 
@@ -290,6 +290,10 @@ export default function ProjectBubbles() {
     >
       {cast.map((project, i) => {
         const spot = placements[i]
+        // For the one frame between a layout change and the redraw for it,
+        // the cast can be longer than the new set of spots. Nothing to stand
+        // on, nothing drawn.
+        if (!spot) return null
 
         return (
           <div

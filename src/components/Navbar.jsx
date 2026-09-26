@@ -92,12 +92,22 @@ const tabs = [
         ],
       },
       {
+        label: 'Halloween',
+        path: '/projects/halloween',
+        items: [
+          { label: 'Darth Vader', path: '/projects/halloween/darth-vader' },
+          { label: 'Stormtrooper', path: '/projects/halloween/stormtrooper' },
+          { label: 'Scout Trooper', path: '/projects/halloween/scout-trooper' },
+          { label: 'Electrobinoculars', path: '/projects/halloween/electrobinoculars' },
+          { label: 'Lightsaber', path: '/projects/halloween/lightsaber' },
+          { label: 'Minecraft', path: '/projects/halloween/minecraft' },
+        ],
+      },
+      {
         label: 'Miscellaneous',
         path: '/projects/misc',
         items: [
-          { label: 'Halloween Helmets', path: '/projects/misc/halloween-helmets' },
           { label: 'RC Car Repair', path: '/projects/misc/rc-car-repair' },
-          { label: 'Lightsaber', path: '/projects/misc/lightsaber' },
         ],
       },
     ],

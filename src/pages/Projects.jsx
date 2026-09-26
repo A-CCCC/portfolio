@@ -2,7 +2,7 @@
 import useFadeIn from '../hooks/useFadeIn'
 import { TYPE } from '../styles/type'
 import CategoryBand from '../components/CategoryBand'
-import { clashRoyale, misc } from '../data/projects'
+import { clashRoyale, halloween, misc } from '../data/projects'
 import asset from '../lib-asset'
 
 const TITLE = 'Projects'
@@ -26,12 +26,21 @@ const SECTIONS = [
     secretBox: [27.5, 16.5, 45.1, 67.0],
   },
   {
+    label: 'Halloween',
+    path: '/projects/halloween',
+    items: halloween,
+    // Draft copy — a line on what the category covers.
+    blurb: 'Costumes and props built from scratch for Halloween — helmets, a '
+      + 'lightsaber, and whatever else the year calls for.',
+    cover: asset('/thumbnails/darth-vader.webp'),
+  },
+  {
     label: 'Miscellaneous',
     path: '/projects/misc',
     items: misc,
-    blurb: 'One-off builds and repairs that belong to no category — cardboard '
-      + 'costumes, replacement parts, whatever needed making.',
-    cover: asset('/thumbnails/halloween-helmets.webp'),
+    blurb: 'One-off builds and repairs that belong to no category — replacement '
+      + 'parts, whatever needed making.',
+    cover: asset('/thumbnails/rc-car-repair.webp'),
   },
 ]
 

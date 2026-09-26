@@ -36,27 +36,34 @@ export const convenience = [
   { label: 'Ketchup Extruder', path: '/solutions/convenience/ketchup-extruder', image: asset('/thumbnails/ketchup-extruder.webp') },
 ]
 
-export const misc = [
-  { label: 'Halloween Helmets', path: '/projects/misc/halloween-helmets', image: asset('/thumbnails/halloween-helmets.webp') },
-  { label: 'RC Car Repair', path: '/projects/misc/rc-car-repair', image: asset('/thumbnails/rc-car-repair.webp') },
-  // No thumbnail yet: the card says so. When there is a render, run
+export const halloween = [
+  { label: 'Darth Vader', path: '/projects/halloween/darth-vader', image: asset('/thumbnails/darth-vader.webp') },
+  // No thumbnails yet: the cards say so. When there is a render, run
   // scripts/make-thumbnail.py on it and put the path here.
-  { label: 'Lightsaber', path: '/projects/misc/lightsaber', image: undefined },
+  { label: 'Stormtrooper', path: '/projects/halloween/stormtrooper', image: undefined },
+  { label: 'Scout Trooper', path: '/projects/halloween/scout-trooper', image: undefined },
+  { label: 'Electrobinoculars', path: '/projects/halloween/electrobinoculars', image: undefined },
+  { label: 'Lightsaber', path: '/projects/halloween/lightsaber', image: undefined },
+  { label: 'Minecraft', path: '/projects/halloween/minecraft', image: undefined },
 ]
 
-// The projects the home-page bubbles draw on by quota. Miscellaneous is not in
-// here because it has no quota — ProjectBubbles adds it to the leftover slots
-// separately, capped at one per draw.
+export const misc = [
+  { label: 'RC Car Repair', path: '/projects/misc/rc-car-repair', image: asset('/thumbnails/rc-car-repair.webp') },
+]
+
+// The projects the home-page bubbles draw on by quota. Halloween and
+// Miscellaneous are not in here because they have no quota — ProjectBubbles
+// adds them to the leftover slots separately, capped at one per draw.
 export const bubbleProjects = [...clashRoyale, ...accessibility, ...convenience]
 
 // The project the home page puts forward, under the paragraph about me. One
 // at a time; change it here and the home page follows. `page` is the key the
 // line under its name is written against in the copy.
 export const featured = {
-  label: 'Halloween Helmets',
-  page: 'halloween-helmets',
-  path: '/projects/misc/halloween-helmets',
-  image: asset('/thumbnails/halloween-helmets.webp'),
+  label: 'Darth Vader',
+  page: 'darth-vader',
+  path: '/projects/halloween/darth-vader',
+  image: asset('/thumbnails/darth-vader.webp'),
   tint: 2,
 }
 
@@ -65,7 +72,6 @@ export const featured = {
 // featured project is not repeated here.
 export const current = [
   // No thumbnails yet: the cards say so until there are renders
-  { label: 'Lightsaber', path: '/projects/misc/lightsaber', image: undefined, tint: 4 },
-  // Part of the Halloween Helmets project, so it leads there
-  { label: 'Scout Trooper Helmet', path: '/projects/misc/halloween-helmets', image: undefined, tint: 6 },
+  { label: 'Lightsaber', path: '/projects/halloween/lightsaber', image: undefined, tint: 4 },
+  { label: 'Scout Trooper Helmet', path: '/projects/halloween/scout-trooper', image: undefined, tint: 6 },
 ]

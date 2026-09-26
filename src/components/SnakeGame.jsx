@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { TYPE } from '../styles/type'
 import { useIsTouch, useIsShort } from '../hooks/useIsPhone'
-import { clashRoyale, accessibility, convenience, misc } from '../data/projects'
+import { clashRoyale, accessibility, convenience, halloween, misc } from '../data/projects'
 import { MODEL_LOOK } from '../data/model-colors'
 import drawGrass from './grass'
 import {
@@ -51,7 +51,7 @@ const readBest = () => {
 
 // Everything with a thumbnail, which is everything the snake can eat. A
 // project listed before its render exists is simply not on the menu yet.
-const MODELS = [...clashRoyale, ...accessibility, ...convenience, ...misc]
+const MODELS = [...clashRoyale, ...accessibility, ...convenience, ...halloween, ...misc]
   .filter((project) => project.image)
   .map((project, i) => {
   // '/thumbnails/mortar.webp' -> 'mortar', which is how the two are keyed

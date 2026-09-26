@@ -8,9 +8,9 @@
 // Services page can show the lot, and the picture comes from the same place the
 // carousels get theirs — set a thumbnail once in projects.js and it turns up
 // here too. Adding a listing is the four lines below.
-import { clashRoyale, accessibility, convenience, misc } from './projects'
+import { clashRoyale, accessibility, convenience, halloween, misc } from './projects'
 
-const EVERYTHING = [...clashRoyale, ...accessibility, ...convenience, ...misc]
+const EVERYTHING = [...clashRoyale, ...accessibility, ...convenience, ...halloween, ...misc]
 
 const LISTINGS = [
   {
