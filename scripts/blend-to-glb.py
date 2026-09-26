@@ -93,9 +93,20 @@ for slot in whole.material_slots:
     slot.material = slot.material.copy()
 bpy.ops.object.mode_set(mode='EDIT')
 bpy.ops.mesh.select_all(action='SELECT')
+# The mesh arrived from Fusion with no vertex shared between triangles, so an
+# unwrap would make every triangle its own island — and an atlas that is all
+# edges. Welded first, faces join into a few islands; the shading that the
+# split vertices carried comes back from the angle between faces.
+bpy.ops.mesh.remove_doubles(threshold=0.0001)
 # Islands further apart than the bake bleeds, or one bleeds into the next.
 bpy.ops.uv.smart_project(angle_limit=1.15, island_margin=0.01)
 bpy.ops.object.mode_set(mode='OBJECT')
+import math
+for op in ('shade_smooth_by_angle', 'shade_auto_smooth'):
+    if hasattr(bpy.ops.object, op):
+        getattr(bpy.ops.object, op)(angle=math.radians(35))
+        break
+print('islands from', len(whole.data.polygons), 'faces after welding')
 print('triangles baked', sum(len(p.vertices) - 2 for p in whole.data.polygons), 'materials', len(whole.material_slots))
 
 # The colour of those parts, baked into one image. Diffuse colour only — no
