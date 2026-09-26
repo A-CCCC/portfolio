@@ -6,6 +6,8 @@ import useFadeIn from '../hooks/useFadeIn'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
 import ProjectBubbles from '../components/ProjectBubbles'
 import Portrait from '../components/Portrait'
+import { featured } from '../data/projects'
+import { describe } from '../data/site-copy'
 import EmailLink from '../components/EmailLink'
 
 // The same address and profile the Contact page publishes, kept in one place so
@@ -13,7 +15,11 @@ import EmailLink from '../components/EmailLink'
 // Absent in public, where the block below is not built at all.
 const REACH = contact
 
+// The line under the featured project's name; nothing until it is written.
+const FEATURED_LINE = describe(featured.page)
+
 export default function Home() {
+  const [featuredRef, featuredOpacity] = useFadeInOnScroll(0)
   const titleOpacity = useFadeIn(100)
   // Last of everything on the opening screen. The bubbles begin at 1.2s and
   // arrive one after another over half a second more, so this waits for the
@@ -172,6 +178,75 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ---- Featured project ---- */}
+      {/* One project put forward, on the same card the listings and the games
+          use, laid on its side: the model in its disc, the words beside it,
+          and the whole card the way through. */}
+      <div
+        ref={featuredRef}
+        style={{
+          padding: '0 var(--gutter) 96px',
+          display: 'flex',
+          justifyContent: 'center',
+          opacity: featuredOpacity,
+          transition: 'opacity 1.5s ease',
+        }}
+      >
+        <Link to={featured.path} className="shop-card feature-card">
+          <span
+            className="shop-card-disc"
+            style={{ background: `var(--card-${featured.tint})` }}
+          >
+            {featured.image
+              ? <img src={featured.image} alt="" />
+              : <span style={{
+                  fontSize: TYPE.caption,
+                  letterSpacing: '0.02em',
+                  color: 'var(--text-body)',
+                  opacity: 0.7,
+                }}>
+                  Coming soon
+                </span>}
+          </span>
+
+          <span className="feature-card-words">
+            <span style={{
+              display: 'block',
+              fontSize: TYPE.caption,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'var(--text-muted)',
+            }}>
+              Featured project
+            </span>
+            <span style={{
+              display: 'block',
+              fontSize: TYPE.card,
+              fontWeight: 400,
+              letterSpacing: '-0.01em',
+              margin: '6px 0 0',
+            }}>
+              {featured.label}
+            </span>
+            {FEATURED_LINE && (
+              <span style={{
+                display: 'block',
+                fontSize: TYPE.small,
+                lineHeight: 1.6,
+                color: 'var(--text-body)',
+                margin: '8px 0 0',
+              }}>
+                {FEATURED_LINE}
+              </span>
+            )}
+            <span className="shop-card-go" style={{ fontSize: TYPE.small, marginTop: 14 }}>
+              See the project
+              <span className="count-arrow" aria-hidden="true">→</span>
+            </span>
+          </span>
+        </Link>
       </div>
 
     </div>

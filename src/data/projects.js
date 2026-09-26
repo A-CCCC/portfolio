@@ -39,9 +39,23 @@ export const convenience = [
 export const misc = [
   { label: 'Halloween Helmets', path: '/projects/misc/halloween-helmets', image: asset('/thumbnails/halloween-helmets.webp') },
   { label: 'RC Car Repair', path: '/projects/misc/rc-car-repair', image: asset('/thumbnails/rc-car-repair.webp') },
+  // No thumbnail yet: the card says so. When there is a render, run
+  // scripts/make-thumbnail.py on it and put the path here.
+  { label: 'Lightsaber', path: '/projects/misc/lightsaber', image: undefined },
 ]
 
 // The projects the home-page bubbles draw on by quota. Miscellaneous is not in
 // here because it has no quota — ProjectBubbles adds it to the leftover slots
 // separately, capped at one per draw.
 export const bubbleProjects = [...clashRoyale, ...accessibility, ...convenience]
+
+// The project the home page puts forward, under the paragraph about me. One
+// at a time; change it here and the home page follows. `page` is the key the
+// line under its name is written against in the copy.
+export const featured = {
+  label: 'Lightsaber',
+  page: 'lightsaber',
+  path: '/projects/misc/lightsaber',
+  image: undefined,          // as above: the thumbnail, once there is one
+  tint: 4,
+}

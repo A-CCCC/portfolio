@@ -97,6 +97,7 @@ const tabs = [
         items: [
           { label: 'Halloween Helmets', path: '/projects/misc/halloween-helmets' },
           { label: 'RC Car Repair', path: '/projects/misc/rc-car-repair' },
+          { label: 'Lightsaber', path: '/projects/misc/lightsaber' },
         ],
       },
     ],

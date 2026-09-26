@@ -787,6 +787,23 @@ canvas {
 .shop-card:hover .count-arrow,
 .shop-card:focus-visible .count-arrow { transform: translateX(4px); }
 
+/* The featured project on the home page: the same card, laid on its side —
+   disc on the left, words on the right — and stood back up on a phone. */
+.feature-card {
+  flex-direction: row;
+  align-items: center;
+  gap: 36px;
+  width: 100%;
+  max-width: 720px;
+  padding: 28px 36px 28px 28px;
+  text-align: left;
+}
+.feature-card .shop-card-disc { flex: 0 0 auto; }
+.feature-card-words { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 700px) {
+  .feature-card { flex-direction: column; text-align: center; padding: 30px 24px 26px; }
+}
+
 /* Takes a copy of the address beside it. Quiet until approached — it is an
    alternative to the link, not a second thing to read. */
 .copy-email {

@@ -49,8 +49,11 @@ const readBest = () => {
   }
 }
 
-// Everything with a thumbnail, which is everything the snake can eat.
-const MODELS = [...clashRoyale, ...accessibility, ...convenience, ...misc].map((project, i) => {
+// Everything with a thumbnail, which is everything the snake can eat. A
+// project listed before its render exists is simply not on the menu yet.
+const MODELS = [...clashRoyale, ...accessibility, ...convenience, ...misc]
+  .filter((project) => project.image)
+  .map((project, i) => {
   // '/thumbnails/mortar.webp' -> 'mortar', which is how the two are keyed
   const look = MODEL_LOOK[project.image.split('/').pop().replace('.webp', '')]
   return {

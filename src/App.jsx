@@ -14,6 +14,7 @@ import Mortar from './pages/projects/Mortar'
 import Misc from './pages/projects/Misc'
 import HalloweenHelmets from './pages/projects/misc/HalloweenHelmets'
 import RCCarRepair from './pages/projects/misc/RCCarRepair'
+import Lightsaber from './pages/projects/misc/Lightsaber'
 import Solutions from './pages/Solutions'
 import Accessibility from './pages/solutions/Accessibility'
 import WheelchairStorage from './pages/solutions/accessibility/WheelchairStorage'
@@ -65,6 +66,7 @@ export default function App() {
         <Route path="/projects/misc" element={<Misc />} />
         <Route path="/projects/misc/halloween-helmets" element={<HalloweenHelmets />} />
         <Route path="/projects/misc/rc-car-repair" element={<RCCarRepair />} />
+        <Route path="/projects/misc/lightsaber" element={<Lightsaber />} />
         <Route path="/solutions" element={<Solutions />} />
         <Route path="/solutions/accessibility" element={<Accessibility />} />
         <Route path="/solutions/accessibility/wheelchair-storage" element={<WheelchairStorage />} />
