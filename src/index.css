@@ -924,6 +924,53 @@ canvas {
   transition: opacity 0.6s ease;
 }
 
+/* A PAGE STILL TO COME, IN THE MENU */
+
+/* The star sits up beside the name, quiet. The words wait underneath at
+   nothing, and fade in a beat after the pointer arrives on the item — so a
+   pointer passing through on its way somewhere else never sees them. */
+.nav-star {
+  position: relative;
+  margin-left: 5px;
+  color: var(--text-muted);
+  font-size: 0.85em;
+  vertical-align: 0.2em;
+}
+.nav-star-tip {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--text-body);
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.nav-label:hover .nav-star-tip,
+.nav-label:focus-visible .nav-star-tip {
+  opacity: 1;
+  transition-delay: 0.25s;
+}
+/* Read aloud, not seen */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 /* THE PHONE MENU */
 
 /* The button that stands in for the links, sized to be hit with a thumb rather

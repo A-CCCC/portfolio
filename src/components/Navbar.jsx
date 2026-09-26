@@ -4,6 +4,7 @@ import { ArrowUp, Menu, X } from 'lucide-react'
 import { TYPE } from '../styles/type'
 import { Link, useLocation } from 'react-router-dom'
 import useIsPhone from '../hooks/useIsPhone'
+import { PENDING } from '../data/pending'
 
 // The way back up appears once the end of a page is in sight — near the bottom,
 // where the walk back is longest and there is nothing below to go on to.
@@ -131,6 +132,19 @@ const hoverStyle = (isHovered) => ({
   borderRadius: 8,
   transition: 'background 0.2s ease, font-weight 0.2s ease',
 })
+
+// A small star after the name of a page that is not finished, and — for a
+// pointer that rests on it — the reason, fading in beneath. Said in words for
+// a screen reader too, since a star is not a word.
+function Star() {
+  return (
+    <span className="nav-star" aria-hidden="false">
+      <span aria-hidden="true">*</span>
+      <span className="nav-star-tip" aria-hidden="true">This page is under construction</span>
+      <span className="sr-only"> (under construction)</span>
+    </span>
+  )
+}
 
 const dropdownStyle = {
   position: 'absolute',
@@ -323,6 +337,7 @@ export default function Navbar() {
                               }}
                             >
                               {item.label}
+                              {PENDING.has(item.path) && <Star />}
                             </Link>
                           ))}
                         </div>
