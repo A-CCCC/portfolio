@@ -20,11 +20,11 @@ import sys, os
 import bpy
 
 # Materials to override before the bake, by name prefix: (base colour,
-# metallic, roughness). The animation's iron was lit by a bright world it no
-# longer has; this is the blued, part-metallic iron that reads right in the
-# viewer's light.
+# metallic, roughness). The animation's iron was a mirror-black lit by a
+# bright world it no longer has; this is the satin steel of the build video —
+# a mid, slightly warm grey that is mostly matt.
 LOOKS = {
-    'Steel': ((0.12, 0.13, 0.16, 1.0), 0.6, 0.55),
+    'Steel': ((0.20, 0.195, 0.18, 1.0), 0.2, 0.6),
 }
 
 args = sys.argv[sys.argv.index('--') + 1:]
