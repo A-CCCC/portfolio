@@ -930,17 +930,21 @@ canvas {
    nothing, and fade in a beat after the pointer arrives on the item — so a
    pointer passing through on its way somewhere else never sees them. */
 .nav-star {
-  position: relative;
   margin-left: 5px;
   color: var(--text-muted);
   font-size: 0.85em;
   vertical-align: 0.2em;
 }
+/* The words hang from the menu item, not from the star: set to the item's
+   right edge, so a menu at the edge of the window keeps them on screen, and
+   over whatever item sits below. */
+.nav-menu .nav-label { position: relative; }
 .nav-star-tip {
   position: absolute;
-  left: 0;
+  right: 14px;
   top: 100%;
-  margin-top: 8px;
+  z-index: 1;
+  margin-top: 2px;
   padding: 6px 10px;
   border-radius: 8px;
   white-space: nowrap;
