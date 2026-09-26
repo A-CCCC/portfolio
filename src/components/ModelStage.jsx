@@ -9,7 +9,7 @@
 // is a chunk of its own, fetched when the section is a screen away — see
 // model-scene.js — so a page costs nothing extra until its foot is near.
 import { useEffect, useRef, useState } from 'react'
-import { Rotate3d } from 'lucide-react'
+import { Minus, Plus, Rotate3d } from 'lucide-react'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
 import { TYPE } from '../styles/type'
 
@@ -18,6 +18,7 @@ const NEARBY = '100% 0px'      // start loading about a screen ahead
 export default function ModelStage({ model, label }) {
   const [ref, opacity] = useFadeInOnScroll(0)
   const canvasRef = useRef(null)
+  const sceneRef = useRef(null)          // what the scene hands back once mounted
   const [state, setState] = useState('waiting')   // waiting | loading | ready | failed
   const [held, setHeld] = useState(false)          // has anyone taken hold of it yet
 
@@ -25,7 +26,7 @@ export default function ModelStage({ model, label }) {
     const canvas = canvasRef.current
     if (!canvas || !model) return undefined
     let alive = true
-    let unmount = null
+    let scene = null
 
     const begin = async () => {
       setState('loading')
@@ -33,8 +34,9 @@ export default function ModelStage({ model, label }) {
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
         const { mount } = await import('./model-scene')
         if (!alive) return
-        unmount = await mount(canvas, model.url, { still, turn: model.turn, onHold: () => setHeld(true) })
-        if (!alive) { unmount(); return }
+        scene = await mount(canvas, model.url, { still, turn: model.turn, onHold: () => setHeld(true) })
+        if (!alive) { scene.stop(); return }
+        sceneRef.current = scene
         setState('ready')
       } catch (err) {
         // No WebGL, or a file that did not arrive. The page goes on without
@@ -55,7 +57,8 @@ export default function ModelStage({ model, label }) {
     return () => {
       alive = false
       watcher.disconnect()
-      if (unmount) unmount()
+      if (scene) scene.stop()
+      sceneRef.current = null
     }
   }, [model?.url])
 
@@ -122,8 +125,21 @@ export default function ModelStage({ model, label }) {
           style={{ opacity: state === 'ready' && !held ? 1 : 0 }}
         >
           <Rotate3d size={16} strokeWidth={1.8} aria-hidden="true" />
-          Drag to turn
+          Drag to turn · pinch to zoom
         </div>
+
+        {/* Closer and further, for anyone without a wheel or a second
+            finger — and a way to know it zooms at all. */}
+        {state === 'ready' && (
+          <div className="model-zoom">
+            <button type="button" aria-label="Zoom in" onClick={() => sceneRef.current?.zoomBy(0.8)}>
+              <Plus size={16} strokeWidth={2} aria-hidden="true" />
+            </button>
+            <button type="button" aria-label="Zoom out" onClick={() => sceneRef.current?.zoomBy(1.25)}>
+              <Minus size={16} strokeWidth={2} aria-hidden="true" />
+            </button>
+          </div>
+        )}
 
         {state !== 'ready' && (
           <p

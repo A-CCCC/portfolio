@@ -975,6 +975,36 @@ canvas {
   white-space: nowrap;
 }
 
+/* Closer and further: two small frosted buttons in the stage's corner. */
+.model-zoom {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.model-zoom button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--text);
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.25s ease;
+}
+.model-zoom button:hover,
+.model-zoom button:focus-visible { background: var(--hover); }
+
 /* THE PHONE MENU */
 
 /* The button that stands in for the links, sized to be hit with a thumb rather

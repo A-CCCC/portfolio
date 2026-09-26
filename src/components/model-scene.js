@@ -55,7 +55,17 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
   const camera = new PerspectiveCamera(32, 1, 0.01, 100)
   const controls = new OrbitControls(camera, canvas)
   controls.enablePan = false
-  controls.enableZoom = false
+  // Zoom, but not by a plain scroll: a wheel over the stage should scroll the
+  // page past it, as it would over a picture. Pinching, a wheel held with ⌘
+  // or Ctrl (which is also how a trackpad reports a pinch), and the buttons
+  // beside the stage all zoom; a plain wheel is stopped before the controls
+  // can take it, and the page scrolls.
+  controls.enableZoom = true
+  controls.zoomSpeed = 0.8
+  const onWheel = (e) => {
+    if (!(e.ctrlKey || e.metaKey)) e.stopImmediatePropagation()
+  }
+  canvas.addEventListener('wheel', onWheel, { capture: true, passive: true })
   controls.enableDamping = true
   controls.dampingFactor = 0.08
   controls.minPolarAngle = 0.35
@@ -134,6 +144,16 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
     camera.near = needed / 50
     camera.far = needed * 50
     camera.updateProjectionMatrix()
+    // How close and how far the zoom may go, as shares of the fitted distance
+    controls.minDistance = needed * 0.45
+    controls.maxDistance = needed * 2.2
+  }
+  // A step of zoom from the buttons: the same limits as the wheel.
+  const zoomBy = (factor) => {
+    const d = Math.min(controls.maxDistance, Math.max(controls.minDistance, camera.position.length() * factor))
+    camera.position.setLength(d)
+    controls.update()
+    takeHold()          // zooming is taking hold as much as turning is
   }
   camera.position.copy(towards)
   controls.target.set(0, 0, 0)
@@ -159,9 +179,10 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
   }
   frame()
 
-  return () => {
+  const stop = () => {
     alive = false
     watch.disconnect()
+    canvas.removeEventListener('wheel', onWheel, { capture: true })
     controls.removeEventListener('start', takeHold)
     controls.dispose()
     draco.dispose()
@@ -174,4 +195,6 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
     scene.environment?.dispose()
     renderer.dispose()
   }
+
+  return { stop, zoomBy }
 }
