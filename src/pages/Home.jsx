@@ -275,9 +275,12 @@ export default function Home() {
           }}>
             {current.length > 1 ? 'Current projects' : 'Current project'}
           </h2>
+          {/* Cards of a fixed size, centred: three fill the row, and one on
+              its own is a card rather than a band. */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 224px))',
+            justifyContent: 'center',
             gap: 16,
             width: '100%',
             maxWidth: 720,
