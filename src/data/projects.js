@@ -64,6 +64,8 @@ export const featured = {
 // and remove freely; the section disappears when the list is empty. The
 // featured project is not repeated here.
 export const current = [
-  // No thumbnail yet: the card says so until there is a render
+  // No thumbnails yet: the cards say so until there are renders
   { label: 'Lightsaber', path: '/projects/misc/lightsaber', image: undefined, tint: 4 },
+  // Part of the Halloween Helmets project, so it leads there
+  { label: 'Scout Trooper Helmet', path: '/projects/misc/halloween-helmets', image: undefined, tint: 6 },
 ]
