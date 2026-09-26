@@ -978,11 +978,11 @@ canvas {
   .nav-sheet { animation: none; }
 }
 
-/* While the sheet is open, the bar's Home is the first item of it: the same
-   size as the links below, and set to the same left edge (the sheet's 12px
-   plus a link's 10px), so it reads as one list rather than a Home above a
-   Home. Back to its own size the moment the sheet closes. */
-.nav-home-open {
+/* On a phone the bar's Home is also the first item of the menu, which paints
+   under it — so it is the menu's size and on the menu's left edge (the
+   sheet's 12px plus a link's 10px) all the time, open or closed, rather than
+   growing when the sheet appears. */
+.nav-home-phone {
   font-size: 1.05rem !important;
   margin-left: -12px !important;
 }

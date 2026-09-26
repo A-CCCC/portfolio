@@ -197,7 +197,7 @@ export default function Navbar() {
         {/* Left side */}
         <Link
           to="/"
-          className={`nav-label${phone && menuOpen ? ' nav-home-open' : ''}`}
+          className={`nav-label${phone ? ' nav-home-phone' : ''}`}
           data-label="Home"
           onMouseEnter={() => setHovered('home')}
           onMouseLeave={() => setHovered(null)}
@@ -516,7 +516,7 @@ export default function Navbar() {
 
           <div className="nav-sheet">
             {/* No Home here: the bar's own Home, which the sheet paints under,
-                is the first item of this list — see .nav-home-open. */}
+                is the first item of this list — see .nav-home-phone. */}
 
             {tabs.map((tab) => (
               <div key={tab.label}>
