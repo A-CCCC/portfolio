@@ -29,6 +29,8 @@ const published = {
   mortar: 'A model combining extruded and mirrored geometry around an angled barrel.',
   'wheelchair-storage': 'A custom container to bring daily materials within reach.',
   'smart-kinesiology-tape': 'Disposable tape to track joint movement and hydration for recovery.',
+  // Featured on the home page, so it has to be here rather than in the private copy
+  lightsaber: 'A working lightsaber, hopefully built in time for Halloween.',
 }
 
 // A page's line under its title. One of the published ones, or — for a project

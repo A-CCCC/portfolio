@@ -958,7 +958,7 @@ canvas {
   z-index: -1;
   display: flex;
   flex-direction: column;
-  padding: 72px 12px 14px;
+  padding: 58px 12px 14px;
   background: var(--panel);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
@@ -976,6 +976,15 @@ canvas {
 
 @media (prefers-reduced-motion: reduce) {
   .nav-sheet { animation: none; }
+}
+
+/* While the sheet is open, the bar's Home is the first item of it: the same
+   size as the links below, and set to the same left edge (the sheet's 12px
+   plus a link's 10px), so it reads as one list rather than a Home above a
+   Home. Back to its own size the moment the sheet closes. */
+.nav-home-open {
+  font-size: 1.05rem !important;
+  margin-left: -12px !important;
 }
 
 .nav-sheet-link {
