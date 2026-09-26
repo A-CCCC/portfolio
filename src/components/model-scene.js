@@ -7,8 +7,8 @@
 // own that nobody downloads for a page they never reach the foot of.
 import {
   ACESFilmicToneMapping, AmbientLight, Box3, DirectionalLight, Group,
-  HemisphereLight, PerspectiveCamera, PMREMGenerator, Scene, Vector3,
-  WebGLRenderer,
+  HemisphereLight, Mesh, PCFSoftShadowMap, PerspectiveCamera, PlaneGeometry,
+  PMREMGenerator, Scene, ShadowMaterial, Vector3, WebGLRenderer,
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
@@ -22,7 +22,7 @@ const LOOK_DOWN = 0.32          // radians below level
 const FILL = 1.0                // the model's box just fits; the model sits inside it
 const IDLE_TURN = 0.6           // degrees per frame, until someone takes hold
 
-export async function mount(canvas, url, { still = false, turn = [0, 0, 0] } = {}) {
+export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHold } = {}) {
   const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.setClearColor(0x000000, 0)          // the page shows through
@@ -31,6 +31,8 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0] } = {
   // dark wood came out tan and near-black iron came out mid-grey. This is
   // where the game's own renders sit.
   renderer.toneMappingExposure = 0.75
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = PCFSoftShadowMap
 
   const scene = new Scene()
   // A room to reflect: the steel of the Mortar reads as steel only with
@@ -44,6 +46,9 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0] } = {
   scene.add(new HemisphereLight(0xffffff, 0x8899aa, 0.5))
   const key = new DirectionalLight(0xffffff, 1.3)
   key.position.set(3, 5, 4)
+  key.castShadow = true
+  key.shadow.mapSize.set(1024, 1024)
+  key.shadow.radius = 7
   scene.add(key)
   scene.add(new AmbientLight(0xffffff, 0.15))
 
@@ -59,7 +64,10 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0] } = {
   controls.autoRotateSpeed = IDLE_TURN
   // The first touch is the end of the demonstration: from then on it turns
   // only when turned.
-  const takeHold = () => { controls.autoRotate = false }
+  const takeHold = () => {
+    controls.autoRotate = false
+    if (onHold) onHold()
+  }
   controls.addEventListener('start', takeHold)
 
   const draco = new DRACOLoader()
@@ -79,6 +87,25 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0] } = {
   const centre = bounds.getCenter(new Vector3())
   holder.position.sub(centre)
   scene.add(holder)
+  model.traverse((o) => { if (o.isMesh) o.castShadow = true })
+
+  // The floor: nothing but the shadow the model throws on it, so it reads as
+  // standing on the stage rather than floating in front of it. The light's
+  // shadow camera is sized to the model, so the whole of it is in the map.
+  const extent = bounds.getSize(new Vector3())
+  const reach = Math.max(extent.x, extent.y, extent.z)
+  const floor = new Mesh(new PlaneGeometry(reach * 6, reach * 6), new ShadowMaterial({ opacity: 0.13 }))
+  floor.rotation.x = -Math.PI / 2
+  floor.position.y = bounds.min.y - centre.y - reach * 0.01
+  floor.receiveShadow = true
+  scene.add(floor)
+  key.position.setLength(reach * 3)
+  key.target.position.set(0, 0, 0)
+  scene.add(key.target)
+  Object.assign(key.shadow.camera, {
+    left: -reach, right: reach, top: reach, bottom: -reach, near: reach * 0.5, far: reach * 6,
+  })
+  key.shadow.camera.updateProjectionMatrix()
 
   // Far enough back that every corner of the model's box is in view, up and
   // down and side to side, with a little room round it — measured from the
@@ -142,6 +169,8 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0] } = {
       if (o.geometry) o.geometry.dispose()
       if (o.material) [].concat(o.material).forEach((m) => m.dispose())
     })
+    floor.geometry.dispose()
+    floor.material.dispose()
     scene.environment?.dispose()
     renderer.dispose()
   }

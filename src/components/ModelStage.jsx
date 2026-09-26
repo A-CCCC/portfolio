@@ -9,6 +9,7 @@
 // is a chunk of its own, fetched when the section is a screen away — see
 // model-scene.js — so a page costs nothing extra until its foot is near.
 import { useEffect, useRef, useState } from 'react'
+import { Rotate3d } from 'lucide-react'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
 import { TYPE } from '../styles/type'
 
@@ -18,6 +19,7 @@ export default function ModelStage({ model, label }) {
   const [ref, opacity] = useFadeInOnScroll(0)
   const canvasRef = useRef(null)
   const [state, setState] = useState('waiting')   // waiting | loading | ready | failed
+  const [held, setHeld] = useState(false)          // has anyone taken hold of it yet
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -31,7 +33,7 @@ export default function ModelStage({ model, label }) {
         const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
         const { mount } = await import('./model-scene')
         if (!alive) return
-        unmount = await mount(canvas, model.url, { still, turn: model.turn })
+        unmount = await mount(canvas, model.url, { still, turn: model.turn, onHold: () => setHeld(true) })
         if (!alive) { unmount(); return }
         setState('ready')
       } catch (err) {
@@ -76,22 +78,15 @@ export default function ModelStage({ model, label }) {
       <h2 style={{
         fontSize: TYPE.section,
         fontWeight: 300,
-        margin: '0 0 12px',
+        margin: '0 0 28px',
       }}>
         The Model
       </h2>
-      <p style={{
-        margin: '0 0 32px',
-        fontSize: TYPE.body,
-        lineHeight: 1.7,
-        color: 'var(--text-body)',
-      }}>
-        Drag to turn it around.
-      </p>
 
-      {/* The box is the size the model is drawn at; the canvas fills it and
-          is told its size by the scene, not by React. Grab cursor, so it
-          reads as something to take hold of before anyone tries. */}
+      {/* The stage: lit in the model's own tint, the way the home page floats
+          each project in a disc of it, with the site's card shadow under it.
+          The canvas is transparent, so the model stands on this, and the
+          scene throws its shadow onto it. */}
       <div
         className="model-stage"
         style={{
@@ -99,8 +94,9 @@ export default function ModelStage({ model, label }) {
           width: '100%',
           maxWidth: 960,
           height: 'clamp(320px, 62vh, 640px)',
-          borderRadius: 28,
-          border: '1px solid var(--border)',
+          borderRadius: 32,
+          background: `radial-gradient(ellipse 80% 70% at 50% 38%, var(--card-${model.tint}a), var(--card-${model.tint}b) 100%)`,
+          boxShadow: 'var(--card-shadow)',
           overflow: 'hidden',
         }}
       >
@@ -118,6 +114,17 @@ export default function ModelStage({ model, label }) {
             transition: 'opacity 0.8s ease',
           }}
         />
+
+        {/* What to do with it, said once. It fades the moment someone does. */}
+        <div
+          className="model-hint"
+          aria-hidden={held || state !== 'ready'}
+          style={{ opacity: state === 'ready' && !held ? 1 : 0 }}
+        >
+          <Rotate3d size={16} strokeWidth={1.8} aria-hidden="true" />
+          Drag to turn
+        </div>
+
         {state !== 'ready' && (
           <p
             aria-live="polite"

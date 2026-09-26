@@ -878,6 +878,31 @@ canvas {
   .shop-card:hover, .shop-card:focus-visible { transform: none; }
 }
 
+/* THE MODEL STAGE */
+
+/* The one instruction, as a pill floating at the foot of the stage: frosted,
+   so it sits on whatever tint is behind it, and gone once it has been taken. */
+.model-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+
 /* THE PHONE MENU */
 
 /* The button that stands in for the links, sized to be hit with a thumb rather
