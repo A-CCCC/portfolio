@@ -101,6 +101,17 @@ if STAVES:
     axis = spread.index(max(spread))
     across = [i for i in range(3) if i != axis]
     print('staves: axis', 'xyz'[axis], 'centre', tuple(round(c, 2) for c in centre), 'spread', [round(v, 2) for v in spread])
+    # Each plank's own span round the axis, so its grain can be laid from one
+    # crack to the other. Measured in the shared local space and written onto
+    # the part, where the material reads it back per part while it bakes.
+    for o in to_bake:
+        if not any(s.material and s.material.name.startswith(('Oak', '3D Oak')) for s in o.material_slots):
+            continue
+        angles = [math.atan2((v.co - centre)[across[1]], (v.co - centre)[across[0]]) for v in o.data.vertices]
+        if max(angles) - min(angles) > math.pi:              # a plank across the seam at ±π
+            angles = [a + 2 * math.pi if a < 0 else a for a in angles]
+        o['stave_start'] = min(angles)
+        o['stave_width'] = max(max(angles) - min(angles), 1e-3)
     for mat in {s.material for o in to_bake for s in o.material_slots if s.material}:
         if not (procedural(mat) and mat.name.startswith(('Oak', '3D Oak'))):
             continue
@@ -112,33 +123,38 @@ if STAVES:
         for link in list(nt.links):
             if link.to_node == wave and link.to_socket.name == 'Vector':
                 nt.links.remove(link)
-        # angle round the axis, times the radius, is distance round the barrel:
-        # bands in that run lengthwise along every stave
         sub = nt.nodes.new('ShaderNodeVectorMath'); sub.operation = 'SUBTRACT'
         sub.inputs[1].default_value = centre
         nt.links.new(coord.outputs['Object'], sub.inputs[0])
         sep = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(sub.outputs['Vector'], sep.inputs['Vector'])
         atan = nt.nodes.new('ShaderNodeMath'); atan.operation = 'ARCTAN2'
         nt.links.new(sep.outputs['XYZ'[across[1]]], atan.inputs[0]); nt.links.new(sep.outputs['XYZ'[across[0]]], atan.inputs[1])
-        radius = max(spread[across[0]], spread[across[1]]) / 2
-        arc = nt.nodes.new('ShaderNodeMath'); arc.operation = 'MULTIPLY'; arc.inputs[1].default_value = radius
-        nt.links.new(atan.outputs[0], arc.inputs[0])
-        # a different phase on each part, so no two staves share a grain
+        # where this plank starts and how wide it is, read off the part
+        st = nt.nodes.new('ShaderNodeAttribute'); st.attribute_type = 'OBJECT'; st.attribute_name = 'stave_start'
+        wd = nt.nodes.new('ShaderNodeAttribute'); wd.attribute_type = 'OBJECT'; wd.attribute_name = 'stave_width'
+        rel = nt.nodes.new('ShaderNodeMath'); rel.operation = 'SUBTRACT'
+        nt.links.new(atan.outputs[0], rel.inputs[0]); nt.links.new(st.outputs['Fac'], rel.inputs[1])
+        wrap = nt.nodes.new('ShaderNodeMath'); wrap.operation = 'WRAP'
+        wrap.inputs[1].default_value = 0.0; wrap.inputs[2].default_value = 2 * math.pi
+        nt.links.new(rel.outputs[0], wrap.inputs[0])
+        u = nt.nodes.new('ShaderNodeMath'); u.operation = 'DIVIDE'
+        nt.links.new(wrap.outputs[0], u.inputs[0]); nt.links.new(wd.outputs['Fac'], u.inputs[1])
+        # 0 at one crack, 1 at the other: the bands begin on the crack and
+        # repeat evenly across the plank
+        # the distortion's noise takes a different phase on each plank, so
+        # the wander differs while the bands stay put
         info = nt.nodes.new('ShaderNodeObjectInfo')
         phase = nt.nodes.new('ShaderNodeMath'); phase.operation = 'MULTIPLY'; phase.inputs[1].default_value = 37.0
         nt.links.new(info.outputs['Random'], phase.inputs[0])
-        shifted = nt.nodes.new('ShaderNodeMath'); shifted.operation = 'ADD'
-        nt.links.new(arc.outputs[0], shifted.inputs[0]); nt.links.new(phase.outputs[0], shifted.inputs[1])
-        # a little of the position along the stave, so the distortion wanders
         along = nt.nodes.new('ShaderNodeMath'); along.operation = 'MULTIPLY'; along.inputs[1].default_value = 0.35
         nt.links.new(sep.outputs['XYZ'[axis]], along.inputs[0])
         comb = nt.nodes.new('ShaderNodeCombineXYZ')
-        nt.links.new(shifted.outputs[0], comb.inputs['X']); nt.links.new(along.outputs[0], comb.inputs['Y'])
+        nt.links.new(u.outputs[0], comb.inputs['X']); nt.links.new(along.outputs[0], comb.inputs['Y']); nt.links.new(phase.outputs[0], comb.inputs['Z'])
         nt.links.new(comb.outputs['Vector'], wave.inputs['Vector'])
         wave.wave_type = 'BANDS'; wave.bands_direction = 'X'
-        wave.inputs['Scale'].default_value = 4.5       # grain lines about a fifth of a unit apart
-        wave.inputs['Distortion'].default_value = 2.2  # the wander of real grain
-        wave.inputs['Detail'].default_value = 3.0
+        wave.inputs['Scale'].default_value = 3.0       # three bands across each plank, edges on the cracks
+        wave.inputs['Distortion'].default_value = 0.35 # a little wander, not enough to leave the crack
+        wave.inputs['Detail'].default_value = 2.0
         print('staves: rewired', mat.name)
 
 bpy.ops.object.select_all(action='DESELECT')
