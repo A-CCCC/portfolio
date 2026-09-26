@@ -4,7 +4,11 @@
 # viewer loads. Run inside Blender:
 #
 #     /Applications/Blender.app/Contents/MacOS/Blender -b --python scripts/blend-to-glb.py \
-#         -- "Skeleton Barrel Fly.blend" source-models/skeleton-barrel-full.glb [frame] [atlas px]
+#         -- "Skeleton Barrel Fly.blend" source-models/skeleton-barrel-full.glb [frame] [atlas px] [staves]
+#
+# `staves` rewires every procedural wood so its grain runs along the model's
+# long axis — the way a barrel's planks do — with a different phase on each
+# part, instead of one field of grain evaluated across the whole model.
 #
 # then shrink the result for the site (see public/models/README.md).
 #
@@ -29,8 +33,9 @@ LOOKS = {
 
 args = sys.argv[sys.argv.index('--') + 1:]
 src, out = args[0], args[1]
-frame = int(args[2]) if len(args) > 2 else None
-ATLAS = int(args[3]) if len(args) > 3 else 2048
+frame = int(args[2]) if len(args) > 2 and args[2] != '-' else None
+ATLAS = int(args[3]) if len(args) > 3 and args[3] != '-' else 2048
+STAVES = len(args) > 4 and args[4] == 'staves'
 
 bpy.ops.wm.open_mainfile(filepath=src)
 sc = bpy.context.scene
@@ -80,34 +85,88 @@ to_bake = [o for o in frozen if any(procedural(s.material) for s in o.material_s
 plain = [o for o in frozen if o not in to_bake]
 print('parts to bake', len(to_bake), '| kept flat', len(plain))
 
+# Every part is baked as itself, so a texture that reads the part it is on
+# — a random per part, the part's own coordinates — gives each part its own
+# grain. The parts share one atlas, unwrapped together so no two overlap.
+import math
+from mathutils import Vector
+
+if STAVES:
+    # The barrel's axis, in the shared local space of its parts: the direction
+    # the wood is longest in, through the middle of it.
+    pts = [Vector(v.co) for o in to_bake for v in o.data.vertices
+           if any(s.material and s.material.name.startswith(('Oak', '3D Oak')) for s in o.material_slots)]
+    centre = sum(pts, Vector()) / max(len(pts), 1)
+    spread = [max(p[i] for p in pts) - min(p[i] for p in pts) for i in range(3)]
+    axis = spread.index(max(spread))
+    across = [i for i in range(3) if i != axis]
+    print('staves: axis', 'xyz'[axis], 'centre', tuple(round(c, 2) for c in centre), 'spread', [round(v, 2) for v in spread])
+    for mat in {s.material for o in to_bake for s in o.material_slots if s.material}:
+        if not (procedural(mat) and mat.name.startswith(('Oak', '3D Oak'))):
+            continue
+        nt = mat.node_tree
+        wave = next((n for n in nt.nodes if n.type == 'TEX_WAVE'), None)
+        coord = next((n for n in nt.nodes if n.type == 'TEX_COORD'), None)
+        if not (wave and coord):
+            continue
+        for link in list(nt.links):
+            if link.to_node == wave and link.to_socket.name == 'Vector':
+                nt.links.remove(link)
+        # angle round the axis, times the radius, is distance round the barrel:
+        # bands in that run lengthwise along every stave
+        sub = nt.nodes.new('ShaderNodeVectorMath'); sub.operation = 'SUBTRACT'
+        sub.inputs[1].default_value = centre
+        nt.links.new(coord.outputs['Object'], sub.inputs[0])
+        sep = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(sub.outputs['Vector'], sep.inputs['Vector'])
+        atan = nt.nodes.new('ShaderNodeMath'); atan.operation = 'ARCTAN2'
+        nt.links.new(sep.outputs['XYZ'[across[1]]], atan.inputs[0]); nt.links.new(sep.outputs['XYZ'[across[0]]], atan.inputs[1])
+        radius = max(spread[across[0]], spread[across[1]]) / 2
+        arc = nt.nodes.new('ShaderNodeMath'); arc.operation = 'MULTIPLY'; arc.inputs[1].default_value = radius
+        nt.links.new(atan.outputs[0], arc.inputs[0])
+        # a different phase on each part, so no two staves share a grain
+        info = nt.nodes.new('ShaderNodeObjectInfo')
+        phase = nt.nodes.new('ShaderNodeMath'); phase.operation = 'MULTIPLY'; phase.inputs[1].default_value = 37.0
+        nt.links.new(info.outputs['Random'], phase.inputs[0])
+        shifted = nt.nodes.new('ShaderNodeMath'); shifted.operation = 'ADD'
+        nt.links.new(arc.outputs[0], shifted.inputs[0]); nt.links.new(phase.outputs[0], shifted.inputs[1])
+        # a little of the position along the stave, so the distortion wanders
+        along = nt.nodes.new('ShaderNodeMath'); along.operation = 'MULTIPLY'; along.inputs[1].default_value = 0.35
+        nt.links.new(sep.outputs['XYZ'[axis]], along.inputs[0])
+        comb = nt.nodes.new('ShaderNodeCombineXYZ')
+        nt.links.new(shifted.outputs[0], comb.inputs['X']); nt.links.new(along.outputs[0], comb.inputs['Y'])
+        nt.links.new(comb.outputs['Vector'], wave.inputs['Vector'])
+        wave.wave_type = 'BANDS'; wave.bands_direction = 'X'
+        wave.inputs['Scale'].default_value = 4.5       # grain lines about a fifth of a unit apart
+        wave.inputs['Distortion'].default_value = 2.2  # the wander of real grain
+        wave.inputs['Detail'].default_value = 3.0
+        print('staves: rewired', mat.name)
+
 bpy.ops.object.select_all(action='DESELECT')
 for o in to_bake:
     o.data = o.data.copy()
     o.select_set(True)
 bpy.context.view_layer.objects.active = to_bake[0]
-bpy.ops.object.join()
-whole = bpy.context.view_layer.objects.active
-whole.name = 'baked'
-# Its own copies of its materials, so the flat parts keep the originals.
-for slot in whole.material_slots:
-    slot.material = slot.material.copy()
+# Its own copies of the materials, shared among the baked parts, so the flat
+# parts keep the originals.
+copies = {}
+for o in to_bake:
+    for slot in o.material_slots:
+        if slot.material not in copies:
+            copies[slot.material] = slot.material.copy()
+        slot.material = copies[slot.material]
+# Welded, unwrapped and packed together: one layout across every part, so
+# no two parts share a patch of the atlas.
 bpy.ops.object.mode_set(mode='EDIT')
 bpy.ops.mesh.select_all(action='SELECT')
-# The mesh arrived from Fusion with no vertex shared between triangles, so an
-# unwrap would make every triangle its own island — and an atlas that is all
-# edges. Welded first, faces join into a few islands; the shading that the
-# split vertices carried comes back from the angle between faces.
 bpy.ops.mesh.remove_doubles(threshold=0.0001)
-# Islands further apart than the bake bleeds, or one bleeds into the next.
 bpy.ops.uv.smart_project(angle_limit=1.15, island_margin=0.01)
+bpy.ops.uv.pack_islands(margin=0.01)
 bpy.ops.object.mode_set(mode='OBJECT')
-import math
 for op in ('shade_smooth_by_angle', 'shade_auto_smooth'):
     if hasattr(bpy.ops.object, op):
         getattr(bpy.ops.object, op)(angle=math.radians(35))
         break
-print('islands from', len(whole.data.polygons), 'faces after welding')
-print('triangles baked', sum(len(p.vertices) - 2 for p in whole.data.polygons), 'materials', len(whole.material_slots))
+print('triangles baked', sum(sum(len(p.vertices) - 2 for p in o.data.polygons) for o in to_bake), 'parts', len(to_bake), 'materials', len(copies))
 
 # The colour of those parts, baked into one image. Diffuse colour only — no
 # light in it — so one sample is exact. The atlas starts mid-grey rather than
@@ -116,8 +175,7 @@ print('triangles baked', sum(len(p.vertices) - 2 for p in whole.data.polygons), 
 atlas = bpy.data.images.new('atlas', ATLAS, ATLAS)
 atlas.generated_color = (0.5, 0.5, 0.5, 1.0)
 BLEED = 8
-for slot in whole.material_slots:
-    mat = slot.material
+for mat in copies.values():
     node = mat.node_tree.nodes.new('ShaderNodeTexImage')
     node.image = atlas
     node.name = 'bake'
@@ -129,13 +187,19 @@ sc.render.bake.use_pass_direct = False
 sc.render.bake.use_pass_indirect = False
 sc.render.bake.margin = BLEED
 sc.render.bake.margin_type = 'ADJACENT_FACES'
+sc.render.bake.use_clear = False
 bpy.ops.object.select_all(action='DESELECT')
-whole.select_set(True)
-bpy.context.view_layer.objects.active = whole
-bpy.ops.object.bake(type='DIFFUSE', pass_filter={'COLOR'}, margin=BLEED)
+for o in to_bake:
+    o.select_set(True)
+bpy.context.view_layer.objects.active = to_bake[0]
+bpy.ops.object.bake(type='DIFFUSE', pass_filter={'COLOR'}, margin=BLEED, use_clear=False)
 atlas.pack()
 print('baked', ATLAS)
 
+# One mesh for the site, now that every part has its own patch of the atlas.
+bpy.ops.object.join()
+whole = bpy.context.view_layer.objects.active
+whole.name = 'baked'
 # The baked parts' materials now read the atlas for colour and keep the rest.
 for slot in whole.material_slots:
     mat = slot.material

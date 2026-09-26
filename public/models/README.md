@@ -21,6 +21,11 @@ procedural materials into an image, and exports:
 then step 3 below, with `--texture-compress webp` added. These arrive the
 right way up; `turn` in src/data/models.js is only for facing the camera.
 
+For a model made of planks, add `- - staves` after the output path: the
+wood's grain is then laid along the model's long axis with a different phase
+on every part, instead of one field of grain evaluated across the whole model
+(which on the barrel came out as rings). The Skeleton Barrel uses it.
+
 ## From a Fusion export
 
 To add one:
