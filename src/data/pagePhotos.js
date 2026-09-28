@@ -42,4 +42,32 @@ export default {
 }
 
 // The stages of the work, one per subfolder — see public/photos/PAGE-PHOTOS.md.
-export const stages = {}
+export const stages = {
+  "lightsaber": [
+    {
+      "slug": "02-prototype",
+      "title": "Prototype",
+      "photos": [
+        "/photos/lightsaber/02-prototype/01-mechanism.webp",
+        "/photos/lightsaber/02-prototype/02-mechanism-close.webp"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "03-blade",
+      "title": "Blade",
+      "photos": [
+        "/photos/lightsaber/03-blade/01-blade-extended.webp"
+      ],
+      "note": ""
+    },
+    {
+      "slug": "04-hilt",
+      "title": "Hilt",
+      "photos": [
+        "/photos/lightsaber/04-hilt/01-printed-hilt.webp"
+      ],
+      "note": ""
+    }
+  ]
+}

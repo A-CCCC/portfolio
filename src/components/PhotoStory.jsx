@@ -12,7 +12,7 @@ import { TYPE } from '../styles/type'
 
 // The photos for one section. Kept as its own component so it can be swapped for
 // a carousel later without touching the surrounding layout.
-export function PhotoGroup({ photos, heading }) {
+export function PhotoGroup({ photos, heading, aspect = '1 / 1' }) {
   return (
     <div style={{
       display: 'grid',
@@ -35,7 +35,7 @@ export function PhotoGroup({ photos, heading }) {
             // whole — `cover` would fill the cell but crop the overflow, which
             // clipped the edges off these shots. A square suits the mix: a
             // landscape photo fills the width, a portrait one fills the height.
-            aspectRatio: '1 / 1',
+            aspectRatio: aspect,
             objectFit: 'contain',
             display: 'block',
             // No background: with `contain` the leftover space would otherwise

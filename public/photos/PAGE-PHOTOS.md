@@ -9,25 +9,24 @@ up to date — but do restart the dev server (or rebuild) after adding files.
 
 Anything ending .jpg .jpeg .png or .webp is picked up, in filename order.
 
-## A project still being made: stages
+## A project still being made: groups of photos
 
 For a page that documents work in progress — the Halloween pages, RC Car
-Repair — a subfolder of the page's folder is one stage of the work:
+Repair, the Moth Trap — a subfolder of the page's folder is one group of
+photos, shown in order with a rule between groups:
 
-    public/photos/lightsaber/01-design/         -> "Design", stage 1
-    public/photos/lightsaber/02-parts/          -> "Parts", stage 2
-    public/photos/lightsaber/02-parts/note.txt  -> a line or two under that heading
-    public/photos/lightsaber/02-parts/a.jpg     -> its photos, in filename order
+    public/photos/lightsaber/02-prototype/          -> the second group
+    public/photos/lightsaber/02-prototype/a.jpg     -> its photos, in filename order
+    public/photos/lightsaber/02-prototype/note.txt  -> words above them, if wanted
 
-The folder's name is the heading, minus the number in front, which sets the
-order. A `note.txt` beside the photos is the words for that stage; a blank line
-in it is a paragraph break. A stage with neither photos nor a note shows
-nothing, so the folders can be made ahead of the work. Photos in the page's
-folder itself (not in a stage) still show as the finished gallery, under the
-stages.
+The folder's name is for you; only the number in front matters, and it sets
+the order. Nothing is titled on the page. A `note.txt` beside the photos
+puts a line or two above that group — a blank line in it is a paragraph break
+— and a group without one is just its photos. A folder with neither shows
+nothing, so folders can be made ahead of the work. Photos in the page's
+folder itself (not in a group) show as the finished gallery, underneath.
 
-The Lightsaber and Scout Trooper pages have their stage folders made already,
-each with a README saying what it is for.
+Photos go in as they are: the page shows each whole, in a 4:3 cell.
 
 ## RC Car Repair
 

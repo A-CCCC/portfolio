@@ -109,6 +109,7 @@ const tabs = [
         path: '/projects/misc',
         items: [
           { label: 'RC Car Repair', path: '/projects/misc/rc-car-repair' },
+          { label: 'Moth Trap', path: '/projects/misc/moth-trap' },
         ],
       },
     ],

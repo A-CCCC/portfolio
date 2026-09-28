@@ -17,4 +17,5 @@ export const PENDING = new Set([
   '/projects/halloween/lightsaber',
   '/projects/halloween/minecraft',
   '/projects/misc/rc-car-repair',
+  '/projects/misc/moth-trap',
 ])

@@ -1,9 +1,11 @@
 // src/components/BuildLog.jsx
 //
-// The work so far, stage by stage, for a project still being made. Each stage
-// is a subfolder of the page's photo folder — its name is the heading, its
-// note.txt the words, its photos the pictures — so documenting a build is a
-// matter of dropping files in as it goes. See public/photos/PAGE-PHOTOS.md.
+// The work so far, in groups, for a project still being made. Each group is a
+// subfolder of the page's photo folder — its number sets the order, its
+// note.txt is the words if there are any, its photos the pictures — so
+// documenting a build is a matter of dropping files in as it goes. No
+// headings: the photos speak, and a note is there when there is something
+// to say. See public/photos/PAGE-PHOTOS.md.
 //
 // Renders nothing without a stage to show, so a page can carry the slot before
 // the work has begun.
@@ -12,7 +14,7 @@ import { PhotoGroup } from './PhotoStory'
 import asset from '../lib-asset'
 import { TYPE } from '../styles/type'
 
-function Stage({ stage, index, count, heading }) {
+function Stage({ stage, index, heading }) {
   const [ref, opacity] = useFadeInOnScroll(0)
   const photos = stage.photos.map(asset)
 
@@ -22,32 +24,17 @@ function Stage({ stage, index, count, heading }) {
       style={{
         maxWidth: 1100,
         margin: '0 auto',
-        padding: '40px 0',
+        padding: '32px 0',
         borderTop: index === 0 ? 0 : '1px solid var(--border)',
         opacity,
         transition: 'opacity 1.5s ease',
       }}
     >
-      <p style={{
-        margin: 0,
-        fontSize: TYPE.caption,
-        letterSpacing: '0.12em',
-        textTransform: 'uppercase',
-        color: 'var(--text-muted)',
-      }}>
-        Stage {index + 1} of {count}
-      </p>
-      <h2 style={{
-        fontSize: TYPE.sub,
-        fontWeight: 300,
-        letterSpacing: '-0.01em',
-        margin: '6px 0 0',
-      }}>
-        {stage.title}
-      </h2>
+      {/* Words only where there is a note.txt: the photos are the point, and
+          a group of them needs no title to be looked at. */}
       {stage.note && (
         <p style={{
-          margin: '14px 0 0',
+          margin: '0 0 24px',
           maxWidth: 640,
           fontSize: TYPE.body,
           lineHeight: 1.7,
@@ -59,9 +46,8 @@ function Stage({ stage, index, count, heading }) {
         </p>
       )}
       {photos.length > 0 && (
-        <div style={{ marginTop: 24 }}>
-          <PhotoGroup photos={photos} heading={`${heading} — ${stage.title}`} />
-        </div>
+        /* The build photos are cut to 4:3 on the way in, so the cells are too */
+        <PhotoGroup photos={photos} heading={heading} aspect="4 / 3" />
       )}
     </section>
   )
@@ -83,7 +69,7 @@ export default function BuildLog({ stages = [], heading }) {
         Work in progress
       </p>
       {stages.map((stage, i) => (
-        <Stage key={stage.slug} stage={stage} index={i} count={stages.length} heading={heading} />
+        <Stage key={stage.slug} stage={stage} index={i} heading={heading} />
       ))}
     </div>
   )

@@ -1,6 +1,6 @@
-Stage: 01-design
+Stage: 05-electronics
 
-Sketches, references and the plan for the hilt and blade.
+Lights, sound and the wiring inside.
 
 Drop the photos for this stage in here (.jpg, .jpeg, .png or .webp), and they
 show on the page in filename order, with no heading.

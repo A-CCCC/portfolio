@@ -20,6 +20,7 @@ import Lightsaber from './pages/projects/halloween/Lightsaber'
 import Minecraft from './pages/projects/halloween/Minecraft'
 import Misc from './pages/projects/Misc'
 import RCCarRepair from './pages/projects/misc/RCCarRepair'
+import MothTrap from './pages/projects/misc/MothTrap'
 import Solutions from './pages/Solutions'
 import Accessibility from './pages/solutions/Accessibility'
 import WheelchairStorage from './pages/solutions/accessibility/WheelchairStorage'
@@ -77,6 +78,7 @@ export default function App() {
         <Route path="/projects/halloween/minecraft" element={<Minecraft />} />
         <Route path="/projects/misc" element={<Misc />} />
         <Route path="/projects/misc/rc-car-repair" element={<RCCarRepair />} />
+        <Route path="/projects/misc/moth-trap" element={<MothTrap />} />
         {/* Where these two used to live, for anyone holding an old link */}
         <Route path="/projects/misc/halloween-helmets" element={<Navigate to="/projects/halloween/darth-vader" replace />} />
         <Route path="/projects/misc/lightsaber" element={<Navigate to="/projects/halloween/lightsaber" replace />} />

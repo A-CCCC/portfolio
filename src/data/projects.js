@@ -49,6 +49,8 @@ export const halloween = [
 
 export const misc = [
   { label: 'RC Car Repair', path: '/projects/misc/rc-car-repair', image: asset('/thumbnails/rc-car-repair.webp') },
+  // No thumbnail yet: the card says so until there is a render
+  { label: 'Moth Trap', path: '/projects/misc/moth-trap', image: undefined },
 ]
 
 // The projects the home-page bubbles draw on by quota. Halloween and
