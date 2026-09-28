@@ -40,3 +40,6 @@ export default {
     "/photos/wheelchair-storage/under-chair-2.jpeg"
   ]
 }
+
+// The stages of the work, one per subfolder — see public/photos/PAGE-PHOTOS.md.
+export const stages = {}

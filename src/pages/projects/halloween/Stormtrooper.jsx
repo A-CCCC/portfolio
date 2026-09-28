@@ -1,8 +1,9 @@
 // src/pages/projects/misc/Stormtrooper.jsx
-import pagePhotos from '../../../data/pagePhotos'
+import pagePhotos, { stages } from '../../../data/pagePhotos'
 import useFadeInOnScroll from '../../../hooks/useFadeInOnScroll'
 import PageIntro from '../../../components/PageIntro'
 import { PhotoGroup } from '../../../components/PhotoStory'
+import BuildLog from '../../../components/BuildLog'
 import asset from '../../../lib-asset'
 import { describe } from '../../../data/site-copy'
 
@@ -14,6 +15,9 @@ const DESCRIPTION = describe('stormtrooper')
 // read at build time (see scripts/photo-manifest.mjs), so adding a photo is a
 // matter of dropping the file in.
 const PHOTOS = (pagePhotos['stormtrooper'] ?? []).map(asset)
+// And the work so far, a stage per subfolder — see public/photos/PAGE-PHOTOS.md.
+const STAGES = stages['stormtrooper'] ?? []
+const EMPTY = PHOTOS.length === 0 && STAGES.length === 0
 
 export default function Stormtrooper() {
   const [photosRef, photosOpacity] = useFadeInOnScroll(0)
@@ -23,9 +27,11 @@ export default function Stormtrooper() {
       <PageIntro
         title="Stormtrooper"
         description={DESCRIPTION}
-        comingSoon={PHOTOS.length === 0}
-        full={PHOTOS.length === 0}
+        comingSoon={EMPTY}
+        full={EMPTY}
       />
+
+      <BuildLog stages={STAGES} heading="Stormtrooper" />
 
       {/* Renders nothing until there are photos in the folder, so the page reads
           as a stub rather than as a gallery with a hole in it. */}
