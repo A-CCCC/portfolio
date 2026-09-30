@@ -1,24 +1,18 @@
 // src/pages/About.jsx
 //
 // Who I am, at length: the portrait and the paragraph from the home page, and
-// under them the résumé. Only where the private copy exists — in public the
-// tab leads to a page that says it is not available here.
+// under them the résumé. Published: the paragraph is on the public home page
+// word for word, and the résumé's public copy leaves out the phone number.
 import useFadeIn from '../hooks/useFadeIn'
 import { TYPE } from '../styles/type'
 import Portrait from '../components/Portrait'
-import PageIntro from '../components/PageIntro'
 import Resume from '../components/Resume'
-import { isFullSite, resume } from '../data/site-copy'
+import { resume } from '../data/site-copy'
 
 export default function About() {
   const titleOpacity = useFadeIn(100)
   const bodyOpacity = useFadeIn(600)
   const resumeOpacity = useFadeIn(1000)
-
-  // Below the hooks, which have to run the same way on every render.
-  if (!isFullSite) {
-    return <PageIntro title="About Me" description="" comingSoon notice="(Not Available Here)" />
-  }
 
   return (
     <div style={{
