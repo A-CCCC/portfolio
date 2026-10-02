@@ -294,13 +294,15 @@ export default function ProjectBubbles() {
   const navigate = useNavigate()
   const [swelling, setSwelling] = useState(null)
   const [popping, setPopping] = useState(null)
-  const pop = (e, path) => {
+  const [popHue, setPopHue] = useState(null)
+  const pop = (e, path, hue) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     e.preventDefault()
     if (swelling) return
     const bubble = e.currentTarget
     setSwelling(path)
+    setPopHue(hue)
     setTimeout(() => {
       setPopping(path)
       // The page dives into the bubble: the page's own root element (the
@@ -322,13 +324,20 @@ export default function ProjectBubbles() {
     }, SWELL_MS)
     setTimeout(() => {
       document.documentElement.classList.remove('diving')
+      // The colour stays over the new page for a moment and clears, so the
+      // page arrives out of the bubble's colour rather than cutting from it.
+      const after = document.createElement('div')
+      after.className = 'bubble-veil-out'
+      after.style.setProperty('--pop-hue', hue)
+      document.body.appendChild(after)
+      setTimeout(() => after.remove(), 500)
       navigate(path)
     }, SWELL_MS + DIVE_MS)
   }
 
   return (
     <>
-    {popping && createPortal(<div className="bubble-veil" aria-hidden="true" />, document.body)}
+    {popping && createPortal(<div className="bubble-veil" aria-hidden="true" style={{ '--pop-hue': popHue }} />, document.body)}
     <div
       className={`bubble-layer${popping ? ' bubble-layer-popping' : ''}`}
       aria-hidden={visible ? undefined : 'true'}
@@ -368,7 +377,7 @@ export default function ProjectBubbles() {
           >
             <Link
               to={project.path}
-              onClick={(e) => pop(e, project.path)}
+              onClick={(e) => pop(e, project.path, HUES[i % HUES.length])}
               className={[
                 'glass bubble',
                 project.photo ? 'bubble-photo' : '',

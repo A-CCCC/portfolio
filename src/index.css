@@ -86,25 +86,27 @@
      in the light's own values, cross-fading between the two. */
   --lg-tint-share: 55%;
   --lg-hue-share: 44%;
+  --vivid-a: #ffd23f;
+  --vivid-b: #ff8c5a;
   --lg-fill: rgba(255, 255, 255, 0.55);
-  --lg-band: rgba(255, 255, 255, 0.75);
+  --lg-band: rgba(255, 250, 230, 0.75);
   --lg-line: rgba(255, 255, 255, 0.9);
-  --lg-rim: rgba(220, 231, 248, 1);
-  --lg-rim-far: rgba(211, 225, 246, 0.75);
+  --lg-rim: rgba(255, 232, 150, 1);
+  --lg-rim-far: rgba(255, 224, 140, 0.75);
   --lg-edge: rgba(0, 0, 0, 0.14);
   --lg-under: rgba(0, 0, 0, 0.16);
   --lg-shade: rgba(0, 0, 0, 0.16);
-  --lg-glint: rgba(238, 244, 251, 0.92);
-  --lg-cast: rgba(150, 220, 190, 0.16);
+  --lg-glint: rgba(255, 250, 218, 0.92);
+  --lg-cast: rgba(255, 138, 92, 0.17);
   /* The titles' glass on the light page: dark glass — the ink, lighter
      towards the light — with a white line of light along the edges that
      face it, a soft grey shadow, and a sheen crossing it. */
-  --gt-ink: rgba(21, 28, 50, 0.88);
-  --gt-ink-foot: rgba(30, 44, 86, 0.82);
-  --gt-light: rgba(224, 235, 249, 0.95);
+  --gt-ink: rgba(74, 46, 8, 0.9);
+  --gt-ink-foot: rgba(140, 70, 30, 0.84);
+  --gt-light: rgba(255, 246, 190, 0.95);
   --gt-shadow: rgba(0, 0, 0, 0.22);
-  --gt-sheen: rgba(150, 205, 255, 0.7);
-  --gt-sheen-2: rgba(70, 200, 150, 0.78);
+  --gt-sheen: rgba(255, 226, 110, 0.75);
+  --gt-sheen-2: rgba(255, 140, 84, 0.8);
 
   /* Carousel card tints — cycled by index */
   --card-1a: #eaf1fb;  --card-1b: #d5e4f6;
@@ -173,6 +175,8 @@
   --lg-fill: rgba(255, 255, 255, 0.06);
   --lg-tint-share: 22%;
   --lg-hue-share: 60%;
+  --vivid-a: #4f94ff;
+  --vivid-b: #3ccf78;
   --lg-band: rgba(141, 169, 229, 0.12);
   --lg-line: rgba(255, 255, 255, 0.4);
   --lg-rim: rgba(163, 198, 237, 0.85);
@@ -206,11 +210,10 @@
   --cloud-shade: rgba(120, 146, 176, 0.26);
   --caption-ink: #eef0f2;
 
-  /* The alternate band on the dark page: not the light page's white,
-     which lands like a flash in a dark room, but a warm mid grey lifted
-     from the page's own dark — a lighter panel of the same room — with
-     light text and the dark page's own glass on it. */
-  --band-bg: #56534c;
+  /* The alternate band on the dark page: a shade lighter than the page in
+     the page's own hue, the way Apple steps its dark sections, with light
+     text and the dark page's own glass on it. */
+  --band-bg: #262420;
   --band-ink: #f5f5f7;
   --band-body: #d6d3cb;
   --band-hover: rgba(255, 255, 255, 0.14);
@@ -259,6 +262,8 @@
     --lg-fill: rgba(255, 255, 255, 0.06);
     --lg-tint-share: 22%;
   --lg-hue-share: 60%;
+  --vivid-a: #4f94ff;
+  --vivid-b: #3ccf78;
     --lg-band: rgba(141, 169, 229, 0.12);
     --lg-line: rgba(255, 255, 255, 0.4);
     --lg-rim: rgba(163, 198, 237, 0.85);
@@ -287,7 +292,7 @@
     --cloud-shade: rgba(120, 146, 176, 0.26);
     --caption-ink: #eef0f2;
 
-    --band-bg: #56534c;
+    --band-bg: #262420;
     --band-ink: #f5f5f7;
     --band-body: #d6d3cb;
     --band-hover: rgba(255, 255, 255, 0.14);
@@ -568,9 +573,7 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
 .carousel-card {
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
               box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  /* Its tint thinned, so the vivid light shows through it as on the home
-     page's panels, and a glint wide enough for a tall card. */
-  --lg-tint-share: 30%;
+  /* Its own tint, as before, under a glint wide enough for a tall card */
   --glint-size: 135% 110%;
 }
 
@@ -752,17 +755,25 @@ html.diving { overflow: hidden; }
   from { transform: translate(0, 0) scale(1); }
   to { transform: translate(var(--dive-dx), var(--dive-dy)) scale(3.4); }
 }
-.bubble-veil {
+.bubble-veil,
+.bubble-veil-out {
   position: fixed;
   inset: 0;
   z-index: 40;              /* under the bar, over the page */
-  background: var(--bg);
-  animation: bubble-veil 0.3s ease 0.3s both;
+  /* A wash of the bubble's colour over the page's own, not the colour
+     itself: enough to say which bubble, not enough to flood the eye */
+  background: color-mix(in srgb, var(--pop-hue) 32%, var(--bg));
   pointer-events: none;
 }
+.bubble-veil { animation: bubble-veil 0.3s ease 0.3s both; }
+.bubble-veil-out { animation: bubble-veil-out 0.45s ease forwards; }
 @keyframes bubble-veil {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+@keyframes bubble-veil-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 /* Hold still while it's being aimed at, so it's easy to click */
@@ -1050,11 +1061,11 @@ html.diving { overflow: hidden; }
    the light on them a fuller blue and the far side a fuller green, so the
    small pieces of glass the page is handled through show their colour. */
 .glass-vivid {
-  --lit-glint: color-mix(in srgb, #4f94ff 38%, color-mix(in srgb, var(--lg-glint) 70%, white));
-  --lit-rim: color-mix(in srgb, #4f94ff 50%, var(--lg-rim));
-  --lit-rim-far: color-mix(in srgb, #4f94ff 50%, var(--lg-rim-far));
-  --lit-band: color-mix(in srgb, #4f94ff 40%, var(--lg-band));
-  --lit-cast: color-mix(in srgb, #3ccf78 45%, var(--lg-cast));
+  --lit-glint: color-mix(in srgb, var(--vivid-a) 38%, color-mix(in srgb, var(--lg-glint) 70%, white));
+  --lit-rim: color-mix(in srgb, var(--vivid-a) 50%, var(--lg-rim));
+  --lit-rim-far: color-mix(in srgb, var(--vivid-a) 50%, var(--lg-rim-far));
+  --lit-band: color-mix(in srgb, var(--vivid-a) 40%, var(--lg-band));
+  --lit-cast: color-mix(in srgb, var(--vivid-b) 45%, var(--lg-cast));
   --glint-size: 120% 95%;
 }
 /* The glass under a hovered link: behind the text, in the label's own
@@ -1227,6 +1238,8 @@ canvas {
 @property --lg-shade { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --lg-glint { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --lg-cast { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --vivid-a { syntax: "<color>"; inherits: true; initial-value: #4f94ff; }
+@property --vivid-b { syntax: "<color>"; inherits: true; initial-value: #3ccf78; }
 @property --lg-tint-share { syntax: "<percentage>"; inherits: true; initial-value: 100%; }
 @property --lg-hue-share { syntax: "<percentage>"; inherits: true; initial-value: 100%; }
 @property --card-1a { syntax: "<color>"; inherits: true; initial-value: #eaf1fb; }
@@ -1310,6 +1323,8 @@ canvas {
     --lg-shade var(--theme-fade) var(--theme-ease),
     --lg-glint var(--theme-fade) var(--theme-ease),
     --lg-cast var(--theme-fade) var(--theme-ease),
+    --vivid-a var(--theme-fade) var(--theme-ease),
+    --vivid-b var(--theme-fade) var(--theme-ease),
     --lg-tint-share var(--theme-fade) var(--theme-ease),
     --lg-hue-share var(--theme-fade) var(--theme-ease),
     --caption-ink var(--theme-fade) var(--theme-ease),
@@ -1398,6 +1413,7 @@ canvas {
 @media (prefers-reduced-motion: reduce) {
   .nav-top { transition: opacity 0.45s ease; }
   .nav-top:hover { transform: translate(-50%, -50%); }
+  .nav-menu, .nav-submenu { animation: none; }
 }
 
 /* THE SERVICES PAGE */
@@ -1688,11 +1704,33 @@ canvas {
    glass's own blur elsewhere. */
 /* A submenu sits against the menu it opened from: its inner corners
    square and its edge a pixel over the menu's, so the join is seamless. */
+.nav-menu {
+  /* backwards, not both: a clip kept after the open would clip the submenu
+     that hangs outside this box */
+  animation: menu-down 0.28s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+}
+@keyframes menu-down {
+  from { clip-path: inset(0 0 100% 0 round 12px); opacity: 0.5; }
+  to { clip-path: inset(0 0 0 0 round 12px); opacity: 1; }
+}
 .nav-submenu {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   margin-left: -1px;
+  /* Its top row comes out sideways from the menu first, then the rest lets
+     down from it. The row is a label's padding and line (about 46px with
+     the menu's own padding). */
+  animation: submenu-out 0.42s cubic-bezier(0.2, 0.8, 0.3, 1) both;
 }
+@keyframes submenu-out {
+  0% { clip-path: inset(0 100% calc(100% - 46px) 0 round 0 12px 12px 0); }
+  45% { clip-path: inset(0 0 calc(100% - 46px) 0 round 0 12px 12px 0); }
+  100% { clip-path: inset(0 0 0 0 round 0 12px 12px 0); }
+}
+/* The row a submenu opens from is not positioned — the glass rule above
+   would make it so, and the submenu would then hang off the row, a padding
+   lower and a padding in — so the submenu is placed against the menu. */
+.nav-menu > .nav-group { position: static; z-index: auto; }
 /* The menus over the page, as glass the page shows through: a lighter
    blur than a card's and a thinner fill, so what is under them is still
    there, softened and coloured; and in Chromium the lens itself

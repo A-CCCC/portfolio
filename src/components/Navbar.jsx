@@ -320,8 +320,9 @@ export default function Navbar() {
                   {tab.categories.map((category) => (
                     <div
                       key={category.label}
-                      // Not positioned: the submenu inside is placed against the
-                      // menu, not against this row, so the two line up.
+                      // Not positioned (see .nav-group): the submenu inside is
+                      // placed against the menu, not this row, so the two line up.
+                      className="nav-group"
                       onMouseEnter={() => setOpenCategory(category.label)}
                       onMouseLeave={() => setOpenCategory(null)}
                     >

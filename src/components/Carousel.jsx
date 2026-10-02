@@ -152,7 +152,7 @@ export default function Carousel({ items }) {
         <Link
           key={item.label}
           to={item.path}
-          className="glass glass-vivid carousel-card"
+          className="glass carousel-card"
           style={{
             scrollSnapAlign: 'center',
             flex: '0 0 auto',
