@@ -37,7 +37,7 @@ function Loaded({ onAgain }) {
       opacity,
       transition: 'opacity 1.2s ease',
     }}>
-      <h1 style={{
+      <h1 className="glass-title" data-text="Loaded" style={{
         fontSize: TYPE.pageTitle,
         fontWeight: 'bold',
         letterSpacing: '-0.01em',

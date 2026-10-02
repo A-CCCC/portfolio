@@ -23,7 +23,7 @@ export default function ClashRoyale() {
         padding: '0 24px',
         textAlign: 'center',
       }}>
-        <h1 style={{
+        <h1 className="glass-title" data-text="Clash Royale Projects" style={{
           fontSize: TYPE.pageTitle,
           fontWeight: 'bold',
           opacity: titleOpacity,

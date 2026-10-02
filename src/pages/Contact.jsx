@@ -29,7 +29,7 @@ export default function Contact() {
       alignItems: 'center',
       textAlign: 'center',
     }}>
-      <h1 style={{
+      <h1 className="glass-title" data-text="Services" style={{
         fontSize: TYPE.pageTitle,
         fontWeight: 'bold',
         letterSpacing: '-0.01em',
@@ -71,11 +71,11 @@ export default function Contact() {
               href={item.url}
               target="_blank"
               rel="noreferrer"
-              className="shop-card"
+              className="glass shop-card"
             >
               <span
-                className="shop-card-disc"
-                style={{ background: `var(--card-${item.tint})` }}
+                className="glass shop-card-disc"
+                style={{ '--lg-tint': `var(--glass-${item.tint})` }}
               >
                 {item.image && <img src={item.image} alt="" />}
               </span>

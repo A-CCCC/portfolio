@@ -70,7 +70,7 @@ export default function ContextNote({ title, images = [], alt = '', children }) 
   const words = (
     <div style={picture ? { flex: '1 1 360px', maxWidth: WORDS_MAX } : { maxWidth: 720 }}>
       {title && (
-        <h2 style={{
+        <h2 className="glass-title" data-text={title} style={{
           fontSize: TYPE.sub,
           fontWeight: 300,
           letterSpacing: '-0.01em',

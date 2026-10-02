@@ -58,15 +58,14 @@ export default function ThemeToggle() {
 
       {/* Collapsed circle — always visible */}
       <div
+        className="glass"
         onMouseEnter={() => setCircleHover(true)}
         onMouseLeave={() => setCircleHover(false)}
         style={{
           width: 44,
           height: 44,
           borderRadius: '50%',
-          background: circleHover ? 'var(--hover)' : 'var(--panel)',
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+          '--lg-tint': circleHover ? 'var(--hover)' : undefined,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -84,16 +83,13 @@ export default function ThemeToggle() {
 
       {/* Expanded menu — appears on hover, above the circle */}
       {open && (
-        <div style={{
+        <div className="glass" style={{
           position: 'relative',
           display: 'flex',
           flexDirection: 'column',
           gap: GAP,
           padding: 4,
           borderRadius: 22,
-          background: 'var(--panel)',
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
         }}>
 
           {/* Sliding highlight */}

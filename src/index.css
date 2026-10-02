@@ -76,6 +76,34 @@
   --hover: rgba(0, 0, 0, 0.08);
   --panel: rgba(255, 255, 255, 0.95);
 
+  /* Liquid glass on the light page, the way Apple's site wears it: airy. A
+     frost of white over the blur, the surface's tint showing through it; a
+     lens edge in near-white — the refraction band, the line, the rim — that
+     reads as the glass catching daylight; a faint grey hairline where it
+     meets the page; a soft grey shadow. The same parts as the dark page's,
+     in the light's own values, cross-fading between the two. */
+  --lg-tint-share: 55%;
+  --lg-hue-share: 44%;
+  --lg-fill: rgba(255, 255, 255, 0.55);
+  --lg-band: rgba(255, 255, 255, 0.75);
+  --lg-line: rgba(255, 255, 255, 0.9);
+  --lg-rim: rgba(220, 231, 248, 1);
+  --lg-rim-far: rgba(211, 225, 246, 0.75);
+  --lg-edge: rgba(0, 0, 0, 0.14);
+  --lg-under: rgba(0, 0, 0, 0.16);
+  --lg-shade: rgba(0, 0, 0, 0.16);
+  --lg-glint: rgba(238, 244, 251, 0.92);
+  --lg-cast: rgba(150, 220, 190, 0.16);
+  /* The titles' glass on the light page: dark glass — the ink, lighter
+     towards the light — with a white line of light along the edges that
+     face it, a soft grey shadow, and a sheen crossing it. */
+  --gt-ink: rgba(21, 28, 50, 0.88);
+  --gt-ink-foot: rgba(30, 44, 86, 0.82);
+  --gt-light: rgba(224, 235, 249, 0.95);
+  --gt-shadow: rgba(0, 0, 0, 0.22);
+  --gt-sheen: rgba(150, 205, 255, 0.7);
+  --gt-sheen-2: rgba(70, 200, 150, 0.78);
+
   /* Carousel card tints — cycled by index */
   --card-1a: #eaf1fb;  --card-1b: #d5e4f6;
   --card-2a: #fdf1e2;  --card-2b: #f7e1c6;
@@ -104,6 +132,24 @@
   --band-ink: #f5f5f7;
   --band-body: #a8a8ad;
   --band-hover: rgba(255, 255, 255, 0.16);
+  --band-gt-ink: rgba(196, 212, 242, 0.92);
+  --band-gt-ink-foot: rgba(172, 196, 240, 0.9);
+  --band-gt-light: rgba(220, 234, 248, 1);
+  --band-gt-shadow: rgba(0, 0, 0, 0.9);
+  --band-gt-sheen: rgba(229, 239, 250, 0.95);
+  --band-gt-sheen-2: rgba(150, 228, 195, 0.95);
+  --band-lg-fill: rgba(255, 255, 255, 0.06);
+  --band-lg-tint-share: 22%;
+  --band-lg-hue-share: 60%;
+  --band-lg-band: rgba(141, 169, 229, 0.12);
+  --band-lg-line: rgba(255, 255, 255, 0.4);
+  --band-lg-rim: rgba(163, 198, 237, 0.85);
+  --band-lg-rim-far: rgba(163, 198, 237, 0.35);
+  --band-lg-edge: rgba(0, 0, 0, 0.32);
+  --band-lg-under: rgba(0, 0, 0, 0.35);
+  --band-lg-shade: rgba(0, 0, 0, 0.38);
+  --band-lg-glint: rgba(161, 189, 234, 0.4);
+  --band-lg-cast: rgba(110, 205, 165, 0.13);
   --caption-glow: rgba(255, 255, 255, 0.6);
   --caption-shade-1: rgba(60, 66, 74, 0.12);
   --caption-shade-2: rgba(60, 66, 74, 0.13);
@@ -119,6 +165,25 @@
   --border: #333333;
   --hover: rgba(255, 255, 255, 0.12);
   --panel: rgba(38, 36, 31, 0.95);
+
+  --lg-fill: rgba(255, 255, 255, 0.06);
+  --lg-tint-share: 22%;
+  --lg-hue-share: 60%;
+  --lg-band: rgba(141, 169, 229, 0.12);
+  --lg-line: rgba(255, 255, 255, 0.4);
+  --lg-rim: rgba(163, 198, 237, 0.85);
+  --lg-rim-far: rgba(163, 198, 237, 0.35);
+  --lg-edge: rgba(0, 0, 0, 0.32);
+  --lg-under: rgba(0, 0, 0, 0.35);
+  --lg-shade: rgba(0, 0, 0, 0.38);
+  --lg-glint: rgba(161, 189, 234, 0.4);
+  --lg-cast: rgba(110, 205, 165, 0.13);
+  --gt-ink: rgba(196, 212, 242, 0.92);
+  --gt-ink-foot: rgba(172, 196, 240, 0.9);
+  --gt-light: rgba(220, 234, 248, 1);
+  --gt-shadow: rgba(0, 0, 0, 0.9);
+  --gt-sheen: rgba(229, 239, 250, 0.95);
+  --gt-sheen-2: rgba(150, 228, 195, 0.95);
 
   --card-1a: #24313f;  --card-1b: #1a232e;
   --card-2a: #362a1c;  --card-2b: #271e14;
@@ -137,10 +202,31 @@
   --cloud-shade: rgba(120, 146, 176, 0.26);
   --caption-ink: #eef0f2;
 
-  --band-bg: #f2f2f2;
-  --band-ink: #14130f;
-  --band-body: #55555a;
-  --band-hover: rgba(0, 0, 0, 0.10);
+  /* The inverted band on the dark page: a mid grey rather than the light
+     page's white, which lands like a flash in a dark room. Its ink and
+     body text darkened to keep their contrast on the grey. */
+  --band-bg: #76767a;
+  --band-ink: #0f0f11;
+  --band-body: #26262a;
+  --band-hover: rgba(0, 0, 0, 0.14);
+  --band-gt-ink: rgba(21, 28, 50, 0.88);
+  --band-gt-ink-foot: rgba(30, 44, 86, 0.82);
+  --band-gt-light: rgba(224, 235, 249, 0.95);
+  --band-gt-shadow: rgba(0, 0, 0, 0.22);
+  --band-gt-sheen: rgba(150, 205, 255, 0.7);
+  --band-gt-sheen-2: rgba(70, 200, 150, 0.78);
+  --band-lg-fill: rgba(255, 255, 255, 0.55);
+  --band-lg-tint-share: 55%;
+  --band-lg-hue-share: 44%;
+  --band-lg-band: rgba(255, 255, 255, 0.75);
+  --band-lg-line: rgba(255, 255, 255, 0.9);
+  --band-lg-rim: rgba(220, 231, 248, 1);
+  --band-lg-rim-far: rgba(211, 225, 246, 0.75);
+  --band-lg-edge: rgba(0, 0, 0, 0.14);
+  --band-lg-under: rgba(0, 0, 0, 0.16);
+  --band-lg-shade: rgba(0, 0, 0, 0.16);
+  --band-lg-glint: rgba(238, 244, 251, 0.92);
+  --band-lg-cast: rgba(150, 220, 190, 0.16);
   --caption-glow: rgba(0, 0, 0, 0.3);
   --caption-shade-1: rgba(0, 0, 0, 0.3);
   --caption-shade-2: rgba(0, 0, 0, 0.34);
@@ -163,6 +249,25 @@
     --hover: rgba(255, 255, 255, 0.12);
     --panel: rgba(38, 36, 31, 0.95);
 
+    --lg-fill: rgba(255, 255, 255, 0.06);
+    --lg-tint-share: 22%;
+  --lg-hue-share: 60%;
+    --lg-band: rgba(141, 169, 229, 0.12);
+    --lg-line: rgba(255, 255, 255, 0.4);
+    --lg-rim: rgba(163, 198, 237, 0.85);
+    --lg-rim-far: rgba(163, 198, 237, 0.35);
+    --lg-edge: rgba(0, 0, 0, 0.32);
+    --lg-under: rgba(0, 0, 0, 0.35);
+    --lg-shade: rgba(0, 0, 0, 0.38);
+    --lg-glint: rgba(161, 189, 234, 0.4);
+    --lg-cast: rgba(110, 205, 165, 0.13);
+    --gt-ink: rgba(196, 212, 242, 0.92);
+    --gt-ink-foot: rgba(172, 196, 240, 0.9);
+    --gt-light: rgba(220, 234, 248, 1);
+    --gt-shadow: rgba(0, 0, 0, 0.9);
+    --gt-sheen: rgba(229, 239, 250, 0.95);
+    --gt-sheen-2: rgba(150, 228, 195, 0.95);
+
     --card-1a: #24313f;  --card-1b: #1a232e;
     --card-2a: #362a1c;  --card-2b: #271e14;
     --card-3a: #1f3226;  --card-3b: #16241b;
@@ -175,14 +280,288 @@
     --cloud-shade: rgba(120, 146, 176, 0.26);
     --caption-ink: #eef0f2;
 
-    --band-bg: #f2f2f2;
-    --band-ink: #14130f;
-    --band-body: #55555a;
-    --band-hover: rgba(0, 0, 0, 0.10);
+    --band-bg: #76767a;
+    --band-ink: #0f0f11;
+    --band-body: #26262a;
+    --band-hover: rgba(0, 0, 0, 0.14);
+    --band-gt-ink: rgba(21, 28, 50, 0.88);
+    --band-gt-ink-foot: rgba(30, 44, 86, 0.82);
+    --band-gt-light: rgba(224, 235, 249, 0.95);
+    --band-gt-shadow: rgba(0, 0, 0, 0.22);
+    --band-gt-sheen: rgba(150, 205, 255, 0.7);
+    --band-gt-sheen-2: rgba(70, 200, 150, 0.78);
+    --band-lg-fill: rgba(255, 255, 255, 0.55);
+    --band-lg-tint-share: 55%;
+  --band-lg-hue-share: 44%;
+    --band-lg-band: rgba(255, 255, 255, 0.75);
+    --band-lg-line: rgba(255, 255, 255, 0.9);
+    --band-lg-rim: rgba(220, 231, 248, 1);
+    --band-lg-rim-far: rgba(211, 225, 246, 0.75);
+    --band-lg-edge: rgba(0, 0, 0, 0.14);
+    --band-lg-under: rgba(0, 0, 0, 0.16);
+    --band-lg-shade: rgba(0, 0, 0, 0.16);
+    --band-lg-glint: rgba(238, 244, 251, 0.92);
+    --band-lg-cast: rgba(150, 220, 190, 0.16);
     --caption-glow: rgba(0, 0, 0, 0.3);
     --caption-shade-1: rgba(0, 0, 0, 0.3);
     --caption-shade-2: rgba(0, 0, 0, 0.34);
   }
+}
+
+/* THE LIGHT */
+
+/* Everything in glass is lit from one place: a point fixed to the window,
+   above and to the left of it. The light does not scroll with the page, so
+   as a surface moves past it the angle changes — the glint slides, the
+   rim's bright side turns, the shadow swings. components/useLight.js works
+   each surface's angle out from where it is on screen and writes these
+   three onto it; the values here are the resting ones, for before the first
+   measurement and for anyone with motion turned down. The light's position
+   itself is set in that file. */
+:root {
+  --light-angle: 118deg;    /* the direction light travels: from upper-left, down-right */
+  --shadow-dx: 2px;         /* where a shadow falls */
+  --shadow-dy: 10px;
+}
+
+/* RAISED SURFACES — AND, IN THE DARK, LIQUID GLASS */
+
+/* Every raised surface on the site — bubbles, cards, discs, menus, the
+   phone's sheet, the theme toggle, the model stage and its controls — wears
+   this class. It is one rule for both themes: each part of the glass is a
+   colour variable with a value for the light page and one for the dark,
+   and those variables cross-fade with the theme on the same clock as
+   everything else.
+
+   On the dark page it is glass built the way the glass in macOS is: a lens.
+   The centre is nearly clear — a blur of whatever is behind, saturated so
+   colour comes through, with the surface's own tint laid faintly over it.
+   The edge is where the glass shows: just inside the rim a bright band where
+   the background bends on its way through the curve, then a thin bright
+   line, then the hairline where the glass meets the page; the underside
+   shaded, the top lit; a glint at the upper left where the light comes in;
+   and a soft shadow onto the page. */
+/* A dark box on any page: the dark page's glass and text, as fixed values
+   rather than the theme's, so it is the same box in both themes and does
+   not blink when the theme turns over. Under the glass, a near-black of
+   its own, since the dark glass is clear and would show the white page.
+   The featured and current project cards on the home page wear this. */
+.glass-night {
+  --text: #f2f2f2;
+  --text-body: #b0b0b0;
+  --text-muted: #808080;
+  --hover: rgba(255, 255, 255, 0.12);
+  --lg-fill: rgba(255, 255, 255, 0.06);
+  --lg-tint-share: 22%;
+  --lg-hue-share: 60%;
+  --lg-band: rgba(141, 169, 229, 0.12);
+  --lg-line: rgba(255, 255, 255, 0.4);
+  --lg-rim: rgba(163, 198, 237, 0.85);
+  --lg-rim-far: rgba(163, 198, 237, 0.35);
+  --lg-edge: rgba(0, 0, 0, 0.32);
+  --lg-under: rgba(0, 0, 0, 0.35);
+  --lg-shade: rgba(0, 0, 0, 0.38);
+  --lg-glint: rgba(161, 189, 234, 0.4);
+  --lg-cast: rgba(110, 205, 165, 0.13);
+  --gt-ink: rgba(196, 212, 242, 0.92);
+  --gt-ink-foot: rgba(172, 196, 240, 0.9);
+  --gt-light: rgba(220, 234, 248, 1);
+  --gt-shadow: rgba(0, 0, 0, 0.9);
+  --gt-sheen: rgba(229, 239, 250, 0.95);
+  --gt-sheen-2: rgba(150, 228, 195, 0.95);
+  --lg-tint: linear-gradient(165deg, #2a2a2f 0%, #17171a 100%);
+  color: var(--text);
+}
+
+.glass {
+  position: relative;
+  /* The glint sits where the light strikes: towards the light, so on the
+     upper-left of every surface, wherever on the page the surface is. */
+  /* The glint sits on the side facing the light. Its position is worked
+     out from the angle: a surface the light reaches from straight above has
+     it at the top; one reached from the left has it at the left. */
+  /* The light on this surface: the theme's, unless the surface has a hue
+     of its own (--lg-hue), in which case the light is that colour — the
+     glass itself stays the theme's neutral and the colour is in what
+     shines on it. */
+  --lit-glint: var(--lg-glint);
+  --lit-rim: var(--lg-rim);
+  --lit-rim-far: var(--lg-rim-far);
+  --lit-band: var(--lg-band);
+  --lit-cast: var(--lg-cast);
+  --glint-size: 110% 85%;
+  /* Two reflections a sphere has and a flat pane does not — off unless a
+     surface asks for them (the bubbles do): a small sharp spot of the light
+     near the lit edge, and a thin arc of it on the far edge, where it comes
+     back out of the glass. */
+  --spot: transparent;
+  --spot-size: 26% 18%;
+  --rim-back: transparent;
+  /* And the shading a sphere has: clear where the light falls, darkening
+     towards the far edge. Off unless asked for. */
+  --sphere: transparent;
+  background:
+    radial-gradient(ellipse var(--spot-size)
+      at calc(50% + 40% * sin(var(--light-angle) + 180deg)) calc(50% - 44% * cos(var(--light-angle) + 180deg)),
+      var(--spot) 0%, color-mix(in srgb, var(--spot) 55%, transparent) 35%, transparent 72%),
+    radial-gradient(ellipse var(--glint-size)
+      at calc(50% + 32% * sin(var(--light-angle) + 180deg)) calc(50% - 38% * cos(var(--light-angle) + 180deg)),
+      var(--lit-glint) 0%, color-mix(in srgb, var(--lit-glint) 35%, transparent) 38%, transparent 78%),
+    linear-gradient(var(--light-angle),
+      color-mix(in srgb, var(--lit-glint) 28%, transparent) 0%, transparent 55%,
+      var(--lit-cast) 100%),
+    radial-gradient(ellipse 95% 95% at calc(50% + 30% * sin(var(--light-angle) + 180deg)) calc(50% - 34% * cos(var(--light-angle) + 180deg)),
+      transparent 40%, var(--sphere) 100%),
+    var(--lg-tint, var(--lg-fill));
+  -webkit-backdrop-filter: blur(14px) saturate(1.5);
+  backdrop-filter: blur(14px) saturate(1.5);
+  /* No ring all the way round: the lit edge is the rim (::after) on the
+     side facing the light, and the dark edge is pushed to the side away
+     from it, so each only shows where the light would put it. */
+  box-shadow:
+    inset 0 0 26px 1px var(--lit-band),
+    inset calc(var(--shadow-dx) * -0.3) calc(var(--shadow-dy) * -0.25) 2px var(--lit-rim-far),
+    inset calc(var(--shadow-dx) * -0.6) calc(var(--shadow-dy) * -0.5) 9px -2px var(--lg-under),
+    calc(var(--shadow-dx) * 0.4) calc(var(--shadow-dy) * 0.25) 4px -1px var(--lg-edge),
+    var(--shadow-dx) var(--shadow-dy) 36px -4px var(--lg-shade);
+}
+/* What sits in the glass stays in front of its fill and glint; only the rim
+   (drawn by ::after) is over it. */
+.glass > * { position: relative; z-index: 1; }
+/* The rim itself: a ring in the surface's own shape, brightest at the upper
+   left and again at the lower right, falling to nothing at the sides. A
+   gradient border cannot follow a radius, so this is a gradient under a mask
+   that keeps only the outermost pixel and a half. Drawn over the content,
+   since a rim is on the outside of the glass. Transparent on the light page,
+   where its colours are. */
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  /* Lit on the side facing the light, going to nothing round the back —
+     a gradient that runs the way the light travels, from the lit edge
+     (0%) to the far edge (100%), bright at the start and gone before the
+     halfway mark. Follows --light-angle, so it turns as the light moves. */
+  background: linear-gradient(var(--light-angle),
+    var(--lit-rim) 0%, var(--lit-rim-far) 18%, transparent 42%, transparent 80%, var(--rim-back) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 2;
+}
+/* For anyone who has asked for less transparency: the frost without the view
+   through it. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--lg-tint, var(--panel));
+  }
+}
+
+/* GLASS TEXT, IN THE DARK */
+
+/* Every heading set above body size wears this. On the light page it is
+   plain ink — the fill is the text colour and every part of the glass below
+   is transparent. On the dark page the letters are clear glass: a white
+   frost, lighter towards the light, read by what the glass does to the page
+   around it — a shadow falling away from the light under each letter, a
+   line of light along the edges that face it, and a specular band drifting
+   slowly across.
+
+   The layering is the whole trick, and it goes bottom to top: the element
+   itself is invisible text that only casts the shadow; ::before, drawn over
+   it, is the line of light, a copy shifted a pixel towards the light;
+   ::after, on top of everything, is the ink — the frost gradient clipped to
+   the letters. Put the ink on the element and a shadow copy behind it, and
+   the copy paints over the ink: a clipped background sits under an
+   element's own children, so the letters came out dark with a light edge,
+   glass inside out. The copies know the words from data-text. */
+.glass-title {
+  position: relative;
+  /* Bold, whatever the heading asked for: the glass is its edges and its
+     shadow, and a light stroke has too little face for either to show. */
+  font-weight: 700 !important;
+  color: transparent;
+  text-shadow:
+    calc(var(--shadow-dx) * 0.25) calc(var(--shadow-dy) * 0.15) 2px var(--gt-shadow),
+    calc(var(--shadow-dx) * 0.5) calc(var(--shadow-dy) * 0.45) 10px var(--gt-shadow);
+}
+.glass-title::before,
+.glass-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  text-shadow: none;
+}
+/* The light along the edges that face the light */
+.glass-title::before {
+  color: var(--gt-light);
+  transform: translate(calc(var(--shadow-dx) * -0.15), calc(var(--shadow-dy) * -0.15));
+}
+/* The ink: the frost, and the sheen drifting across it */
+.glass-title::after {
+  background-image:
+    linear-gradient(112deg,
+      transparent 0%, transparent 34%,
+      var(--gt-sheen) 42%, var(--gt-sheen-2) 50%, var(--gt-sheen) 58%,
+      transparent 66%, transparent 100%),
+    linear-gradient(var(--light-angle), var(--gt-ink) 0%, var(--gt-ink-foot) 100%);
+  background-size: 300% 100%, 100% 100%;
+  background-position: 150% 0, 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: glass-sheen 11s ease-in-out infinite;
+}
+
+/* Inside a panel painted the inverse of the page — the hub bands — every
+   part of the glass, surfaces and text alike, reads the band's own set of
+   values, which is the other page's: on the light page the band is black
+   and wears the dark glass, on the dark page the band is pale and wears
+   the light. The tokens cross-fade like all the others. */
+[data-inverted] {
+  --lg-fill: var(--band-lg-fill);
+  --lg-tint-share: var(--band-lg-tint-share);
+  --lg-hue-share: var(--band-lg-hue-share);
+  --lg-band: var(--band-lg-band);
+  --lg-line: var(--band-lg-line);
+  --lg-rim: var(--band-lg-rim);
+  --lg-rim-far: var(--band-lg-rim-far);
+  --lg-edge: var(--band-lg-edge);
+  --lg-under: var(--band-lg-under);
+  --lg-shade: var(--band-lg-shade);
+  --lg-glint: var(--band-lg-glint);
+  --lg-cast: var(--band-lg-cast);
+  --gt-ink: var(--band-gt-ink);
+  --gt-ink-foot: var(--band-gt-ink-foot);
+  --gt-light: var(--band-gt-light);
+  --gt-shadow: var(--band-gt-shadow);
+  --gt-sheen: var(--band-gt-sheen);
+  --gt-sheen-2: var(--band-gt-sheen-2);
+}
+
+/* A page title stands alone on its screen: shrunk to the words and
+   centred, so the sheen crosses the title rather than the whole band. */
+h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
+
+/* The band waits just off one end of the text, crosses it in a second or
+   so, and waits off the other end. The waits are constant values, so for
+   most of the cycle the title is not repainted at all: a title with its
+   gradient clipped to the text is the dearest paint on the page, and this
+   would otherwise redraw every one every frame. */
+@keyframes glass-sheen {
+  0%, 44% { background-position: 110% 0, 0 0; }
+  56%, 100% { background-position: -10% 0, 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glass-title::after { animation: none; background-position: 150% 0, 0 0; }
 }
 
 /* CAROUSEL CARDS */
@@ -194,7 +573,7 @@
 
 .carousel-card:hover {
   transform: translateY(-6px);
-  box-shadow: var(--card-shadow);
+  box-shadow: calc(var(--shadow-dx) * 0.4) calc(var(--shadow-dy) * 0.25) 4px -1px var(--lg-edge), var(--card-shadow);
 }
 
 .carousel-card img {
@@ -229,19 +608,69 @@
   100% { scale: 1; }
 }
 
-.bubble {
+/* A bubble is a disc of the glass, in its tint, with the model inside. */
+/* A surface with a hue: the theme's neutral glass, with a light of that
+   colour shining on it. Only what the light does carries the colour — the
+   glint where it strikes, the sweep it throws across the surface, and the
+   rim on the side facing it. The band at the edge and the cast on the far
+   side, which is the side the light does not reach, stay the theme's own,
+   so the body of the glass stays plain and the colour reads as light. */
+.glass[style*="--lg-hue"] {
+  --lit-glint: color-mix(in srgb, var(--lg-hue) var(--lg-hue-share), var(--lg-glint));
+  --lit-rim: color-mix(in srgb, var(--lg-hue) var(--lg-hue-share), var(--lg-rim));
+  --lit-rim-far: color-mix(in srgb, var(--lg-hue) var(--lg-hue-share), var(--lg-rim-far));
+  /* A tighter glint than the theme's: a light falling on the surface, not
+     a surface made of the colour. */
+  --glint-size: 72% 56%;
+}
+.glass.bubble {
+  /* A sphere, not a pane. The light's spot, small and near white, by the
+     edge it comes from; the broad glint smaller, so the middle stays
+     clear; the body darkening away from the light towards the far edge;
+     and the light coming back out of the far edge as a thin arc. */
+  /* The light shining on it: a stronger glint than a pane's on the side it
+     comes from — the theme's glint lifted towards white before the hue
+     goes in, so it is brighter as well as more coloured — and a bigger,
+     softer spot where it strikes. */
+  --lit-glint: color-mix(in srgb, var(--lg-hue) var(--lg-hue-share), color-mix(in srgb, var(--lg-glint) 65%, white));
+  --spot: color-mix(in srgb, white 70%, var(--lit-glint));
+  --spot-size: 42% 30%;
+  --rim-back: color-mix(in srgb, var(--lit-rim) 60%, transparent);
+  --sphere: var(--lg-under);
+  --glint-size: 86% 66%;
+  /* The edge: a ring of light all round where the glass turns away (a
+     bubble's edge is always brighter than its middle), a lit crescent on
+     the near side, the reflected crescent on the far side, and the shade
+     inside the far edge where the body curves away. */
+  box-shadow:
+    inset 0 0 16px 1px var(--lit-band),
+    inset calc(var(--shadow-dx) * -0.8) calc(var(--shadow-dy) * -0.7) 9px -3px color-mix(in srgb, var(--lit-rim) 75%, transparent),
+    inset calc(var(--shadow-dx) * 1.1) calc(var(--shadow-dy) * 0.95) 12px -4px color-mix(in srgb, var(--lit-rim-far) 90%, transparent),
+    inset calc(var(--shadow-dx) * 0.7) calc(var(--shadow-dy) * 0.55) 22px -6px var(--lg-under),
+    calc(var(--shadow-dx) * 0.4) calc(var(--shadow-dy) * 0.25) 4px -1px var(--lg-edge),
+    var(--shadow-dx) var(--shadow-dy) 36px -4px var(--lg-shade);
   animation-name: bubble-float, bubble-pulse;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.4s ease, filter 0.4s ease;
+}
+/* Eight of these drift at once, and a blur that has to be redone every frame
+   for each is more than a phone will do smoothly: there, the frost without
+   the blur. The page behind them is plain, so nothing is lost. */
+/* No blur behind these: nothing but the page's own background is ever under
+   a bubble, a card or the stage, so blurring it shows nothing — and a blur
+   is redrawn every frame a bubble floats, which is the dearest thing a page
+   can ask of a GPU. The bar, the menus, the sheet and the overlays keep
+   theirs, since the page scrolls under them. */
+.bubble, .shop-card, .shop-card-disc, .carousel-card, .model-stage {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 /* Hold still while it's being aimed at, so it's easy to click */
 .bubble:hover {
   animation-play-state: paused;
-  box-shadow: var(--card-shadow);
-  filter: brightness(1.06);
+  filter: brightness(1.08);
 }
 
 .bubble:focus-visible {
@@ -512,6 +941,24 @@
   text-align: left;
 }
 
+/* The glass under a hovered link: behind the text, in the label's own
+   shape, no blur of its own (the bar it sits in already blurs the page)
+   and only the lightest shadow, since it is a highlight and not a card. */
+.nav-lit {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  --lg-tint: var(--hover);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow:
+    inset 0 0 12px 1px var(--lit-band),
+    inset calc(var(--shadow-dx) * -0.3) calc(var(--shadow-dy) * -0.25) 2px var(--lit-rim-far),
+    calc(var(--shadow-dx) * 0.3) calc(var(--shadow-dy) * 0.2) 6px -3px var(--lg-shade);
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
 .nav-label::after {
   content: attr(data-label);
   display: block;
@@ -615,6 +1062,42 @@ canvas {
 /* A gradient cannot be interpolated as one value, so the card tints are built
    from stops that can be. Same for the shadows: the geometry is shared between
    the themes and only the color differs, so that is the part that moves. */
+@property --band-lg-fill { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-lg-tint-share { syntax: "<percentage>"; inherits: true; initial-value: 100%; }
+@property --band-lg-hue-share { syntax: "<percentage>"; inherits: true; initial-value: 100%; }
+@property --band-lg-band { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-lg-line { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-lg-rim { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-lg-rim-far { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-lg-edge { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-lg-under { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-lg-shade { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-lg-glint { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-lg-cast { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-gt-ink { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --band-gt-ink-foot { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --band-gt-light { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-gt-shadow { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-gt-sheen { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-gt-sheen-2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gt-ink { syntax: "<color>"; inherits: true; initial-value: #000000; }
+@property --gt-ink-foot { syntax: "<color>"; inherits: true; initial-value: #000000; }
+@property --gt-light { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gt-shadow { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gt-sheen { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gt-sheen-2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lg-fill { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lg-band { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lg-line { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lg-rim { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lg-rim-far { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lg-edge { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lg-under { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lg-shade { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lg-glint { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lg-cast { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --lg-tint-share { syntax: "<percentage>"; inherits: true; initial-value: 100%; }
+@property --lg-hue-share { syntax: "<percentage>"; inherits: true; initial-value: 100%; }
 @property --card-1a { syntax: "<color>"; inherits: true; initial-value: #eaf1fb; }
 @property --card-1b { syntax: "<color>"; inherits: true; initial-value: #d5e4f6; }
 @property --card-2a { syntax: "<color>"; inherits: true; initial-value: #fdf1e2; }
@@ -660,6 +1143,42 @@ canvas {
     --border var(--theme-fade) var(--theme-ease),
     --hover var(--theme-fade) var(--theme-ease),
     --panel var(--theme-fade) var(--theme-ease),
+    --band-lg-fill var(--theme-fade) var(--theme-ease),
+    --band-lg-tint-share var(--theme-fade) var(--theme-ease),
+    --band-lg-hue-share var(--theme-fade) var(--theme-ease),
+    --band-lg-band var(--theme-fade) var(--theme-ease),
+    --band-lg-line var(--theme-fade) var(--theme-ease),
+    --band-lg-rim var(--theme-fade) var(--theme-ease),
+    --band-lg-rim-far var(--theme-fade) var(--theme-ease),
+    --band-lg-edge var(--theme-fade) var(--theme-ease),
+    --band-lg-under var(--theme-fade) var(--theme-ease),
+    --band-lg-shade var(--theme-fade) var(--theme-ease),
+    --band-lg-glint var(--theme-fade) var(--theme-ease),
+    --band-lg-cast var(--theme-fade) var(--theme-ease),
+    --band-gt-ink var(--theme-fade) var(--theme-ease),
+    --band-gt-ink-foot var(--theme-fade) var(--theme-ease),
+    --band-gt-light var(--theme-fade) var(--theme-ease),
+    --band-gt-shadow var(--theme-fade) var(--theme-ease),
+    --band-gt-sheen var(--theme-fade) var(--theme-ease),
+    --band-gt-sheen-2 var(--theme-fade) var(--theme-ease),
+    --gt-ink var(--theme-fade) var(--theme-ease),
+    --gt-ink-foot var(--theme-fade) var(--theme-ease),
+    --gt-light var(--theme-fade) var(--theme-ease),
+    --gt-shadow var(--theme-fade) var(--theme-ease),
+    --gt-sheen var(--theme-fade) var(--theme-ease),
+    --gt-sheen-2 var(--theme-fade) var(--theme-ease),
+    --lg-fill var(--theme-fade) var(--theme-ease),
+    --lg-band var(--theme-fade) var(--theme-ease),
+    --lg-line var(--theme-fade) var(--theme-ease),
+    --lg-rim var(--theme-fade) var(--theme-ease),
+    --lg-rim-far var(--theme-fade) var(--theme-ease),
+    --lg-edge var(--theme-fade) var(--theme-ease),
+    --lg-under var(--theme-fade) var(--theme-ease),
+    --lg-shade var(--theme-fade) var(--theme-ease),
+    --lg-glint var(--theme-fade) var(--theme-ease),
+    --lg-cast var(--theme-fade) var(--theme-ease),
+    --lg-tint-share var(--theme-fade) var(--theme-ease),
+    --lg-hue-share var(--theme-fade) var(--theme-ease),
     --caption-ink var(--theme-fade) var(--theme-ease),
     --card-1a var(--theme-fade) var(--theme-ease),
     --card-1b var(--theme-fade) var(--theme-ease),
@@ -697,6 +1216,23 @@ canvas {
   --card-4: linear-gradient(165deg, var(--card-4a) 0%, var(--card-4b) 100%);
   --card-5: linear-gradient(165deg, var(--card-5a) 0%, var(--card-5b) 100%);
   --card-6: linear-gradient(165deg, var(--card-6a) 0%, var(--card-6b) 100%);
+  /* The six colours as light: what shines on a surface that has one of
+     them, rather than what it is made of. Full-strength hues; the share
+     mixed into the light is set per theme. */
+  --hue-1: #4f94ff;   /* blue */
+  --hue-2: #ff9a3c;   /* orange */
+  --hue-3: #3ccf78;   /* green */
+  --hue-4: #ff5f9e;   /* pink */
+  --hue-5: #9d78ff;   /* violet */
+  --hue-6: #2cc7c7;   /* teal */
+  /* The same six tints as glass: most of the way to transparent, so the
+     material's frost and whatever is behind it show through. */
+  --glass-1: linear-gradient(165deg, color-mix(in srgb, var(--card-1a) var(--lg-tint-share), transparent), color-mix(in srgb, var(--card-1b) var(--lg-tint-share), transparent));
+  --glass-2: linear-gradient(165deg, color-mix(in srgb, var(--card-2a) var(--lg-tint-share), transparent), color-mix(in srgb, var(--card-2b) var(--lg-tint-share), transparent));
+  --glass-3: linear-gradient(165deg, color-mix(in srgb, var(--card-3a) var(--lg-tint-share), transparent), color-mix(in srgb, var(--card-3b) var(--lg-tint-share), transparent));
+  --glass-4: linear-gradient(165deg, color-mix(in srgb, var(--card-4a) var(--lg-tint-share), transparent), color-mix(in srgb, var(--card-4b) var(--lg-tint-share), transparent));
+  --glass-5: linear-gradient(165deg, color-mix(in srgb, var(--card-5a) var(--lg-tint-share), transparent), color-mix(in srgb, var(--card-5b) var(--lg-tint-share), transparent));
+  --glass-6: linear-gradient(165deg, color-mix(in srgb, var(--card-6a) var(--lg-tint-share), transparent), color-mix(in srgb, var(--card-6b) var(--lg-tint-share), transparent));
   --card-shadow: 0 18px 40px var(--card-shadow-ink);
   --caption-shadow:
     0 1px 0 var(--caption-glow),
@@ -713,9 +1249,8 @@ canvas {
   width: 34px;
   height: 34px;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 0;
   border-radius: 50%;
-  background: transparent;
   color: var(--text-muted);
   cursor: pointer;
   transition: opacity 0.45s ease, color 0.25s ease, border-color 0.25s ease,
@@ -742,20 +1277,16 @@ canvas {
   flex-direction: column;
   align-items: center;
   padding: 30px 24px 26px;
-  border: 1px solid var(--border);
   border-radius: 24px;
-  background: var(--bg);
   color: var(--text);
   text-decoration: none;
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-              border-color 0.3s ease;
+              box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .shop-card:hover,
 .shop-card:focus-visible {
   transform: translateY(-5px);
-  border-color: transparent;
-  box-shadow: var(--card-shadow);
+  box-shadow: calc(var(--shadow-dx) * 0.4) calc(var(--shadow-dy) * 0.25) 4px -1px var(--lg-edge), var(--card-shadow);
 }
 
 .shop-card-disc {
@@ -918,10 +1449,6 @@ canvas {
   font-size: 0.85rem;
   letter-spacing: 0.02em;
   color: var(--text);
-  background: var(--panel);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
   pointer-events: none;
   transition: opacity 0.6s ease;
 }
@@ -954,10 +1481,6 @@ canvas {
   font-weight: 400;
   letter-spacing: 0.01em;
   color: var(--text-body);
-  background: var(--panel);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -996,10 +1519,6 @@ canvas {
   border: 0;
   border-radius: 50%;
   color: var(--text);
-  background: var(--panel);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: background-color 0.25s ease;
@@ -1031,6 +1550,21 @@ canvas {
 /* The links themselves, hanging from the bar. It carries its own background
    rather than relying on the bar's blur: the bar fades out a little way down
    and the list is taller than that. Scrolls if it ever outgrows the screen. */
+/* The navbar's menus over the page: through the lens where there is one
+   (index.html), the page under them bent in at the edges and blurred; the
+   glass's own blur elsewhere. */
+/* A submenu sits against the menu it opened from: its inner corners
+   square and its edge a pixel over the menu's, so the join is seamless. */
+.nav-submenu {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: -1px;
+}
+[data-lens] .nav-menu,
+[data-lens] .nav-sheet {
+  -webkit-backdrop-filter: url(#lg-lens) saturate(1.5);
+  backdrop-filter: url(#lg-lens) saturate(1.5);
+}
 .nav-sheet {
   /* From the top of the screen rather than from the underside of the bar, so
      the bar is part of the same surface as the links and there is no strip of
@@ -1046,10 +1580,6 @@ canvas {
   display: flex;
   flex-direction: column;
   padding: 58px 12px 14px;
-  background: var(--panel);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
   max-height: var(--screen);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -1152,12 +1682,14 @@ canvas {
    hovering can lift it: a control sitting on top of a video has nothing around
    it to react, and without some answer to the pointer it reads as part of the
    picture rather than as something to press. */
+/* Over footage, which is dark: the glass with a smoked tint, so the white
+   icon reads whatever the frame behind it. */
 .video-button {
-  background: rgba(0, 0, 0, 0.5);
-  transition: background 0.2s ease, transform 0.2s ease;
+  --lg-tint: rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 .video-button:hover {
-  background: rgba(0, 0, 0, 0.68);
+  filter: brightness(1.15);
   transform: scale(1.06);
 }
 .video-button:active { transform: scale(0.97); }

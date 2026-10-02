@@ -78,7 +78,7 @@ export default function ModelStage({ model, label }) {
         transition: 'opacity 1.5s ease',
       }}
     >
-      <h2 style={{
+      <h2 className="glass-title" data-text="The Model" style={{
         fontSize: TYPE.section,
         fontWeight: 300,
         margin: '0 0 28px',
@@ -91,15 +91,14 @@ export default function ModelStage({ model, label }) {
           The canvas is transparent, so the model stands on this, and the
           scene throws its shadow onto it. */}
       <div
-        className="model-stage"
+        className="glass model-stage"
         style={{
           position: 'relative',
           width: '100%',
           maxWidth: 960,
           height: 'clamp(320px, 62vh, 640px)',
           borderRadius: 32,
-          background: `radial-gradient(ellipse 80% 70% at 50% 38%, var(--card-${model.tint}a), var(--card-${model.tint}b) 100%)`,
-          boxShadow: 'var(--card-shadow)',
+          '--lg-tint': `var(--glass-${model.tint})`,
           overflow: 'hidden',
         }}
       >
@@ -120,7 +119,7 @@ export default function ModelStage({ model, label }) {
 
         {/* What to do with it, said once. It fades the moment someone does. */}
         <div
-          className="model-hint"
+          className="glass model-hint"
           aria-hidden={held || state !== 'ready'}
           style={{ opacity: state === 'ready' && !held ? 1 : 0 }}
         >
@@ -132,10 +131,10 @@ export default function ModelStage({ model, label }) {
             finger — and a way to know it zooms at all. */}
         {state === 'ready' && (
           <div className="model-zoom">
-            <button type="button" aria-label="Zoom in" onClick={() => sceneRef.current?.zoomBy(0.8)}>
+            <button type="button" className="glass" aria-label="Zoom in" onClick={() => sceneRef.current?.zoomBy(0.8)}>
               <Plus size={16} strokeWidth={2} aria-hidden="true" />
             </button>
-            <button type="button" aria-label="Zoom out" onClick={() => sceneRef.current?.zoomBy(1.25)}>
+            <button type="button" className="glass" aria-label="Zoom out" onClick={() => sceneRef.current?.zoomBy(1.25)}>
               <Minus size={16} strokeWidth={2} aria-hidden="true" />
             </button>
           </div>

@@ -83,6 +83,8 @@ export default function Mortar() {
 
         <div style={{ flex: '1 1 0', maxWidth: 480 }}>
           <h2
+            className="glass-title"
+            data-text="Building the Model"
             ref={buildRef}
             style={{
               fontSize: TYPE.section,

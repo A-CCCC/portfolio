@@ -62,7 +62,7 @@ export default function CategoryBand({
         transition: 'opacity 1.5s ease',
       }}>
         <Link to={path} className="hub-link" style={{ color: 'inherit' }}>
-          <h2 style={{
+          <h2 className="glass-title" data-text={label} style={{
             fontSize: TYPE.hubCategory,
             fontWeight: 300,
             letterSpacing: '-0.02em',

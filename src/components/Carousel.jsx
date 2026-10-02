@@ -5,7 +5,7 @@ import { TYPE } from '../styles/type'
 import useIsPhone, { useIsShort } from '../hooks/useIsPhone'
 
 // Card tints cycle through these, so each item in a carousel reads distinctly.
-const TINTS = ['var(--card-1)', 'var(--card-2)', 'var(--card-3)', 'var(--card-4)', 'var(--card-5)', 'var(--card-6)']
+const TINTS = ['var(--glass-1)', 'var(--glass-2)', 'var(--glass-3)', 'var(--glass-4)', 'var(--glass-5)', 'var(--glass-6)']
 
 // Breathing room at both ends of the track. Carried as margins on the first and
 // last cards rather than as container padding: padding-right on a horizontally
@@ -152,7 +152,7 @@ export default function Carousel({ items }) {
         <Link
           key={item.label}
           to={item.path}
-          className="carousel-card"
+          className="glass carousel-card"
           style={{
             scrollSnapAlign: 'center',
             flex: '0 0 auto',
@@ -169,7 +169,7 @@ export default function Carousel({ items }) {
             color: 'var(--text)',
             borderRadius: 28,
             overflow: 'hidden',
-            background: TINTS[i % TINTS.length],
+            '--lg-tint': TINTS[i % TINTS.length],
           }}
         >
           {/* Title block — sits above the image, Apple-style */}

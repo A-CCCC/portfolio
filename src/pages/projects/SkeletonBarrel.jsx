@@ -138,11 +138,10 @@ export default function SkeletonBarrel() {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <h1 style={{
+        <h1 className="glass-title" data-text="Skeleton Barrel" style={{
           fontSize: TYPE.pageTitle,
           fontWeight: 'bold',
           letterSpacing: '0.01em',
-          color: 'var(--text)',
           marginBottom: 24,
           opacity: titleOpacity,
           transition: 'opacity 1.5s ease',
@@ -195,7 +194,7 @@ export default function SkeletonBarrel() {
               transition: 'opacity 1.5s ease',
             }}
           >
-            <h2 style={{ fontSize: TYPE.section, fontWeight: '300', marginBottom: 24 }}>
+            <h2 className="glass-title" data-text="Presenting the Skeleton Barrel, Featuring the Pattern Tool" style={{ fontSize: TYPE.section, fontWeight: '300', marginBottom: 24 }}>
               Presenting the Skeleton Barrel,
               Featuring the Pattern Tool
             </h2>
@@ -297,6 +296,8 @@ export default function SkeletonBarrel() {
       {/* Left: text */}
         <div style={{ flex: '1 1 0', maxWidth: 480 }}>
           <h2
+            className="glass-title"
+            data-text="Building the Model"
             ref={headingRef}
             style={{
               fontSize: TYPE.section,

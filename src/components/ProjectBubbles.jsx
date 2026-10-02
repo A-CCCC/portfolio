@@ -134,7 +134,7 @@ const PLACEMENTS = place(false)
 const PHONE_PLACEMENTS = place(true)
 const SHORT_PLACEMENTS = lieDown()
 
-const TINTS = ['var(--card-1)', 'var(--card-2)', 'var(--card-3)', 'var(--card-4)', 'var(--card-5)', 'var(--card-6)']
+const HUES = ['var(--hue-1)', 'var(--hue-2)', 'var(--hue-3)', 'var(--hue-4)', 'var(--hue-5)', 'var(--hue-6)']
 
 // Which projects get a bubble, re-rolled on every page load.
 //
@@ -319,7 +319,7 @@ export default function ProjectBubbles() {
           >
             <Link
               to={project.path}
-              className={project.photo ? 'bubble bubble-photo' : 'bubble'}
+              className={project.photo ? 'glass bubble bubble-photo' : 'glass bubble'}
               title={project.label}
               aria-label={project.label}
               style={{
@@ -337,7 +337,9 @@ export default function ProjectBubbles() {
                 height: '100%',
                 borderRadius: '50%',
                 overflow: 'hidden',
-                background: TINTS[i % TINTS.length],
+                // The tint is handed to the glass — a background set here would
+                // paint over it.
+                '--lg-hue': HUES[i % HUES.length],
                 color: 'var(--text)',
                 textDecoration: 'none',
                 pointerEvents: 'auto',

@@ -36,11 +36,10 @@ export default function ElixirCollector() {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <h1 style={{
+        <h1 className="glass-title" data-text="Elixir Collector" style={{
           fontSize: TYPE.pageTitle,
           fontWeight: 'bold',
           letterSpacing: '0.01em',
-          color: 'var(--text)',
           marginBottom: 24,
           opacity: titleOpacity,
           transition: 'opacity 1.5s ease',
@@ -101,7 +100,7 @@ export default function ElixirCollector() {
               transition: 'opacity 1.5s ease',
             }}
           >
-            <h2 style={{ fontSize: TYPE.section, fontWeight: '300', marginBottom: 24 }}>
+            <h2 className="glass-title" data-text="Meet the Elixir Collector, Starring the Sweep Tool" style={{ fontSize: TYPE.section, fontWeight: '300', marginBottom: 24 }}>
               Meet the Elixir Collector,
               Starring the Sweep Tool
             </h2>
@@ -136,6 +135,8 @@ export default function ElixirCollector() {
       {/* Left: text */}
         <div style={{ flex: '1 1 0', maxWidth: 480 }}>
           <h2
+            className="glass-title"
+            data-text="Building the Model"
             ref={buildRef}
             style={{
               fontSize: TYPE.section,

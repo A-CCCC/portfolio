@@ -60,7 +60,7 @@ export default function Projects() {
         padding: '0 24px',
         textAlign: 'center',
       }}>
-        <h1 style={{
+        <h1 className="glass-title" data-text={TITLE} style={{
           // Same size as every other page's title, the home page included.
           // It was TYPE.hubTitle, a tier larger — put that back here to
           // return to it; the size itself is still in the scale.

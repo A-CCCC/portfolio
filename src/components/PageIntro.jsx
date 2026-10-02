@@ -34,11 +34,10 @@ export default function PageIntro({
       justifyContent: 'center',
       textAlign: 'center',
     }}>
-      <h1 style={{
+      <h1 className="glass-title" data-text={title} style={{
         fontSize: TYPE.pageTitle,
         fontWeight: 'bold',
         letterSpacing: '0.01em',
-        color: 'var(--text)',
         marginBottom: 24,
         opacity: titleOpacity,
         transition: 'opacity 1.5s ease',

@@ -41,7 +41,7 @@ export default function Home() {
         justifyContent: 'center',
       }}>
         <ProjectBubbles />
-        <h1 style={{
+        <h1 className="glass-title" data-text="Alex's Design Portfolio" style={{
           position: 'relative',
           zIndex: 1,
           // Sits above the bubbles visually without stealing their clicks.
@@ -49,7 +49,6 @@ export default function Home() {
           fontSize: TYPE.pageTitle,
           fontWeight: 'bold',
           letterSpacing: '0.01em',
-          color: 'var(--text)',
           // On a phone the title wraps, and a wrapped line needs somewhere to
           // wrap to: without these it sets flush against both edges of the glass.
           padding: '0 24px',
@@ -108,7 +107,7 @@ export default function Home() {
           <Portrait />
 
           <div style={{ flex: '1 1 320px', minWidth: 0 }}>
-            <h2 style={{ fontSize: TYPE.sub, fontWeight: 300, marginBottom: 12 }}>
+            <h2 className="glass-title" data-text="About me" style={{ fontSize: TYPE.sub, fontWeight: 300, marginBottom: 12 }}>
               About me
             </h2>
             <p style={{
@@ -195,10 +194,10 @@ export default function Home() {
           transition: 'opacity 1.5s ease',
         }}
       >
-        <Link to={featured.path} className="shop-card feature-card">
+        <Link to={featured.path} className="glass glass-night shop-card feature-card">
           <span
-            className="shop-card-disc"
-            style={{ background: `var(--card-${featured.tint})` }}
+            className="glass shop-card-disc"
+            style={{ '--lg-hue': `var(--hue-${featured.tint})` }}
           >
             {featured.image
               ? <img src={featured.image} alt="" />
@@ -286,10 +285,10 @@ export default function Home() {
             maxWidth: 720,
           }}>
             {current.map((item) => (
-              <Link key={item.path} to={item.path} className="shop-card current-card">
+              <Link key={item.path} to={item.path} className="glass glass-night shop-card current-card">
                 <span
-                  className="shop-card-disc"
-                  style={{ background: `var(--card-${item.tint})` }}
+                  className="glass shop-card-disc"
+                  style={{ '--lg-hue': `var(--hue-${item.tint})` }}
                 >
                   {item.image
                     ? <img src={item.image} alt="" />

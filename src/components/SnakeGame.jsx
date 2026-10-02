@@ -211,23 +211,64 @@ export default function SnakeGame() {
     }
 
     // A model sits in a bubble of its own, the way it does on the home page —
-    // one of the six card tints, with the same soft shadow under it. Still,
-    // though: the ones on the home page drift because there is nothing else on
-    // that screen, and a board being played on has movement enough.
+    // the same glass, painted: the tint under a frost, a bright band just
+    // inside the rim where the light bends through the curve, a line of
+    // light round the edge brightest towards the light, a glint at the upper
+    // left, and a shadow falling away from the light. Still, though: a board
+    // being played on has movement enough. The colours are the stylesheet's,
+    // so it follows the theme.
     const drawBubble = (model, x, y) => {
       const r = CELL * 0.47
       const wash = ctx.createLinearGradient(x - r * 0.55, y - r, x + r * 0.55, y + r)
       wash.addColorStop(0, color(`--card-${model.tint}a`, '#eef1fb'))
       wash.addColorStop(1, color(`--card-${model.tint}b`, '#dde4f6'))
       ctx.save()
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.18)'
-      ctx.shadowBlur = 7
-      ctx.shadowOffsetY = 3
+      ctx.shadowColor = color('--lg-shade', 'rgba(0, 0, 0, 0.12)')
+      ctx.shadowBlur = 9
+      ctx.shadowOffsetX = 1
+      ctx.shadowOffsetY = 4
       ctx.fillStyle = wash
       ctx.beginPath()
       ctx.arc(x, y, r, 0, Math.PI * 2)
       ctx.fill()
       ctx.restore()
+      ctx.save()
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, Math.PI * 2)
+      ctx.clip()
+      // the frost, and the glint where the light strikes
+      ctx.fillStyle = color('--lg-fill', 'rgba(255, 255, 255, 0.5)')
+      ctx.fillRect(x - r, y - r, r * 2, r * 2)
+      const glint = ctx.createRadialGradient(x - r * 0.45, y - r * 0.6, 0, x - r * 0.45, y - r * 0.6, r * 0.9)
+      glint.addColorStop(0, color('--lg-glint', 'rgba(255, 255, 255, 0.9)'))
+      glint.addColorStop(1, 'rgba(255, 255, 255, 0)')
+      ctx.fillStyle = glint
+      ctx.fillRect(x - r, y - r, r * 2, r * 2)
+      // the band inside the rim: a ring, blurred inward
+      ctx.shadowColor = color('--lg-band', 'rgba(255, 255, 255, 0.7)')
+      ctx.shadowBlur = r * 0.35
+      ctx.lineWidth = r * 0.12
+      ctx.strokeStyle = color('--lg-band', 'rgba(255, 255, 255, 0.7)')
+      ctx.beginPath()
+      ctx.arc(x, y, r + r * 0.06, 0, Math.PI * 2)
+      ctx.stroke()
+      ctx.restore()
+      // the rim: brightest towards the light, falling off round the sides
+      const rim = ctx.createLinearGradient(x - r, y - r, x + r, y + r)
+      rim.addColorStop(0, color('--lg-rim', 'rgba(255, 255, 255, 1)'))
+      rim.addColorStop(0.4, 'rgba(255, 255, 255, 0)')
+      rim.addColorStop(0.6, 'rgba(255, 255, 255, 0)')
+      rim.addColorStop(1, color('--lg-rim-far', 'rgba(255, 255, 255, 0.7)'))
+      ctx.lineWidth = 1.5
+      ctx.strokeStyle = rim
+      ctx.beginPath()
+      ctx.arc(x, y, r - 0.75, 0, Math.PI * 2)
+      ctx.stroke()
+      ctx.strokeStyle = color('--lg-edge', 'rgba(0, 0, 0, 0.08)')
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.arc(x, y, r + 0.5, 0, Math.PI * 2)
+      ctx.stroke()
     }
 
     const drawFood = (g) => {

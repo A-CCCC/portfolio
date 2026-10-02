@@ -24,7 +24,7 @@ export default function About() {
       alignItems: 'center',
       textAlign: 'center',
     }}>
-      <h1 style={{
+      <h1 className="glass-title" data-text="About Me" style={{
         fontSize: TYPE.pageTitle,
         fontWeight: 'bold',
         marginBottom: 32,

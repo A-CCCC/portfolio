@@ -153,7 +153,7 @@ export default function BuildVideo({ src, label = 'Build timelapse' }) {
       <button
         onClick={toggle}
         aria-label={hasEnded ? 'Replay' : isPlaying ? 'Pause' : 'Play'}
-        className="video-button"
+        className="glass video-button"
         style={{
           position: 'absolute',
           bottom: INSET,
@@ -163,7 +163,6 @@ export default function BuildVideo({ src, label = 'Build timelapse' }) {
           borderRadius: '50%',
           border: 'none',
           cursor: 'pointer',
-          backdropFilter: 'blur(6px)',
           color: 'white',
           display: 'flex',
           alignItems: 'center',

@@ -22,6 +22,22 @@
     </script>
   </head>
   <body>
+    <!-- The lens the navbar's menus look through: the page under them bent
+         inward at the edges and blurred, which is how Apple's glass takes
+         what is beneath it. Only Chromium can put an SVG filter behind a
+         surface; the entry script marks the document when it can, and other
+         browsers keep the plain blur. -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <filter id="lg-lens" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="mx"
+          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23000'/%3E%3Cstop offset='.2' stop-color='%23800000'/%3E%3Cstop offset='.8' stop-color='%23800000'/%3E%3Cstop offset='1' stop-color='%23ff0000'/%3E%3C/linearGradient%3E%3Crect width='10' height='10' fill='url(%23g)'/%3E%3C/svg%3E"/>
+        <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="my"
+          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23000'/%3E%3Cstop offset='.2' stop-color='%23008000'/%3E%3Cstop offset='.8' stop-color='%23008000'/%3E%3Cstop offset='1' stop-color='%2300ff00'/%3E%3C/linearGradient%3E%3Crect width='10' height='10' fill='url(%23g)'/%3E%3C/svg%3E"/>
+        <feBlend in="mx" in2="my" mode="screen" result="map"/>
+        <feDisplacementMap in="SourceGraphic" in2="map" scale="36" xChannelSelector="R" yChannelSelector="G" result="bent"/>
+        <feGaussianBlur in="bent" stdDeviation="7"/>
+      </filter>
+    </svg>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

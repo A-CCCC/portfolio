@@ -12,14 +12,15 @@ import { TYPE } from '../styles/type'
 
 // The photos for one section. Kept as its own component so it can be swapped for
 // a carousel later without touching the surrounding layout.
-export function PhotoGroup({ photos, heading, aspect = '1 / 1' }) {
+export function PhotoGroup({ photos, heading, aspect = '1 / 1', columns }) {
   return (
     <div style={{
       display: 'grid',
       // Column count chosen so no row is left ragged: four photos sit as a 2x2,
-      // three as a single row, and anything larger runs three across.
+      // three as a single row, and anything larger runs three across — unless
+      // the caller says otherwise.
       gridTemplateColumns: `repeat(${
-        photos.length === 1 ? 1 : photos.length === 2 ? 2 : photos.length === 4 ? 2 : 3
+        columns ?? (photos.length === 1 ? 1 : photos.length === 2 ? 2 : photos.length === 4 ? 2 : 3)
       }, 1fr)`,
       gap: 16,
     }}>
@@ -196,12 +197,12 @@ export function PhotoCarousel({ photos, heading }) {
             key={label}
             onClick={() => step(dir)}
             aria-label={label}
+            className="glass"
             style={{
               width: 36,
               height: 36,
               borderRadius: '50%',
-              border: '1px solid var(--border)',
-              background: 'transparent',
+              border: 0,
               color: 'var(--text)',
               cursor: 'pointer',
               // Flex-center an SVG rather than a text glyph: characters like
@@ -262,7 +263,8 @@ function Paragraphs({ body, style }) {
 // Nothing here fades as a whole any more: a band is taller than the window, so
 // one fade for all of it finishes before its lower half is reached. The heading,
 // each paragraph and the pictures each wait for their own moment instead.
-export default function PhotoSection({ heading, body, photos, flip, layout, sub, centered }) {
+export default function PhotoSection({ heading, body, photos, flip, layout, sub, centered, aspect }) {
+  const phone = useIsPhone()
 
   // A section with no photos sets its heading against its text rather than
   // stacking both down the middle. Two of these in a row — which is how a page
@@ -287,7 +289,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
           }}
         >
           <Reveal>
-            <h2 style={{ fontSize: sub ? TYPE.sub : TYPE.section, fontWeight: '300', maxWidth: 900 }}>
+            <h2 className="glass-title" data-text={heading} style={{ fontSize: sub ? TYPE.sub : TYPE.section, fontWeight: '300', maxWidth: 900 }}>
               {heading}
             </h2>
           </Reveal>
@@ -313,7 +315,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
           }}
         >
           <Reveal style={{ marginBottom: sub ? 24 : 32 }}>
-            <h2 style={{
+            <h2 className="glass-title" data-text={heading} style={{
               fontSize: sub ? TYPE.sub : TYPE.section,
               fontWeight: '300',
               margin: 0,
@@ -350,7 +352,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
         {/* The heading holds the left column on its own, the way a chapter
             opening does, so the eye has somewhere to land before the prose. */}
         <Reveal style={{ flex: '0 1 360px', maxWidth: 360 }}>
-          <h2 style={{
+          <h2 className="glass-title" data-text={heading} style={{
             fontSize: sub ? TYPE.sub : TYPE.section,
             fontWeight: '300',
             lineHeight: 1.1,
@@ -386,7 +388,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
     >
       <div style={{ flex: '1 1 360px', maxWidth: 480 }}>
         <Reveal style={{ marginBottom: 24 }}>
-          <h2 style={{ fontSize: sub ? TYPE.sub : TYPE.section, fontWeight: '300', margin: 0 }}>
+          <h2 className="glass-title" data-text={heading} style={{ fontSize: sub ? TYPE.sub : TYPE.section, fontWeight: '300', margin: 0 }}>
             {heading}
           </h2>
         </Reveal>
@@ -410,6 +412,11 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
               style={{ width: '100%', height: 'auto', borderRadius: 16, display: 'block' }}
             />
           )
+          // A ring of landscape photos on a phone is a ring of crops: where
+          // the section says what shape its photos are, a phone shows them
+          // whole, one above another, instead.
+          : layout === 'carousel' && phone && aspect
+            ? <PhotoGroup photos={photos} heading={heading} columns={1} aspect={aspect} />
           : layout === 'carousel'
             ? <PhotoCarousel photos={photos} heading={heading} />
             : <PhotoGroup photos={photos} heading={heading} />}
@@ -442,7 +449,7 @@ export function SectionTitle({ children, tight }) {
         transition: 'opacity 1.5s ease',
       }}
     >
-      <h2 style={{ fontSize: TYPE.umbrella, fontWeight: '300' }}>{children}</h2>
+      <h2 className="glass-title" data-text={children} style={{ fontSize: TYPE.umbrella, fontWeight: '300' }}>{children}</h2>
     </div>
   )
 }
@@ -500,7 +507,7 @@ export function SplitRow({ heading, body, photo, alt, flip }) {
       {/* Matched to the sub-section headings elsewhere, so a page reads the same
           however its sections happen to be built. */}
       {heading && (
-        <h2 style={{ fontSize: TYPE.sub, fontWeight: '300', marginBottom: 24 }}>{heading}</h2>
+        <h2 className="glass-title" data-text={heading} style={{ fontSize: TYPE.sub, fontWeight: '300', marginBottom: 24 }}>{heading}</h2>
       )}
       <Paragraphs
         body={body}

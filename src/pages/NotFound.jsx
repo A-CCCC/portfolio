@@ -21,7 +21,7 @@ export default function NotFound() {
       textAlign: 'center',
       padding: '0 24px',
     }}>
-      <h1 style={{
+      <h1 className="glass-title" data-text="Page not found" style={{
         fontSize: TYPE.pageTitle,
         fontWeight: 'bold',
         letterSpacing: '-0.01em',

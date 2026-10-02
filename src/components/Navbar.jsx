@@ -129,10 +129,17 @@ const linkStyle = {
 
 const hoverStyle = (isHovered) => ({
   fontWeight: isHovered ? 600 : 400,
-  background: isHovered ? 'var(--hover)' : 'transparent',
   borderRadius: 8,
-  transition: 'background 0.2s ease, font-weight 0.2s ease',
+  position: 'relative',
+  isolation: 'isolate',
+  transition: 'font-weight 0.2s ease',
 })
+
+// The highlight under a hovered link: a pill of glass, always there under the
+// text and shown only while the pointer rests on it. A glass surface cannot
+// fade in by changing its background, so it is its own layer, and only its
+// opacity moves.
+const Lit = ({ on }) => <i className="glass nav-lit" aria-hidden="true" style={{ opacity: on ? 1 : 0 }} />
 
 // A small star after the name of a page that is not finished, and — for a
 // pointer that rests on it — the reason, fading in beneath. Said in words for
@@ -153,10 +160,7 @@ const SHEET_OUT = 220
 
 const dropdownStyle = {
   position: 'absolute',
-  background: 'var(--panel)',
-  backdropFilter: 'blur(10px)',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-  borderRadius: 8,
+  borderRadius: 12,
   padding: 4,
   minWidth: 180,
 }
@@ -246,6 +250,7 @@ export default function Navbar() {
           }}
         >
           Home
+          <Lit on={hovered === 'home'} />
         </Link>
 
         {/* Centered between the two sides, and positioned rather than placed in the
@@ -256,7 +261,7 @@ export default function Navbar() {
           onClick={rideToTop}
           aria-label="Back to the top"
           title="Back to the top"
-          className="nav-top"
+          className="glass nav-top"
           style={{
             position: 'absolute',
             left: '50%',
@@ -307,14 +312,16 @@ export default function Navbar() {
                 }}
               >
                 {tab.label} ▾
+                <Lit on={openTab === tab.label} />
               </Link>
 
               {!ghost && openTab === tab.label && (
-                <div className="nav-menu" style={{ ...dropdownStyle, top: '100%', left: 0, minWidth: 140 }}>
+                <div className="glass nav-menu" style={{ ...dropdownStyle, top: '100%', left: 0, minWidth: 140 }}>
                   {tab.categories.map((category) => (
                     <div
                       key={category.label}
-                      style={{ position: 'relative' }}
+                      // Not positioned: the submenu inside is placed against the
+                      // menu, not against this row, so the two line up.
                       onMouseEnter={() => setOpenCategory(category.label)}
                       onMouseLeave={() => setOpenCategory(null)}
                     >
@@ -330,10 +337,14 @@ export default function Navbar() {
                         }}
                       >
                         <span>{category.label}</span>
+                        <Lit on={openCategory === category.label} />
                       </Link>
 
+                      {/* Joined to the menu it came from: top edges level, its
+                          left edge on the menu's right edge, the corners on
+                          that side square, so the two read as one panel. */}
                       {!ghost && category.items.length > 0 && openCategory === category.label && (
-                        <div className="nav-menu" style={{ ...dropdownStyle, top: -4, left: '100%', minWidth: 150 }}>
+                        <div className="glass nav-menu nav-submenu" style={{ ...dropdownStyle, top: 0, left: '100%', minWidth: 150 }}>
                           {category.items.map((item) => (
                             <Link
                               key={item.label}
@@ -351,6 +362,7 @@ export default function Navbar() {
                             >
                               {item.label}
                               {PENDING.has(item.path) && <Star />}
+                              <Lit on={hovered === item.label} />
                             </Link>
                           ))}
                         </div>
@@ -375,6 +387,7 @@ export default function Navbar() {
             }}
           >
             {REACH.label}
+            <Lit on={hovered === 'contact'} />
           </Link>
 
           <Link
@@ -391,6 +404,7 @@ export default function Navbar() {
             }}
           >
             About Me
+            <Lit on={hovered === 'about'} />
           </Link>
 
         </div>
@@ -553,7 +567,7 @@ export default function Navbar() {
             }}
           />
 
-          <div className={`nav-sheet${menuOpen ? '' : ' nav-sheet-leaving'}`} aria-hidden={!menuOpen}>
+          <div className={`glass nav-sheet${menuOpen ? '' : ' nav-sheet-leaving'}`} aria-hidden={!menuOpen}>
             {/* No Home here: the bar's own Home, which the sheet paints under,
                 is the first item of this list — see .nav-home-phone. */}
 

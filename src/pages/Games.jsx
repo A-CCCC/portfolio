@@ -92,7 +92,7 @@ export default function Games() {
       padding: short ? '70px 24px 18px' : '120px var(--gutter) 80px',
       textAlign: 'center',
     }}>
-      <h1 style={{
+      <h1 className="glass-title" data-text="Games" style={{
         fontSize: TYPE.pageTitle,
         fontWeight: 'bold',
         letterSpacing: '-0.01em',
@@ -131,15 +131,14 @@ export default function Games() {
           <Link
             key={game.path}
             to={game.path}
-            className="shop-card"
+            className="glass shop-card"
             // Everything gives up a little sideways on a phone: the card's own
             // padding, and the disc, which is sized for a page with height.
             style={short ? { padding: '14px 16px 12px' } : undefined}
           >
             <span
-              className="shop-card-disc"
-              style={{
-                background: `var(--card-${game.tint})`,
+              className="glass shop-card-disc"
+              style={{ '--lg-tint': `var(--glass-${game.tint})`,
                 ...(short ? { width: 68, height: 68 } : {}),
               }}
             >
