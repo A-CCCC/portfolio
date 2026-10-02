@@ -101,14 +101,14 @@
   /* The titles' glass on the light page: dark glass — the ink, lighter
      towards the light — with a white line of light along the edges that
      face it, a soft grey shadow, and a sheen crossing it. */
-  --gt-ink: rgba(74, 46, 8, 0.9);
-  --gt-ink-foot: rgba(140, 70, 30, 0.84);
+  --gt-ink: rgba(205, 128, 36, 0.95);
+  --gt-ink-foot: rgba(165, 78, 30, 0.95);
   --gt-light: rgba(255, 246, 190, 0.95);
   --gt-shadow: rgba(0, 0, 0, 0.22);
   --gt-sheen: rgba(255, 226, 110, 0.75);
   --gt-sheen-2: rgba(255, 140, 84, 0.8);
-  --gt-streak-1: rgba(255, 196, 70, 0.55);
-  --gt-streak-2: rgba(255, 128, 58, 0.45);
+  --gt-streak-1: rgba(255, 206, 80, 0.9);
+  --gt-streak-2: rgba(255, 128, 64, 0.85);
 
   /* Carousel card tints — cycled by index */
   --card-1a: #eaf1fb;  --card-1b: #d5e4f6;
@@ -144,8 +144,8 @@
   --band-gt-shadow: rgba(0, 0, 0, 0.9);
   --band-gt-sheen: rgba(229, 239, 250, 0.95);
   --band-gt-sheen-2: rgba(150, 228, 195, 0.95);
-  --band-gt-streak-1: rgba(130, 195, 255, 0.6);
-  --band-gt-streak-2: rgba(100, 230, 180, 0.5);
+  --band-gt-streak-1: rgba(96, 160, 255, 0.95);
+  --band-gt-streak-2: rgba(80, 225, 170, 0.9);
   --band-lg-fill: rgba(255, 255, 255, 0.06);
   --band-lg-tint-share: 22%;
   --band-lg-hue-share: 60%;
@@ -196,8 +196,8 @@
   --gt-shadow: rgba(0, 0, 0, 0.9);
   --gt-sheen: rgba(229, 239, 250, 0.95);
   --gt-sheen-2: rgba(150, 228, 195, 0.95);
-  --gt-streak-1: rgba(130, 195, 255, 0.6);
-  --gt-streak-2: rgba(100, 230, 180, 0.5);
+  --gt-streak-1: rgba(96, 160, 255, 0.95);
+  --gt-streak-2: rgba(80, 225, 170, 0.9);
 
   --card-1a: #24313f;  --card-1b: #1a232e;
   --card-2a: #362a1c;  --card-2b: #271e14;
@@ -229,8 +229,8 @@
   --band-gt-shadow: rgba(0, 0, 0, 0.9);
   --band-gt-sheen: rgba(229, 239, 250, 0.95);
   --band-gt-sheen-2: rgba(150, 228, 195, 0.95);
-  --band-gt-streak-1: rgba(130, 195, 255, 0.6);
-  --band-gt-streak-2: rgba(100, 230, 180, 0.5);
+  --band-gt-streak-1: rgba(96, 160, 255, 0.95);
+  --band-gt-streak-2: rgba(80, 225, 170, 0.9);
   --band-lg-fill: rgba(255, 255, 255, 0.06);
   --band-lg-tint-share: 22%;
   --band-lg-hue-share: 60%;
@@ -287,8 +287,8 @@
     --gt-shadow: rgba(0, 0, 0, 0.9);
     --gt-sheen: rgba(229, 239, 250, 0.95);
     --gt-sheen-2: rgba(150, 228, 195, 0.95);
-    --gt-streak-1: rgba(130, 195, 255, 0.6);
-    --gt-streak-2: rgba(100, 230, 180, 0.5);
+    --gt-streak-1: rgba(96, 160, 255, 0.95);
+    --gt-streak-2: rgba(80, 225, 170, 0.9);
 
     --card-1a: #24313f;  --card-1b: #1a232e;
     --card-2a: #362a1c;  --card-2b: #271e14;
@@ -312,8 +312,8 @@
     --band-gt-shadow: rgba(0, 0, 0, 0.9);
     --band-gt-sheen: rgba(229, 239, 250, 0.95);
     --band-gt-sheen-2: rgba(150, 228, 195, 0.95);
-    --band-gt-streak-1: rgba(130, 195, 255, 0.6);
-    --band-gt-streak-2: rgba(100, 230, 180, 0.5);
+    --band-gt-streak-1: rgba(96, 160, 255, 0.95);
+    --band-gt-streak-2: rgba(80, 225, 170, 0.9);
     --band-lg-fill: rgba(255, 255, 255, 0.06);
     --band-lg-tint-share: 22%;
   --band-lg-hue-share: 60%;
@@ -517,34 +517,34 @@
 }
 /* The ink: the frost, and the sheen drifting across it */
 .glass-title::after {
-  /* The letters are glass, and what shows through them is a texture of
-     light behind: streaks of it, in the page's two colours, running at an
-     angle off the light's and in two scales that never line up, so they
-     read as natural rather than ruled — over the ink, which is lighter
-     towards the light. The sheen crosses over all of it. */
+  /* The letters are glass, and what shows through them is a wave of
+     colour behind: soft pools of the page's two colours, one after
+     another along a rise and fall across the width, each overlapping the
+     next, so together they make one ribbon that waves — over the ink,
+     which is lighter towards the light. The sheen crosses over all of it.
+     The pools are a share of the title's width, so a long title shows the
+     whole wave and a short one a sweep of it. */
   background-image:
     linear-gradient(112deg,
       transparent 0%, transparent 34%,
       var(--gt-sheen) 42%, var(--gt-sheen-2) 50%, var(--gt-sheen) 58%,
       transparent 66%, transparent 100%),
-    repeating-linear-gradient(calc(var(--light-angle) - 24deg),
-      transparent 0px, var(--gt-streak-1) 5px, transparent 11px, transparent 19px,
-      var(--gt-streak-2) 24px, transparent 33px, transparent 47px),
-    repeating-linear-gradient(calc(var(--light-angle) - 31deg),
-      transparent 0px, var(--gt-streak-2) 9px, transparent 17px, transparent 44px,
-      var(--gt-streak-1) 52px, transparent 61px, transparent 83px),
-    linear-gradient(calc(var(--light-angle) + 28deg),
-      var(--gt-streak-1) 0%, transparent 38%, var(--gt-streak-2) 72%, transparent 100%),
+    radial-gradient(ellipse 26% 70% at -2% 78%, var(--gt-streak-1) 0%, transparent 70%),
+    radial-gradient(ellipse 30% 64% at 22% 28%, var(--gt-streak-2) 0%, transparent 70%),
+    radial-gradient(ellipse 27% 72% at 46% 74%, var(--gt-streak-1) 0%, transparent 70%),
+    radial-gradient(ellipse 31% 62% at 70% 24%, var(--gt-streak-2) 0%, transparent 70%),
+    radial-gradient(ellipse 28% 70% at 94% 72%, var(--gt-streak-1) 0%, transparent 70%),
+    radial-gradient(ellipse 24% 60% at 112% 30%, var(--gt-streak-2) 0%, transparent 70%),
     linear-gradient(var(--light-angle), var(--gt-ink) 0%, var(--gt-ink-foot) 100%);
-  background-size: 300% 100%, auto, auto, 100% 100%, 100% 100%;
-  background-repeat: no-repeat, repeat, repeat, no-repeat, no-repeat;
+  background-size: 300% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   /* The band waits off the text until the title has come into view (the
      light script marks it — see useLight.js), then crosses almost at once,
      and again every eleven seconds. */
-  background-position: 110% 0, 0 0, 0 0, 0 0, 0 0;
+  background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
 }
 .glass-title[data-lit]::after {
   animation: glass-sheen 11s ease-in-out infinite;
@@ -588,11 +588,11 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
    gradient clipped to the text is the dearest paint on the page, and this
    would otherwise redraw every one every frame. */
 @keyframes glass-sheen {
-  0%, 5% { background-position: 110% 0, 0 0, 0 0, 0 0, 0 0; }
-  17%, 100% { background-position: -10% 0, 0 0, 0 0, 0 0, 0 0; }
+  0%, 5% { background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  17%, 100% { background-position: -10% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .glass-title[data-lit]::after { animation: none; background-position: 110% 0, 0 0, 0 0, 0 0, 0 0; }
+  .glass-title[data-lit]::after { animation: none; background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
 }
 
 /* CAROUSEL CARDS */
