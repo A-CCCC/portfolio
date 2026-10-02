@@ -523,18 +523,20 @@
      next, so together they make one ribbon that waves — over the ink,
      which is lighter towards the light. The sheen crosses over all of it.
      The pools are a share of the title's width, so a long title shows the
-     whole wave and a short one a sweep of it. */
+     whole wave and a short one a sweep of it. Where each pool sits and how
+     big it is are drawn afresh for every title (useLight.js writes them;
+     these are the stand-ins), so no two titles wave quite the same. */
   background-image:
     linear-gradient(112deg,
       transparent 0%, transparent 34%,
       var(--gt-sheen) 42%, var(--gt-sheen-2) 50%, var(--gt-sheen) 58%,
       transparent 66%, transparent 100%),
-    radial-gradient(ellipse 26% 70% at -2% 78%, var(--gt-streak-1) 0%, transparent 70%),
-    radial-gradient(ellipse 30% 64% at 22% 28%, var(--gt-streak-2) 0%, transparent 70%),
-    radial-gradient(ellipse 27% 72% at 46% 74%, var(--gt-streak-1) 0%, transparent 70%),
-    radial-gradient(ellipse 31% 62% at 70% 24%, var(--gt-streak-2) 0%, transparent 70%),
-    radial-gradient(ellipse 28% 70% at 94% 72%, var(--gt-streak-1) 0%, transparent 70%),
-    radial-gradient(ellipse 24% 60% at 112% 30%, var(--gt-streak-2) 0%, transparent 70%),
+    radial-gradient(ellipse var(--w1s, 26% 70%) at var(--w1p, -2% 78%), var(--gt-streak-1) 0%, transparent 70%),
+    radial-gradient(ellipse var(--w2s, 30% 64%) at var(--w2p, 22% 28%), var(--gt-streak-2) 0%, transparent 70%),
+    radial-gradient(ellipse var(--w3s, 27% 72%) at var(--w3p, 46% 74%), var(--gt-streak-1) 0%, transparent 70%),
+    radial-gradient(ellipse var(--w4s, 31% 62%) at var(--w4p, 70% 24%), var(--gt-streak-2) 0%, transparent 70%),
+    radial-gradient(ellipse var(--w5s, 28% 70%) at var(--w5p, 94% 72%), var(--gt-streak-1) 0%, transparent 70%),
+    radial-gradient(ellipse var(--w6s, 24% 60%) at var(--w6p, 112% 30%), var(--gt-streak-2) 0%, transparent 70%),
     linear-gradient(var(--light-angle), var(--gt-ink) 0%, var(--gt-ink-foot) 100%);
   background-size: 300% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
   background-repeat: no-repeat;
