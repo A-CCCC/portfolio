@@ -1,5 +1,6 @@
 // src/components/ProjectBubbles.jsx
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import { Gamepad2 } from 'lucide-react'
 import useFadeIn from '../hooks/useFadeIn'
@@ -165,8 +166,12 @@ const GAMES_BUBBLE = { path: '/games', label: 'Games', icon: true }
 const GAMES_CHANCE = 1 / 12
 
 const ALWAYS_PATHS = ['/solutions/convenience/backup-camera-wiper']
-// How long the pop takes before the page changes under it
-const POP_MS = 600
+// The pop, in two beats: the bubble swells, then bursts — and from the
+// burst the page dives into where it was, until the page is the project's.
+const SWELL_MS = 150
+const DIVE_MS = 580
+// Where the shards of the burst fly: a handful, spread round the ring
+const SHARDS = Array.from({ length: 10 }, (_, k) => ({ a: k * 36 + (k % 2) * 11, d: 1.3 + (k % 3) * 0.25 }))
 
 const ALWAYS = bubbleProjects.filter((project) => ALWAYS_PATHS.includes(project.path))
 
@@ -287,19 +292,43 @@ export default function ProjectBubbles() {
   // project's. A modified click (a new tab) and a reader with motion turned
   // down get the link as it is.
   const navigate = useNavigate()
+  const [swelling, setSwelling] = useState(null)
   const [popping, setPopping] = useState(null)
   const pop = (e, path) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     e.preventDefault()
-    if (popping) return
-    setPopping(path)
-    setTimeout(() => navigate(path), POP_MS)
+    if (swelling) return
+    const bubble = e.currentTarget
+    setSwelling(path)
+    setTimeout(() => {
+      setPopping(path)
+      // The page dives into the bubble: the page's own root element (the
+      // one under #root — the bar and the switch are fixed beside it and
+      // stay put) scaled up about the bubble's centre.
+      const page = bubble.closest('#root > *')
+      const r = bubble.getBoundingClientRect()
+      const pr = page.getBoundingClientRect()
+      const cx = r.left + r.width / 2
+      const cy = r.top + r.height / 2
+      page.style.setProperty('--dive-x', `${cx - pr.left}px`)
+      page.style.setProperty('--dive-y', `${cy - pr.top}px`)
+      // and slides so the bubble ends up in the middle of the screen, so
+      // what grows in it stays in view
+      page.style.setProperty('--dive-dx', `${window.innerWidth / 2 - cx}px`)
+      page.style.setProperty('--dive-dy', `${window.innerHeight / 2 - cy}px`)
+      page.classList.add('page-diving')
+      document.documentElement.classList.add('diving')
+    }, SWELL_MS)
+    setTimeout(() => {
+      document.documentElement.classList.remove('diving')
+      navigate(path)
+    }, SWELL_MS + DIVE_MS)
   }
 
   return (
     <>
-    {popping && <div className="bubble-veil" aria-hidden="true" />}
+    {popping && createPortal(<div className="bubble-veil" aria-hidden="true" />, document.body)}
     <div
       className={`bubble-layer${popping ? ' bubble-layer-popping' : ''}`}
       aria-hidden={visible ? undefined : 'true'}
@@ -343,6 +372,7 @@ export default function ProjectBubbles() {
               className={[
                 'glass bubble',
                 project.photo ? 'bubble-photo' : '',
+                swelling === project.path ? 'bubble-swelling' : '',
                 popping === project.path ? 'bubble-popping' : '',
               ].filter(Boolean).join(' ')}
               title={project.label}
@@ -404,6 +434,10 @@ export default function ProjectBubbles() {
                     {initials(project.label)}
                   </span>
               }
+              {popping === project.path && SHARDS.map((sh, k) => (
+                <i key={k} className="bubble-shard" aria-hidden="true"
+                  style={{ '--a': `${sh.a}deg`, '--r': `${spot.size / 2}px`, '--d': sh.d }} />
+              ))}
             </Link>
           </div>
         )

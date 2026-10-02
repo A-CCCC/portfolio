@@ -80,6 +80,8 @@ export default function Home() {
           }}
         >
           View services
+          {/* The same pill of glass the navbar's links light up with */}
+          <i className="glass glass-vivid nav-lit" aria-hidden="true" />
         </Link>
       </div>
 
@@ -194,7 +196,7 @@ export default function Home() {
           transition: 'opacity 1.5s ease',
         }}
       >
-        <Link to={featured.path} className="glass glass-night shop-card feature-card">
+        <Link to={featured.path} className="glass glass-vivid glass-panel shop-card feature-card">
           <span
             className="glass shop-card-disc"
             style={{ '--lg-hue': `var(--hue-${featured.tint})` }}
@@ -285,7 +287,7 @@ export default function Home() {
             maxWidth: 720,
           }}>
             {current.map((item) => (
-              <Link key={item.path} to={item.path} className="glass glass-night shop-card current-card">
+              <Link key={item.path} to={item.path} className="glass glass-vivid glass-panel shop-card current-card">
                 <span
                   className="glass shop-card-disc"
                   style={{ '--lg-hue': `var(--hue-${item.tint})` }}

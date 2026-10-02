@@ -69,6 +69,8 @@
 :root[data-theme='light'] {
   color-scheme: light;
   --bg: #ffffff;
+  --panel-a: #ebebee;
+  --panel-b: #dfdfe4;
   --text: #000000;
   --text-body: #555555;
   --text-muted: #888888;
@@ -159,6 +161,8 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
   --bg: #1a1915;
+  --panel-a: #2a2a2f;
+  --panel-b: #17171a;
   --text: #f2f2f2;
   --text-body: #b0b0b0;
   --text-muted: #808080;
@@ -243,6 +247,8 @@
   :root:not([data-theme]) {
     color-scheme: dark;
     --bg: #1a1915;
+    --panel-a: #2a2a2f;
+    --panel-b: #17171a;
     --text: #f2f2f2;
     --text-body: #b0b0b0;
     --text-muted: #808080;
@@ -342,36 +348,18 @@
    line, then the hairline where the glass meets the page; the underside
    shaded, the top lit; a glint at the upper left where the light comes in;
    and a soft shadow onto the page. */
-/* A dark box on any page: the dark page's glass and text, as fixed values
-   rather than the theme's, so it is the same box in both themes and does
-   not blink when the theme turns over. Under the glass, a near-black of
-   its own, since the dark glass is clear and would show the white page.
-   The featured and current project cards on the home page wear this. */
-.glass-night {
-  --text: #f2f2f2;
-  --text-body: #b0b0b0;
-  --text-muted: #808080;
-  --hover: rgba(255, 255, 255, 0.12);
-  --lg-fill: rgba(255, 255, 255, 0.06);
-  --lg-tint-share: 22%;
-  --lg-hue-share: 60%;
-  --lg-band: rgba(141, 169, 229, 0.12);
-  --lg-line: rgba(255, 255, 255, 0.4);
-  --lg-rim: rgba(163, 198, 237, 0.85);
-  --lg-rim-far: rgba(163, 198, 237, 0.35);
-  --lg-edge: rgba(0, 0, 0, 0.32);
-  --lg-under: rgba(0, 0, 0, 0.35);
-  --lg-shade: rgba(0, 0, 0, 0.38);
-  --lg-glint: rgba(161, 189, 234, 0.4);
-  --lg-cast: rgba(110, 205, 165, 0.13);
-  --gt-ink: rgba(196, 212, 242, 0.92);
-  --gt-ink-foot: rgba(172, 196, 240, 0.9);
-  --gt-light: rgba(220, 234, 248, 1);
-  --gt-shadow: rgba(0, 0, 0, 0.9);
-  --gt-sheen: rgba(229, 239, 250, 0.95);
-  --gt-sheen-2: rgba(150, 228, 195, 0.95);
-  --lg-tint: linear-gradient(165deg, #2a2a2f 0%, #17171a 100%);
-  color: var(--text);
+/* A panel a shade off the page: on the light page a light grey just
+   under the white, on the dark page a near-black just over the dark — in
+   the page's own glass either way. The featured and current project cards
+   on the home page wear this. */
+.glass-panel {
+  /* The panel tone most of the way to solid, so the glint, the sweep and
+     the cast show through it as they do on the rest of the glass; a wider
+     glint, since the card is wide. */
+  --lg-tint: linear-gradient(165deg,
+    color-mix(in srgb, var(--panel-a) 68%, transparent) 0%,
+    color-mix(in srgb, var(--panel-b) 68%, transparent) 100%);
+  --glint-size: 135% 105%;
 }
 
 .glass {
@@ -580,6 +568,10 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
 .carousel-card {
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
               box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  /* Its tint thinned, so the vivid light shows through it as on the home
+     page's panels, and a glint wide enough for a tall card. */
+  --lg-tint-share: 30%;
+  --glint-size: 135% 110%;
 }
 
 .carousel-card:hover {
@@ -678,11 +670,21 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
   backdrop-filter: none;
 }
 
-/* The pop. The glass goes at once — a bubble does not fade, it bursts —
-   leaving a ring of its light that swells and is gone; the project inside
-   comes up to the eye and through it; the other bubbles fall back; and a
-   veil of the page's own colour rises, so the next page arrives on plain
-   ground. The float keeps going underneath, so nothing jumps. */
+/* The pop, in two beats. First the bubble swells, as a bubble does just
+   before it goes. Then the glass goes at once — a bubble bursts, it does
+   not fade — leaving a ring of its light that swells and is gone and a
+   scatter of droplets flying out; the other bubbles fall back; and from
+   the burst the page dives into where the bubble was, the project in it
+   coming up to the eye as the page does, under a veil of the page's own
+   colour, so the next page arrives on plain ground. */
+.bubble-swelling {
+  animation: bubble-swell 0.15s cubic-bezier(0.3, 0, 0.5, 1) forwards;
+  z-index: 5;
+}
+@keyframes bubble-swell {
+  from { scale: 1; }
+  to { scale: 1.26; }
+}
 .glass.bubble.bubble-popping {
   --lit-glint: transparent;
   --lit-rim: transparent;
@@ -697,7 +699,6 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
   --lg-edge: transparent;
   --lg-shade: transparent;
   overflow: visible !important;
-  z-index: 5;
   filter: none;
 }
 .bubble-popping::before {
@@ -706,35 +707,57 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
   inset: 0;
   border-radius: 50%;
   box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--lg-hue) 70%, white),
-    inset 0 0 18px 2px color-mix(in srgb, var(--lg-hue) 50%, transparent);
-  animation: bubble-burst 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+    0 0 0 3px color-mix(in srgb, var(--lg-hue) 60%, white),
+    0 0 24px 6px color-mix(in srgb, var(--lg-hue) 55%, transparent),
+    inset 0 0 22px 3px color-mix(in srgb, var(--lg-hue) 55%, transparent);
+  animation: bubble-burst 0.42s cubic-bezier(0.15, 0.8, 0.3, 1) forwards;
   pointer-events: none;
 }
 @keyframes bubble-burst {
-  from { transform: scale(1); opacity: 1; }
-  to { transform: scale(1.9); opacity: 0; }
+  from { transform: scale(0.96); opacity: 1; }
+  to { transform: scale(2.1); opacity: 0; }
 }
-.bubble-popping img,
-.bubble-popping svg,
-.bubble-popping > span {
-  animation: bubble-zoom 0.6s cubic-bezier(0.35, 0, 0.55, 1) forwards !important;
+.bubble-shard {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--lg-hue) 55%, white);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--lg-hue) 70%, transparent);
+  animation: bubble-shard 0.5s cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
+  pointer-events: none;
 }
-@keyframes bubble-zoom {
-  from { transform: scale(1.07); opacity: 1; }
-  75% { opacity: 1; }
-  to { transform: scale(9); opacity: 0; }
+@keyframes bubble-shard {
+  from { transform: rotate(var(--a)) translateX(calc(var(--r) * 0.9)) scale(1); opacity: 1; }
+  to { transform: rotate(var(--a)) translateX(calc(var(--r) * var(--d) * 1.5)) scale(0.15); opacity: 0; }
 }
 .bubble-layer-popping .bubble:not(.bubble-popping) {
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.3s ease;
+}
+/* The page diving in: scaled up about the bubble's centre, which the click
+   wrote in, and carried to the middle of the screen as it goes, so what is
+   in the bubble grows in view rather than off the edge; the bar and the
+   switch are fixed outside it and stay. */
+html.diving { overflow: hidden; }
+.page-diving {
+  transform-origin: var(--dive-x) var(--dive-y);
+  animation: page-dive 0.58s cubic-bezier(0.55, 0, 0.8, 0.4) forwards;
+  will-change: transform;
+}
+@keyframes page-dive {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(var(--dive-dx), var(--dive-dy)) scale(3.4); }
 }
 .bubble-veil {
   position: fixed;
   inset: 0;
   z-index: 40;              /* under the bar, over the page */
   background: var(--bg);
-  animation: bubble-veil 0.34s ease 0.26s both;
+  animation: bubble-veil 0.3s ease 0.3s both;
   pointer-events: none;
 }
 @keyframes bubble-veil {
@@ -976,8 +999,15 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
    of the fade it arrives on: written inline, a `transition` would replace the
    whole property and the shading would have none at all. */
 .hero-link {
-  transition: opacity 1.5s ease, background-color 0.25s ease;
+  transition: opacity 1.5s ease;
+  /* Lit on hover by the navbar's pill of glass (inside it), not by a tint */
+  isolation: isolate;
 }
+.hero-link:hover,
+.hero-link:focus-visible { background-color: transparent; }
+.hero-link .nav-lit { opacity: 0; }
+.hero-link:hover .nav-lit,
+.hero-link:focus-visible .nav-lit { opacity: 1; }
 
 /* On the arrow itself rather than on the links it happens to sit in: scoped to
    .count-link it left the same arrow on the Services cards with no transition
@@ -1143,6 +1173,8 @@ canvas {
    Anything below that is not a plain color — the card gradients, the shadows —
    still changes at once, since neither can be interpolated this way. */
 @property --bg          { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --panel-a     { syntax: "<color>"; inherits: true; initial-value: #ebebee; }
+@property --panel-b     { syntax: "<color>"; inherits: true; initial-value: #dfdfe4; }
 @property --text        { syntax: "<color>"; inherits: true; initial-value: #000000; }
 @property --text-body   { syntax: "<color>"; inherits: true; initial-value: #555555; }
 @property --text-muted  { syntax: "<color>"; inherits: true; initial-value: #888888; }
@@ -1236,6 +1268,8 @@ canvas {
 
   transition:
     --bg var(--theme-fade) var(--theme-ease),
+    --panel-a var(--theme-fade) var(--theme-ease),
+    --panel-b var(--theme-fade) var(--theme-ease),
     --text var(--theme-fade) var(--theme-ease),
     --text-body var(--theme-fade) var(--theme-ease),
     --text-muted var(--theme-fade) var(--theme-ease),
