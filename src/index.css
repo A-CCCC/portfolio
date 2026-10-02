@@ -107,6 +107,8 @@
   --gt-shadow: rgba(0, 0, 0, 0.22);
   --gt-sheen: rgba(255, 226, 110, 0.75);
   --gt-sheen-2: rgba(255, 140, 84, 0.8);
+  --gt-streak-1: rgba(255, 196, 70, 0.55);
+  --gt-streak-2: rgba(255, 128, 58, 0.45);
 
   /* Carousel card tints — cycled by index */
   --card-1a: #eaf1fb;  --card-1b: #d5e4f6;
@@ -142,6 +144,8 @@
   --band-gt-shadow: rgba(0, 0, 0, 0.9);
   --band-gt-sheen: rgba(229, 239, 250, 0.95);
   --band-gt-sheen-2: rgba(150, 228, 195, 0.95);
+  --band-gt-streak-1: rgba(130, 195, 255, 0.6);
+  --band-gt-streak-2: rgba(100, 230, 180, 0.5);
   --band-lg-fill: rgba(255, 255, 255, 0.06);
   --band-lg-tint-share: 22%;
   --band-lg-hue-share: 60%;
@@ -192,6 +196,8 @@
   --gt-shadow: rgba(0, 0, 0, 0.9);
   --gt-sheen: rgba(229, 239, 250, 0.95);
   --gt-sheen-2: rgba(150, 228, 195, 0.95);
+  --gt-streak-1: rgba(130, 195, 255, 0.6);
+  --gt-streak-2: rgba(100, 230, 180, 0.5);
 
   --card-1a: #24313f;  --card-1b: #1a232e;
   --card-2a: #362a1c;  --card-2b: #271e14;
@@ -223,6 +229,8 @@
   --band-gt-shadow: rgba(0, 0, 0, 0.9);
   --band-gt-sheen: rgba(229, 239, 250, 0.95);
   --band-gt-sheen-2: rgba(150, 228, 195, 0.95);
+  --band-gt-streak-1: rgba(130, 195, 255, 0.6);
+  --band-gt-streak-2: rgba(100, 230, 180, 0.5);
   --band-lg-fill: rgba(255, 255, 255, 0.06);
   --band-lg-tint-share: 22%;
   --band-lg-hue-share: 60%;
@@ -279,6 +287,8 @@
     --gt-shadow: rgba(0, 0, 0, 0.9);
     --gt-sheen: rgba(229, 239, 250, 0.95);
     --gt-sheen-2: rgba(150, 228, 195, 0.95);
+    --gt-streak-1: rgba(130, 195, 255, 0.6);
+    --gt-streak-2: rgba(100, 230, 180, 0.5);
 
     --card-1a: #24313f;  --card-1b: #1a232e;
     --card-2a: #362a1c;  --card-2b: #271e14;
@@ -302,6 +312,8 @@
     --band-gt-shadow: rgba(0, 0, 0, 0.9);
     --band-gt-sheen: rgba(229, 239, 250, 0.95);
     --band-gt-sheen-2: rgba(150, 228, 195, 0.95);
+    --band-gt-streak-1: rgba(130, 195, 255, 0.6);
+    --band-gt-streak-2: rgba(100, 230, 180, 0.5);
     --band-lg-fill: rgba(255, 255, 255, 0.06);
     --band-lg-tint-share: 22%;
   --band-lg-hue-share: 60%;
@@ -505,21 +517,34 @@
 }
 /* The ink: the frost, and the sheen drifting across it */
 .glass-title::after {
+  /* The letters are glass, and what shows through them is a texture of
+     light behind: streaks of it, in the page's two colours, running at an
+     angle off the light's and in two scales that never line up, so they
+     read as natural rather than ruled — over the ink, which is lighter
+     towards the light. The sheen crosses over all of it. */
   background-image:
     linear-gradient(112deg,
       transparent 0%, transparent 34%,
       var(--gt-sheen) 42%, var(--gt-sheen-2) 50%, var(--gt-sheen) 58%,
       transparent 66%, transparent 100%),
+    repeating-linear-gradient(calc(var(--light-angle) - 24deg),
+      transparent 0px, var(--gt-streak-1) 5px, transparent 11px, transparent 19px,
+      var(--gt-streak-2) 24px, transparent 33px, transparent 47px),
+    repeating-linear-gradient(calc(var(--light-angle) - 31deg),
+      transparent 0px, var(--gt-streak-2) 9px, transparent 17px, transparent 44px,
+      var(--gt-streak-1) 52px, transparent 61px, transparent 83px),
+    linear-gradient(calc(var(--light-angle) + 28deg),
+      var(--gt-streak-1) 0%, transparent 38%, var(--gt-streak-2) 72%, transparent 100%),
     linear-gradient(var(--light-angle), var(--gt-ink) 0%, var(--gt-ink-foot) 100%);
-  background-size: 300% 100%, 100% 100%;
-  background-repeat: no-repeat;
+  background-size: 300% 100%, auto, auto, 100% 100%, 100% 100%;
+  background-repeat: no-repeat, repeat, repeat, no-repeat, no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   /* The band waits off the text until the title has come into view (the
      light script marks it — see useLight.js), then crosses almost at once,
      and again every eleven seconds. */
-  background-position: 110% 0, 0 0;
+  background-position: 110% 0, 0 0, 0 0, 0 0, 0 0;
 }
 .glass-title[data-lit]::after {
   animation: glass-sheen 11s ease-in-out infinite;
@@ -549,6 +574,8 @@
   --gt-shadow: var(--band-gt-shadow);
   --gt-sheen: var(--band-gt-sheen);
   --gt-sheen-2: var(--band-gt-sheen-2);
+  --gt-streak-1: var(--band-gt-streak-1);
+  --gt-streak-2: var(--band-gt-streak-2);
 }
 
 /* A page title stands alone on its screen: shrunk to the words and
@@ -561,11 +588,11 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
    gradient clipped to the text is the dearest paint on the page, and this
    would otherwise redraw every one every frame. */
 @keyframes glass-sheen {
-  0%, 5% { background-position: 110% 0, 0 0; }
-  17%, 100% { background-position: -10% 0, 0 0; }
+  0%, 5% { background-position: 110% 0, 0 0, 0 0, 0 0, 0 0; }
+  17%, 100% { background-position: -10% 0, 0 0, 0 0, 0 0, 0 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .glass-title[data-lit]::after { animation: none; background-position: 110% 0, 0 0; }
+  .glass-title[data-lit]::after { animation: none; background-position: 110% 0, 0 0, 0 0, 0 0, 0 0; }
 }
 
 /* CAROUSEL CARDS */
@@ -1000,10 +1027,12 @@ html.diving { overflow: hidden; }
   transition: background-color 0.25s ease;
 }
 
-.count-link:hover,
-.count-link:focus-visible {
-  background-color: var(--count-hover);
-}
+/* Lit on hover by a pill of the navbar's glass inside it (the nav-lit
+   each one carries), not by a tint */
+.count-link { position: relative; isolation: isolate; }
+.count-link .nav-lit { opacity: 0; }
+.count-link:hover .nav-lit,
+.count-link:focus-visible .nav-lit { opacity: 1; }
 
 /* The front page's link shades exactly as the ones below it do — the same
    0.25s as every other pill on the site. It carries its own rule only because
@@ -1011,14 +1040,7 @@ html.diving { overflow: hidden; }
    whole property and the shading would have none at all. */
 .hero-link {
   transition: opacity 1.5s ease;
-  /* Lit on hover by the navbar's pill of glass (inside it), not by a tint */
-  isolation: isolate;
 }
-.hero-link:hover,
-.hero-link:focus-visible { background-color: transparent; }
-.hero-link .nav-lit { opacity: 0; }
-.hero-link:hover .nav-lit,
-.hero-link:focus-visible .nav-lit { opacity: 1; }
 
 /* On the arrow itself rather than on the links it happens to sit in: scoped to
    .count-link it left the same arrow on the Services cards with no transition
@@ -1222,12 +1244,16 @@ canvas {
 @property --band-gt-shadow { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --band-gt-sheen { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --band-gt-sheen-2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-gt-streak-1 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --band-gt-streak-2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --gt-ink { syntax: "<color>"; inherits: true; initial-value: #000000; }
 @property --gt-ink-foot { syntax: "<color>"; inherits: true; initial-value: #000000; }
 @property --gt-light { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --gt-shadow { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --gt-sheen { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --gt-sheen-2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gt-streak-1 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gt-streak-2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --lg-fill { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --lg-band { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --lg-line { syntax: "<color>"; inherits: true; initial-value: transparent; }
@@ -1307,12 +1333,16 @@ canvas {
     --band-gt-shadow var(--theme-fade) var(--theme-ease),
     --band-gt-sheen var(--theme-fade) var(--theme-ease),
     --band-gt-sheen-2 var(--theme-fade) var(--theme-ease),
+    --band-gt-streak-1 var(--theme-fade) var(--theme-ease),
+    --band-gt-streak-2 var(--theme-fade) var(--theme-ease),
     --gt-ink var(--theme-fade) var(--theme-ease),
     --gt-ink-foot var(--theme-fade) var(--theme-ease),
     --gt-light var(--theme-fade) var(--theme-ease),
     --gt-shadow var(--theme-fade) var(--theme-ease),
     --gt-sheen var(--theme-fade) var(--theme-ease),
     --gt-sheen-2 var(--theme-fade) var(--theme-ease),
+    --gt-streak-1 var(--theme-fade) var(--theme-ease),
+    --gt-streak-2 var(--theme-fade) var(--theme-ease),
     --lg-fill var(--theme-fade) var(--theme-ease),
     --lg-band var(--theme-fade) var(--theme-ease),
     --lg-line var(--theme-fade) var(--theme-ease),

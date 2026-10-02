@@ -94,6 +94,7 @@ export default function PageIntro({
         >
           Purchase here
           <span className="count-arrow" aria-hidden="true">→</span>
+          <i className="glass glass-vivid nav-lit" aria-hidden="true" />
         </a>
       )}
     </div>

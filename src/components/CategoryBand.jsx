@@ -96,6 +96,7 @@ export default function CategoryBand({
         >
           {count} {count === 1 ? noun : `${noun}s`}
           <span className="count-arrow" aria-hidden="true">→</span>
+          <i className="glass glass-vivid nav-lit" aria-hidden="true" />
         </Link>
       </div>
 

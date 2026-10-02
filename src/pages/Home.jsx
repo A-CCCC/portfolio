@@ -175,6 +175,7 @@ export default function Home() {
               >
                 More about me
                 <span className="count-arrow" aria-hidden="true">→</span>
+                <i className="glass glass-vivid nav-lit" aria-hidden="true" />
               </Link>
 
             </div>
