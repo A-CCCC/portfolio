@@ -139,7 +139,7 @@ const hoverStyle = (isHovered) => ({
 // text and shown only while the pointer rests on it. A glass surface cannot
 // fade in by changing its background, so it is its own layer, and only its
 // opacity moves.
-const Lit = ({ on }) => <i className="glass nav-lit" aria-hidden="true" style={{ opacity: on ? 1 : 0 }} />
+const Lit = ({ on }) => <i className="glass glass-vivid nav-lit" aria-hidden="true" style={{ opacity: on ? 1 : 0 }} />
 
 // A small star after the name of a page that is not finished, and — for a
 // pointer that rests on it — the reason, fading in beneath. Said in words for
@@ -261,7 +261,7 @@ export default function Navbar() {
           onClick={rideToTop}
           aria-label="Back to the top"
           title="Back to the top"
-          className="glass nav-top"
+          className="glass glass-vivid nav-top"
           style={{
             position: 'absolute',
             left: '50%',
@@ -316,7 +316,7 @@ export default function Navbar() {
               </Link>
 
               {!ghost && openTab === tab.label && (
-                <div className="glass nav-menu" style={{ ...dropdownStyle, top: '100%', left: 0, minWidth: 140 }}>
+                <div className="glass glass-vivid nav-menu" style={{ ...dropdownStyle, top: '100%', left: 0, minWidth: 140 }}>
                   {tab.categories.map((category) => (
                     <div
                       key={category.label}
@@ -344,7 +344,7 @@ export default function Navbar() {
                           left edge on the menu's right edge, the corners on
                           that side square, so the two read as one panel. */}
                       {!ghost && category.items.length > 0 && openCategory === category.label && (
-                        <div className="glass nav-menu nav-submenu" style={{ ...dropdownStyle, top: 0, left: '100%', minWidth: 150 }}>
+                        <div className="glass glass-vivid nav-menu nav-submenu" style={{ ...dropdownStyle, top: 0, left: '100%', minWidth: 150 }}>
                           {category.items.map((item) => (
                             <Link
                               key={item.label}
@@ -567,7 +567,7 @@ export default function Navbar() {
             }}
           />
 
-          <div className={`glass nav-sheet${menuOpen ? '' : ' nav-sheet-leaving'}`} aria-hidden={!menuOpen}>
+          <div className={`glass glass-vivid nav-sheet${menuOpen ? '' : ' nav-sheet-leaving'}`} aria-hidden={!menuOpen}>
             {/* No Home here: the bar's own Home, which the sheet paints under,
                 is the first item of this list — see .nav-home-phone. */}
 

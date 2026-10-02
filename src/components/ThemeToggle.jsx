@@ -58,7 +58,7 @@ export default function ThemeToggle() {
 
       {/* Collapsed circle — always visible */}
       <div
-        className="glass"
+        className="glass glass-vivid"
         onMouseEnter={() => setCircleHover(true)}
         onMouseLeave={() => setCircleHover(false)}
         style={{
@@ -83,7 +83,7 @@ export default function ThemeToggle() {
 
       {/* Expanded menu — appears on hover, above the circle */}
       {open && (
-        <div className="glass" style={{
+        <div className="glass glass-vivid" style={{
           position: 'relative',
           display: 'flex',
           flexDirection: 'column',

@@ -946,6 +946,17 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
   text-align: left;
 }
 
+/* The navbar's glass and the theme switch, more coloured than the rest:
+   the light on them a fuller blue and the far side a fuller green, so the
+   small pieces of glass the page is handled through show their colour. */
+.glass-vivid {
+  --lit-glint: color-mix(in srgb, #4f94ff 38%, color-mix(in srgb, var(--lg-glint) 70%, white));
+  --lit-rim: color-mix(in srgb, #4f94ff 50%, var(--lg-rim));
+  --lit-rim-far: color-mix(in srgb, #4f94ff 50%, var(--lg-rim-far));
+  --lit-band: color-mix(in srgb, #4f94ff 40%, var(--lg-band));
+  --lit-cast: color-mix(in srgb, #3ccf78 45%, var(--lg-cast));
+  --glint-size: 120% 95%;
+}
 /* The glass under a hovered link: behind the text, in the label's own
    shape, no blur of its own (the bar it sits in already blurs the page)
    and only the lightest shadow, since it is a highlight and not a card. */
@@ -981,16 +992,29 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
    transparent, so hovering fades it in rather than making the text jump — and
    the reserved space means the layout never shifts. */
 .hub-link {
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.14em;
-  transition: text-decoration-color 0.3s ease;
+  /* Not a text-decoration: the heading inside is glass, which casts a shadow
+     from the shape of its text — and a transparent underline still has a
+     shape, so it showed as a shadow line before any hover. A rule drawn
+     under the heading instead, that fades in. */
+  display: inline-block;
+  position: relative;
+  text-decoration: none;
 }
-
-.hub-link:hover,
-.hub-link:focus-visible {
-  text-decoration-color: currentColor;
+.hub-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.08em;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.hub-link:hover::after,
+.hub-link:focus-visible::after {
+  opacity: 1;
 }
 
 /* SLIDE-IN CAPTION */
