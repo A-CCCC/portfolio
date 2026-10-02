@@ -1053,16 +1053,51 @@ canvas {
   max-height: var(--screen);
   overflow-y: auto;
   overscroll-behavior: contain;
-  animation: nav-sheet-in 0.18s ease both;
+  /* Slides down from under the bar and settles, the way a sheet does; on
+     the way out it lifts back up. Its origin is the top edge, so the slight
+     scale reads as the sheet unfolding from the bar rather than growing from
+     its middle. */
+  transform-origin: top center;
+  animation: nav-sheet-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.nav-sheet-leaving {
+  animation: nav-sheet-out 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+  pointer-events: none;
+}
+@keyframes nav-sheet-in {
+  from { opacity: 0; transform: translateY(-14px) scaleY(0.96); }
+  to   { opacity: 1; transform: translateY(0) scaleY(1); }
+}
+@keyframes nav-sheet-out {
+  from { opacity: 1; transform: translateY(0) scaleY(1); }
+  to   { opacity: 0; transform: translateY(-10px) scaleY(0.98); }
 }
 
-@keyframes nav-sheet-in {
-  from { opacity: 0; transform: translateY(-6px); }
+/* The links follow the sheet in, one after another: each starts a little
+   low and faint, and its place in the list (--i, from the component) sets
+   when it moves. On the way out they go with the sheet. */
+.nav-sheet-link {
+  animation: nav-link-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(60ms + var(--i, 0) * 28ms);
+}
+.nav-sheet-leaving .nav-sheet-link { animation: none; }
+@keyframes nav-link-in {
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* The veil over the page, for closing the sheet by tapping away: a tint
+   that fades in with the sheet and out with it. */
+.nav-veil {
+  background: rgba(0, 0, 0, 0.18);
+  animation: nav-veil-in 0.34s ease both;
+}
+.nav-veil-leaving { animation: nav-veil-out 0.22s ease both; pointer-events: none; }
+@keyframes nav-veil-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nav-veil-out { from { opacity: 1; } to { opacity: 0; } }
+
 @media (prefers-reduced-motion: reduce) {
-  .nav-sheet { animation: none; }
+  .nav-sheet, .nav-sheet-leaving, .nav-sheet-link, .nav-veil, .nav-veil-leaving { animation: none; }
 }
 
 /* On a phone the bar's Home is also the first item of the menu, which paints

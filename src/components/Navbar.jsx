@@ -147,6 +147,10 @@ function Star() {
   )
 }
 
+// How long the phone's sheet takes to leave; the stylesheet's exit animation
+// is the same length, so the element is removed as it finishes.
+const SHEET_OUT = 220
+
 const dropdownStyle = {
   position: 'absolute',
   background: 'var(--panel)',
@@ -164,6 +168,14 @@ export default function Navbar() {
   // of dead ends even if they fitted.
   const phone = useIsPhone()
   const [menuOpen, setMenuOpen] = useState(false)
+  // The sheet stays in the tree for a moment after it is told to close, so it
+  // can slide away rather than vanish; `shown` is what is actually rendered.
+  const [shown, setShown] = useState(false)
+  useEffect(() => {
+    if (menuOpen) { setShown(true); return undefined }
+    const t = setTimeout(() => setShown(false), SHEET_OUT)
+    return () => clearTimeout(t)
+  }, [menuOpen])
   const [openCategory, setOpenCategory] = useState(null)
   const [hovered, setHovered] = useState(null)
   const [nearBottom, setNearBottom] = useState(false)
@@ -522,7 +534,7 @@ export default function Navbar() {
 
       {/* The links, listed. Only the real bar has it — the inverted copy is a
           picture of the bar and has nothing to open. */}
-      {phone && menuOpen && (
+      {phone && shown && (
         <>
           {/* Anywhere else on the page closes it. Starts below the bar so the
               button that opened it can still be pressed to shut it, and lies at
@@ -530,6 +542,7 @@ export default function Navbar() {
               covers it wherever the two meet, leaving the links pressable. */}
           <div
             onClick={() => setMenuOpen(false)}
+            className={`nav-veil${menuOpen ? '' : ' nav-veil-leaving'}`}
             style={{
               position: 'absolute',
               top: '100%',
@@ -540,27 +553,34 @@ export default function Navbar() {
             }}
           />
 
-          <div className="nav-sheet">
+          <div className={`nav-sheet${menuOpen ? '' : ' nav-sheet-leaving'}`} aria-hidden={!menuOpen}>
             {/* No Home here: the bar's own Home, which the sheet paints under,
                 is the first item of this list — see .nav-home-phone. */}
 
-            {tabs.map((tab) => (
-              <div key={tab.label}>
-                <Link to={tab.path} className="nav-sheet-link">{tab.label}</Link>
-                {tab.categories.map((category) => (
-                  <Link
-                    key={category.label}
-                    to={category.path}
-                    className="nav-sheet-link nav-sheet-sub"
-                  >
-                    {category.label}
-                  </Link>
+            {/* Each link arrives a beat after the one above it — its place in
+                the list sets the delay. */}
+            {(() => { let n = 0; const at = () => ({ '--i': n++ }); return (
+              <>
+                {tabs.map((tab) => (
+                  <div key={tab.label}>
+                    <Link to={tab.path} className="nav-sheet-link" style={at()}>{tab.label}</Link>
+                    {tab.categories.map((category) => (
+                      <Link
+                        key={category.label}
+                        to={category.path}
+                        className="nav-sheet-link nav-sheet-sub"
+                        style={at()}
+                      >
+                        {category.label}
+                      </Link>
+                    ))}
+                  </div>
                 ))}
-              </div>
-            ))}
 
-            <Link to={REACH.path} className="nav-sheet-link">{REACH.label}</Link>
-            <Link to="/about" className="nav-sheet-link">About Me</Link>
+                <Link to={REACH.path} className="nav-sheet-link" style={at()}>{REACH.label}</Link>
+                <Link to="/about" className="nav-sheet-link" style={at()}>About Me</Link>
+              </>
+            ) })()}
           </div>
         </>
       )}
