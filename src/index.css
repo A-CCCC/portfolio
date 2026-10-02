@@ -423,10 +423,12 @@
   backdrop-filter: blur(14px) saturate(1.5);
   /* No ring all the way round: the lit edge is the rim (::after) on the
      side facing the light, and the dark edge is pushed to the side away
-     from it, so each only shows where the light would put it. */
+     from it, so each only shows where the light would put it. (An inset
+     shadow with a positive offset paints along the top and left — the lit
+     side; a negative one along the bottom and right.) */
   box-shadow:
-    inset 0 0 26px 1px var(--lit-band),
-    inset calc(var(--shadow-dx) * -0.3) calc(var(--shadow-dy) * -0.25) 2px var(--lit-rim-far),
+    inset 0 0 26px 0 var(--lit-band),
+    inset calc(var(--shadow-dx) * 0.3) calc(var(--shadow-dy) * 0.25) 2px var(--lit-rim-far),
     inset calc(var(--shadow-dx) * -0.6) calc(var(--shadow-dy) * -0.5) 9px -2px var(--lg-under),
     calc(var(--shadow-dx) * 0.4) calc(var(--shadow-dy) * 0.25) 4px -1px var(--lg-edge),
     var(--shadow-dx) var(--shadow-dy) 36px -4px var(--lg-shade);
@@ -530,7 +532,7 @@
   background-image:
     linear-gradient(112deg,
       transparent 0%, transparent 34%,
-      var(--gt-sheen) 42%, var(--gt-sheen-2) 50%, var(--gt-sheen) 58%,
+      var(--gt-sheen-2) 42%, var(--gt-sheen) 50%, var(--gt-sheen-2) 58%,
       transparent 66%, transparent 100%),
     radial-gradient(ellipse var(--w1s, 26% 70%) at var(--w1p, -2% 78%), var(--gt-streak-1) 0%, transparent 70%),
     radial-gradient(ellipse var(--w2s, 30% 64%) at var(--w2p, 22% 28%), var(--gt-streak-2) 0%, transparent 70%),
@@ -612,7 +614,6 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
 
 .carousel-card:hover {
   transform: translateY(-6px);
-  box-shadow: calc(var(--shadow-dx) * 0.4) calc(var(--shadow-dy) * 0.25) 4px -1px var(--lg-edge), var(--card-shadow);
 }
 
 .carousel-card img {
@@ -682,7 +683,7 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
      the near side, the reflected crescent on the far side, and the shade
      inside the far edge where the body curves away. */
   box-shadow:
-    inset 0 0 16px 1px var(--lit-band),
+    inset 0 0 16px 0 var(--lit-band),
     inset calc(var(--shadow-dx) * -0.8) calc(var(--shadow-dy) * -0.7) 9px -3px color-mix(in srgb, var(--lit-rim) 75%, transparent),
     inset calc(var(--shadow-dx) * 1.1) calc(var(--shadow-dy) * 0.95) 12px -4px color-mix(in srgb, var(--lit-rim-far) 90%, transparent),
     inset calc(var(--shadow-dx) * 0.7) calc(var(--shadow-dy) * 0.55) 22px -6px var(--lg-under),
@@ -1108,8 +1109,8 @@ html.diving { overflow: hidden; }
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   box-shadow:
-    inset 0 0 12px 1px var(--lit-band),
-    inset calc(var(--shadow-dx) * -0.3) calc(var(--shadow-dy) * -0.25) 2px var(--lit-rim-far),
+    inset 0 0 12px 0 var(--lit-band),
+    inset calc(var(--shadow-dx) * 0.3) calc(var(--shadow-dy) * 0.25) 2px var(--lit-rim-far),
     calc(var(--shadow-dx) * 0.3) calc(var(--shadow-dy) * 0.2) 6px -3px var(--lg-shade);
   transition: opacity 0.2s ease;
   pointer-events: none;
@@ -1471,7 +1472,6 @@ canvas {
 .shop-card:hover,
 .shop-card:focus-visible {
   transform: translateY(-5px);
-  box-shadow: calc(var(--shadow-dx) * 0.4) calc(var(--shadow-dy) * 0.25) 4px -1px var(--lg-edge), var(--card-shadow);
 }
 
 .shop-card-disc {
