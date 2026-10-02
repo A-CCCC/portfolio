@@ -1720,11 +1720,18 @@ canvas {
   /* Its top row comes out sideways from the menu first, then the rest lets
      down from it. The row is a label's padding and line (about 46px with
      the menu's own padding). */
-  animation: submenu-out 0.42s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  animation: submenu-out 0.5s ease-out both;
 }
+/* The two movements overlap rather than hand over: the row is most of the
+   way out before the rest begins to let down, and the letting down is
+   under way before the row has quite finished, so it is one motion with a
+   bend in it rather than two with a stop between. */
 @keyframes submenu-out {
-  0% { clip-path: inset(0 100% calc(100% - 46px) 0 round 0 12px 12px 0); }
-  45% { clip-path: inset(0 0 calc(100% - 46px) 0 round 0 12px 12px 0); }
+  0% { clip-path: inset(0 100% calc(100% - 46px) 0 round 0 12px 12px 0); opacity: 0.6; }
+  28% { clip-path: inset(0 22% calc(100% - 46px) 0 round 0 12px 12px 0); opacity: 1; }
+  48% { clip-path: inset(0 2% calc(72% - 33px) 0 round 0 12px 12px 0); }
+  66% { clip-path: inset(0 0 calc(34% - 16px) 0 round 0 12px 12px 0); }
+  84% { clip-path: inset(0 0 calc(9% - 4px) 0 round 0 12px 12px 0); }
   100% { clip-path: inset(0 0 0 0 round 0 12px 12px 0); }
 }
 /* The row a submenu opens from is not positioned — the glass rule above
