@@ -678,6 +678,70 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
   backdrop-filter: none;
 }
 
+/* The pop. The glass goes at once — a bubble does not fade, it bursts —
+   leaving a ring of its light that swells and is gone; the project inside
+   comes up to the eye and through it; the other bubbles fall back; and a
+   veil of the page's own colour rises, so the next page arrives on plain
+   ground. The float keeps going underneath, so nothing jumps. */
+.glass.bubble.bubble-popping {
+  --lit-glint: transparent;
+  --lit-rim: transparent;
+  --lit-rim-far: transparent;
+  --lit-band: transparent;
+  --lit-cast: transparent;
+  --spot: transparent;
+  --rim-back: transparent;
+  --sphere: transparent;
+  --lg-fill: transparent;
+  --lg-under: transparent;
+  --lg-edge: transparent;
+  --lg-shade: transparent;
+  overflow: visible !important;
+  z-index: 5;
+  filter: none;
+}
+.bubble-popping::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--lg-hue) 70%, white),
+    inset 0 0 18px 2px color-mix(in srgb, var(--lg-hue) 50%, transparent);
+  animation: bubble-burst 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  pointer-events: none;
+}
+@keyframes bubble-burst {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(1.9); opacity: 0; }
+}
+.bubble-popping img,
+.bubble-popping svg,
+.bubble-popping > span {
+  animation: bubble-zoom 0.6s cubic-bezier(0.35, 0, 0.55, 1) forwards !important;
+}
+@keyframes bubble-zoom {
+  from { transform: scale(1.07); opacity: 1; }
+  75% { opacity: 1; }
+  to { transform: scale(9); opacity: 0; }
+}
+.bubble-layer-popping .bubble:not(.bubble-popping) {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.bubble-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 40;              /* under the bar, over the page */
+  background: var(--bg);
+  animation: bubble-veil 0.34s ease 0.26s both;
+  pointer-events: none;
+}
+@keyframes bubble-veil {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* Hold still while it's being aimed at, so it's easy to click */
 .bubble:hover {
   animation-play-state: paused;

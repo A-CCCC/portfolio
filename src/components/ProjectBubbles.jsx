@@ -1,6 +1,6 @@
 // src/components/ProjectBubbles.jsx
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Gamepad2 } from 'lucide-react'
 import useFadeIn from '../hooks/useFadeIn'
 import { accessibility, clashRoyale, convenience, halloween, misc, bubbleProjects } from '../data/projects'
@@ -165,6 +165,9 @@ const GAMES_BUBBLE = { path: '/games', label: 'Games', icon: true }
 const GAMES_CHANCE = 1 / 12
 
 const ALWAYS_PATHS = ['/solutions/convenience/backup-camera-wiper']
+// How long the pop takes before the page changes under it
+const POP_MS = 600
+
 const ALWAYS = bubbleProjects.filter((project) => ALWAYS_PATHS.includes(project.path))
 
 // Only projects with a thumbnail can be a bubble. A project listed before its
@@ -279,9 +282,26 @@ export default function ProjectBubbles() {
     setCast(drawCast(slots))
   }, [slots])
 
+  // A click pops the bubble: the glass bursts, the project inside comes up
+  // to the eye and the page fades under it, and then the page is the
+  // project's. A modified click (a new tab) and a reader with motion turned
+  // down get the link as it is.
+  const navigate = useNavigate()
+  const [popping, setPopping] = useState(null)
+  const pop = (e, path) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    e.preventDefault()
+    if (popping) return
+    setPopping(path)
+    setTimeout(() => navigate(path), POP_MS)
+  }
+
   return (
+    <>
+    {popping && <div className="bubble-veil" aria-hidden="true" />}
     <div
-      className="bubble-layer"
+      className={`bubble-layer${popping ? ' bubble-layer-popping' : ''}`}
       aria-hidden={visible ? undefined : 'true'}
       style={{
         position: 'absolute',
@@ -319,7 +339,12 @@ export default function ProjectBubbles() {
           >
             <Link
               to={project.path}
-              className={project.photo ? 'glass bubble bubble-photo' : 'glass bubble'}
+              onClick={(e) => pop(e, project.path)}
+              className={[
+                'glass bubble',
+                project.photo ? 'bubble-photo' : '',
+                popping === project.path ? 'bubble-popping' : '',
+              ].filter(Boolean).join(' ')}
               title={project.label}
               aria-label={project.label}
               style={{
@@ -384,5 +409,6 @@ export default function ProjectBubbles() {
         )
       })}
     </div>
+    </>
   )
 }
