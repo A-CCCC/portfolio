@@ -513,11 +513,16 @@
       transparent 66%, transparent 100%),
     linear-gradient(var(--light-angle), var(--gt-ink) 0%, var(--gt-ink-foot) 100%);
   background-size: 300% 100%, 100% 100%;
-  background-position: 150% 0, 0 0;
   background-repeat: no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  /* The band waits off the text until the title has come into view (the
+     light script marks it — see useLight.js), then crosses almost at once,
+     and again every eleven seconds. */
+  background-position: 110% 0, 0 0;
+}
+.glass-title[data-lit]::after {
   animation: glass-sheen 11s ease-in-out infinite;
 }
 
@@ -557,11 +562,11 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
    gradient clipped to the text is the dearest paint on the page, and this
    would otherwise redraw every one every frame. */
 @keyframes glass-sheen {
-  0%, 44% { background-position: 110% 0, 0 0; }
-  56%, 100% { background-position: -10% 0, 0 0; }
+  0%, 5% { background-position: 110% 0, 0 0; }
+  17%, 100% { background-position: -10% 0, 0 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .glass-title::after { animation: none; background-position: 150% 0, 0 0; }
+  .glass-title[data-lit]::after { animation: none; background-position: 110% 0, 0 0; }
 }
 
 /* CAROUSEL CARDS */

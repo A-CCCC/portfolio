@@ -48,9 +48,25 @@ let surfaces = []
 let stale = true
 const last = new WeakMap()
 
+// A title's sheen crosses it the moment it is in view, not on a clock
+// started at page load: each title is watched until it is on screen and
+// then marked, and the stylesheet starts its sweep from the mark.
+const seeing = typeof IntersectionObserver === 'undefined' ? null : new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    if (!e.isIntersecting) continue
+    e.target.setAttribute('data-lit', '')
+    seeing.unobserve(e.target)
+  }
+}, { threshold: 0.6 })
+
 function gather() {
   surfaces = Array.from(document.querySelectorAll('.glass, .glass-title'))
   stale = false
+  if (seeing) {
+    for (const el of surfaces) {
+      if (el.classList.contains('glass-title') && !el.hasAttribute('data-lit')) seeing.observe(el)
+    }
+  }
 }
 
 function place() {
