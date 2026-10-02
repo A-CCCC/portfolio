@@ -512,8 +512,15 @@
 }
 /* The light along the edges that face the light */
 .glass-title::before {
+  /* The light along the edges that face it: not a copy set off to one
+     side, which leaves a gap between it and the letters, but the copy
+     under the letters cast outward in steps towards the light, so the
+     light is joined to the glass as a rim, with no gap. */
   color: var(--gt-light);
-  transform: translate(calc(var(--shadow-dx) * -0.15), calc(var(--shadow-dy) * -0.15));
+  text-shadow:
+    calc(var(--shadow-dx) * -0.06) calc(var(--shadow-dy) * -0.06) 0 var(--gt-light),
+    calc(var(--shadow-dx) * -0.12) calc(var(--shadow-dy) * -0.12) 0 var(--gt-light),
+    calc(var(--shadow-dx) * -0.18) calc(var(--shadow-dy) * -0.18) 0 var(--gt-light);
 }
 /* The ink: the frost, and the sheen drifting across it */
 .glass-title::after {
@@ -543,6 +550,9 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  /* Through the glass of the letters (index.html): the colour bent inside
+     them, hardest at the edges, and a gloss on the edges facing the light */
+  filter: url(#lg-letters);
   /* The band waits off the text until the title has come into view (the
      light script marks it — see useLight.js), then crosses almost at once,
      and again every eleven seconds. */
