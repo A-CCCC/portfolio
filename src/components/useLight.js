@@ -59,18 +59,22 @@ const seeing = typeof IntersectionObserver === 'undefined' ? null : new Intersec
   }
 }, { threshold: 0.6 })
 
-// The wave of colour behind a title (see .glass-title::after): six pools,
+// The wave of colour behind a title (see .glass-title::after) and under a
+// panel (.glass-panel::before): six pools,
 // evenly spaced across the width and alternately low and high, each drawn
 // a little off its place and a little off its size, so every title's wave
 // is its own and all of them still read as the one pattern.
 const POOLS = 6
 const between = (lo, hi) => lo + Math.random() * (hi - lo)
-function wave(el) {
+// A panel is a shorter box than a title's line, so its pools are set wider
+// and far taller — the same pools as shares of a different box — or they
+// come out as round spots instead of overlapping into a ribbon.
+function wave(el, panel) {
   for (let k = 0; k < POOLS; k += 1) {
     const x = -2 + k * 23 + between(-5, 5)
     const y = (k % 2 === 0 ? between(70, 84) : between(18, 32))
-    const w = between(23, 32)
-    const h = between(58, 74)
+    const w = panel ? between(36, 46) : between(23, 32)
+    const h = panel ? between(150, 190) : between(58, 74)
     el.style.setProperty(`--w${k + 1}p`, `${x.toFixed(0)}% ${y.toFixed(0)}%`)
     el.style.setProperty(`--w${k + 1}s`, `${w.toFixed(0)}% ${h.toFixed(0)}%`)
   }
@@ -81,9 +85,10 @@ function gather() {
   surfaces = Array.from(document.querySelectorAll('.glass, .glass-title'))
   stale = false
   for (const el of surfaces) {
-    if (!el.classList.contains('glass-title')) continue
-    if (!el.hasAttribute('data-wave')) wave(el)
-    if (seeing && !el.hasAttribute('data-lit')) seeing.observe(el)
+    const title = el.classList.contains('glass-title')
+    const panel = el.classList.contains('glass-panel')
+    if ((title || panel) && !el.hasAttribute('data-wave')) wave(el, panel)
+    if (title && seeing && !el.hasAttribute('data-lit')) seeing.observe(el)
   }
 }
 

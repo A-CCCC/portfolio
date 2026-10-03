@@ -370,13 +370,33 @@
    the page's own glass either way. The featured and current project cards
    on the home page wear this. */
 .glass-panel {
-  /* The panel tone most of the way to solid, so the glint, the sweep and
-     the cast show through it as they do on the rest of the glass; a wider
-     glint, since the card is wide. */
-  --lg-tint: linear-gradient(165deg,
-    color-mix(in srgb, var(--panel-a) 68%, transparent) 0%,
-    color-mix(in srgb, var(--panel-b) 68%, transparent) 100%);
+  /* The glass over the wave: the panel's own tone and the wave of colour
+     behind the titles, on a layer of its own under the card's contents and
+     through the same glass as the letters — the colour bent inside it,
+     hardest at the edges, with a gloss on the edges facing the light. A
+     layer of its own, since the glass filter on the card itself would bend
+     the words and the disc in it too. */
+  isolation: isolate;
   --glint-size: 135% 105%;
+}
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse var(--w1s, 26% 70%) at var(--w1p, -2% 78%), var(--gt-streak-1) 0%, transparent 70%),
+    radial-gradient(ellipse var(--w2s, 30% 64%) at var(--w2p, 22% 28%), var(--gt-streak-2) 0%, transparent 70%),
+    radial-gradient(ellipse var(--w3s, 27% 72%) at var(--w3p, 46% 74%), var(--gt-streak-1) 0%, transparent 70%),
+    radial-gradient(ellipse var(--w4s, 31% 62%) at var(--w4p, 70% 24%), var(--gt-streak-2) 0%, transparent 70%),
+    radial-gradient(ellipse var(--w5s, 28% 70%) at var(--w5p, 94% 72%), var(--gt-streak-1) 0%, transparent 70%),
+    radial-gradient(ellipse var(--w6s, 24% 60%) at var(--w6p, 112% 30%), var(--gt-streak-2) 0%, transparent 70%),
+    linear-gradient(165deg, var(--panel-a) 0%, var(--panel-b) 100%);
+  filter: url(#lg-letters);
+  /* Not solid: the glass's own glint and edges under it still show */
+  opacity: 0.72;
 }
 
 .glass {
