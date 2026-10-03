@@ -108,6 +108,13 @@
   --gt-sheen: rgba(255, 226, 110, 0.75);
   --gt-sheen-2: rgba(255, 140, 84, 0.8);
   --gt-streak-1: rgba(255, 206, 80, 0.9);
+  /* Deep enough to read against the white page: amber and burnt orange,
+     with the lightest fold a full gold rather than cream */
+  /* From a soft, creamy gold at one end to a full orange at the other */
+  --silk-1: #f3cc7a;
+  --silk-2: #f58f46;
+  --silk-3: #f6bb62;
+  --silk-4: #f07a3c;
   --gt-streak-2: rgba(255, 160, 96, 0.85);
 
   /* Carousel card tints — cycled by index */
@@ -197,6 +204,10 @@
   --gt-sheen: rgba(229, 239, 250, 0.95);
   --gt-sheen-2: rgba(150, 228, 195, 0.95);
   --gt-streak-1: rgba(96, 160, 255, 0.95);
+  --silk-1: #4f86d8;
+  --silk-2: #3fbf9a;
+  --silk-3: #8fb8ff;
+  --silk-4: #2f6fcf;
   --gt-streak-2: rgba(80, 225, 170, 0.9);
 
   --card-1a: #24313f;  --card-1b: #1a232e;
@@ -288,6 +299,10 @@
     --gt-sheen: rgba(229, 239, 250, 0.95);
     --gt-sheen-2: rgba(150, 228, 195, 0.95);
     --gt-streak-1: rgba(96, 160, 255, 0.95);
+  --silk-1: #4f86d8;
+  --silk-2: #3fbf9a;
+  --silk-3: #8fb8ff;
+  --silk-4: #2f6fcf;
     --gt-streak-2: rgba(80, 225, 170, 0.9);
 
     --card-1a: #24313f;  --card-1b: #1a232e;
@@ -370,7 +385,8 @@
    the page's own glass either way. The featured and current project cards
    on the home page wear this. */
 .glass-panel {
-  /* The glass over the wave: the panel's own tone and the wave of colour
+  /* The glass over the river: the panel's own tone in a smooth gradient of
+     the page's colours with one ribbon of light wandering across it, as
      behind the titles, on a layer of its own under the card's contents and
      through the same glass as the letters — the colour bent inside it,
      hardest at the edges, with a gloss on the edges facing the light. A
@@ -387,25 +403,14 @@
   z-index: 0;
   pointer-events: none;
   background-image:
-    repeating-linear-gradient(180deg,
-      rgba(255, 255, 255, 0.38) 0px, rgba(255, 255, 255, 0.38) 1.5px, transparent 1.5px, transparent 5px,
-      rgba(0, 0, 0, 0.1) 5px, rgba(0, 0, 0, 0.1) 7px, transparent 7px, transparent 12px,
-      rgba(255, 255, 255, 0.22) 12px, rgba(255, 255, 255, 0.22) 13px, transparent 13px, transparent 21px),
-    repeating-linear-gradient(178deg,
-      transparent 0px, transparent 9px, rgba(255, 255, 255, 0.3) 9px, rgba(255, 255, 255, 0.3) 11px,
-      transparent 11px, transparent 24px, rgba(0, 0, 0, 0.08) 24px, rgba(0, 0, 0, 0.08) 27px, transparent 27px, transparent 33px),
-    radial-gradient(ellipse var(--w1s, 26% 70%) at var(--w1p, -2% 78%), var(--gt-streak-1) 0%, transparent 70%),
-    radial-gradient(ellipse var(--w2s, 30% 64%) at var(--w2p, 22% 28%), var(--gt-streak-2) 0%, transparent 70%),
-    radial-gradient(ellipse var(--w3s, 27% 72%) at var(--w3p, 46% 74%), var(--gt-streak-1) 0%, transparent 70%),
-    radial-gradient(ellipse var(--w4s, 31% 62%) at var(--w4p, 70% 24%), var(--gt-streak-2) 0%, transparent 70%),
-    radial-gradient(ellipse var(--w5s, 28% 70%) at var(--w5p, 94% 72%), var(--gt-streak-1) 0%, transparent 70%),
-    radial-gradient(ellipse var(--w6s, 24% 60%) at var(--w6p, 112% 30%), var(--gt-streak-2) 0%, transparent 70%),
-    linear-gradient(165deg, var(--panel-a) 0%, var(--panel-b) 100%);
+    var(--river, linear-gradient(165deg, var(--panel-a), var(--panel-b)));
+  background-size: 100% 100%;
   /* The glass (index.html): the streaks swelled into a ribbon, the colour
      bent inside, a gloss on the lit edges */
   filter: url(#lg-letters);
-  /* Not solid: the glass's own glint and edges under it still show */
-  opacity: 0.72;
+  /* Well short of solid: the panel's own tone and the glass's glint and
+     edges come through it, and the words sit on a panel, not on a cloth */
+  opacity: 0.42;
 }
 
 .glass {
@@ -543,45 +548,57 @@
 }
 /* The light along the edges that face the light */
 .glass-title::before {
-  /* No light copy: the gloss the letters' glass filter lays along their
-     lit edges does what this did, without a second text under the first. */
+  /* The old cloth during a change of theme (see useLight.js): the same
+     letters, the previous image clipped to them, fading out over the new.
+     Otherwise nothing: the gloss the letters' glass filter lays along
+     their lit edges does what a light copy did. */
   display: none;
+}
+.glass-title.silk-turning::before {
+  display: block;
+  z-index: 1;
+  background-image: var(--river-was);
+  background-size: 100% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: url(#lg-letters);
+  animation: silk-turn var(--theme-fade) var(--theme-ease) forwards;
+}
+.glass-panel.silk-turning::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--river-was);
+  background-size: 100% 100%;
+  filter: url(#lg-letters);
+  opacity: 0.42;
+  animation: silk-turn var(--theme-fade) var(--theme-ease) forwards;
+}
+@keyframes silk-turn {
+  to { opacity: 0; }
 }
 /* The ink: the frost, and the sheen drifting across it */
 .glass-title::after {
-  /* The letters are glass, and what shows through them is a wave of
-     colour behind: soft pools of the page's two colours, one after
-     another along a rise and fall across the width, each overlapping the
-     next, so together they make one ribbon that waves — over the ink,
-     which is lighter towards the light. The sheen crosses over all of it.
-     Over the pools run fine streaks, light and dark, drawn straight across
-     and swelled into the wave by the glass (index.html), so the ribbon is
-     made of strands the way a ribbon is. The pools are a share of the
-     title's width, so a long title shows the whole wave and a short one a
-     sweep of it. Where each pool sits and how
-     big it is are drawn afresh for every title (useLight.js writes them;
-     these are the stand-ins), so no two titles wave quite the same. */
+  /* The letters are glass, and what shows through them is a smooth
+     gradient of the page's two colours with one ribbon of light wandering
+     across it, the way a river does — drawn for each title by the light
+     script (useLight.js) as a smooth curve, blurred, and handed in as an
+     image. The sheen crosses over all of it. */
   background-image:
     linear-gradient(112deg,
       transparent 0%, transparent 34%,
       var(--gt-sheen-2) 42%, var(--gt-sheen) 50%, var(--gt-sheen-2) 58%,
       transparent 66%, transparent 100%),
-    repeating-linear-gradient(180deg,
-      rgba(255, 255, 255, 0.38) 0px, rgba(255, 255, 255, 0.38) 1.5px, transparent 1.5px, transparent 5px,
-      rgba(0, 0, 0, 0.1) 5px, rgba(0, 0, 0, 0.1) 7px, transparent 7px, transparent 12px,
-      rgba(255, 255, 255, 0.22) 12px, rgba(255, 255, 255, 0.22) 13px, transparent 13px, transparent 21px),
-    repeating-linear-gradient(178deg,
-      transparent 0px, transparent 9px, rgba(255, 255, 255, 0.3) 9px, rgba(255, 255, 255, 0.3) 11px,
-      transparent 11px, transparent 24px, rgba(0, 0, 0, 0.08) 24px, rgba(0, 0, 0, 0.08) 27px, transparent 27px, transparent 33px),
-    radial-gradient(ellipse var(--w1s, 26% 70%) at var(--w1p, -2% 78%), var(--gt-streak-1) 0%, transparent 70%),
-    radial-gradient(ellipse var(--w2s, 30% 64%) at var(--w2p, 22% 28%), var(--gt-streak-2) 0%, transparent 70%),
-    radial-gradient(ellipse var(--w3s, 27% 72%) at var(--w3p, 46% 74%), var(--gt-streak-1) 0%, transparent 70%),
-    radial-gradient(ellipse var(--w4s, 31% 62%) at var(--w4p, 70% 24%), var(--gt-streak-2) 0%, transparent 70%),
-    radial-gradient(ellipse var(--w5s, 28% 70%) at var(--w5p, 94% 72%), var(--gt-streak-1) 0%, transparent 70%),
-    radial-gradient(ellipse var(--w6s, 24% 60%) at var(--w6p, 112% 30%), var(--gt-streak-2) 0%, transparent 70%),
-    linear-gradient(var(--light-angle), var(--gt-ink) 0%, var(--gt-ink-foot) 100%);
-  background-size: 300% 100%, auto, auto, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-  background-repeat: no-repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+    var(--river, linear-gradient(var(--light-angle), var(--gt-ink), var(--gt-ink-foot)));
+  background-size: 300% 100%, 100% 100%;
+  /* When the theme turns over the cloth is redrawn in the new colours; an
+     image cannot cross-fade like a colour, so the old one is laid over it
+     in ::before and fades out over the theme's own fade. */
+  background-repeat: no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -591,10 +608,16 @@
   /* The band waits off the text until the title has come into view (the
      light script marks it — see useLight.js), then crosses almost at once,
      and again every eleven seconds. */
-  background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-position: 110% 0, 0 0;
 }
-.glass-title[data-lit]::after {
-  animation: glass-sheen 11s ease-in-out infinite;
+/* The flash: a short animation that runs once each time the light script
+   sets data-flash (see useLight.js), and nothing between flashes. An
+   animation that holds still is still an animation, and one on a layer
+   this dear pulls every other animation on the page onto the main thread
+   with it — the bubbles' float stopped compositing while a title was
+   waiting to flash. */
+.glass-title[data-flash]::after {
+  animation: glass-sheen 1.4s ease-in-out both;
 }
 
 /* Inside a panel painted the inverse of the page — the hub bands — every
@@ -635,11 +658,11 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
    gradient clipped to the text is the dearest paint on the page, and this
    would otherwise redraw every one every frame. */
 @keyframes glass-sheen {
-  0%, 5% { background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
-  17%, 100% { background-position: -10% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  from { background-position: 110% 0, 0 0; }
+  to { background-position: -10% 0, 0 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .glass-title[data-lit]::after { animation: none; background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  .glass-title[data-flash]::after { animation: none; background-position: 110% 0, 0 0; }
 }
 
 /* CAROUSEL CARDS */
@@ -669,23 +692,6 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
 }
 
 /* HOME-PAGE PROJECT BUBBLES */
-
-@keyframes bubble-float {
-  0%   { transform: translate3d(0, 0, 0); }
-  50%  { transform: translate3d(var(--drift-x), var(--drift-y), 0); }
-  100% { transform: translate3d(0, 0, 0); }
-}
-
-/* Uses the standalone `scale` property rather than a scale() inside the
-   transform above: they are independent properties, so the two animations can
-   run at different durations. Folding both into `transform` would force one
-   shared timeline and the drift and the pulse would peak together, which reads
-   as mechanical. Off-tempo, they drift in and out of phase. */
-@keyframes bubble-pulse {
-  0%   { scale: 1; }
-  50%  { scale: var(--pulse); }
-  100% { scale: 1; }
-}
 
 /* A bubble is a disc of the glass, in its tint, with the model inside. */
 /* A surface with a hue: the theme's neutral glass, with a light of that
@@ -728,10 +734,14 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
     inset calc(var(--shadow-dx) * 0.7) calc(var(--shadow-dy) * 0.55) 22px -6px var(--lg-under),
     calc(var(--shadow-dx) * 0.4) calc(var(--shadow-dy) * 0.25) 4px -1px var(--lg-edge),
     var(--shadow-dx) var(--shadow-dy) 36px -4px var(--lg-shade);
-  animation-name: bubble-float, bubble-pulse;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  transition: box-shadow 0.4s ease, filter 0.4s ease;
+  /* The float and the breath are started from the component (see float
+     in ProjectBubbles.jsx), not here: a keyframe reading a variable runs
+     on the main thread and restyles the page every frame. */
+  /* Only the brightness eases: a shadow transition fires every time the
+     light moves (the shadow is set from it), and a shadow cannot be
+     animated off the main thread — and one such animation on a bubble
+     pulls its float off the compositor with it. */
+  transition: filter 0.4s ease;
 }
 /* Eight of these drift at once, and a blur that has to be redone every frame
    for each is more than a phone will do smoothly: there, the frost without
@@ -851,7 +861,6 @@ html.diving { overflow: hidden; }
 
 /* Hold still while it's being aimed at, so it's easy to click */
 .bubble:hover {
-  animation-play-state: paused;
   filter: brightness(1.08);
 }
 
@@ -1171,29 +1180,19 @@ html.diving { overflow: hidden; }
    transparent, so hovering fades it in rather than making the text jump — and
    the reserved space means the layout never shifts. */
 .hub-link {
-  /* Not a text-decoration: the heading inside is glass, which casts a shadow
-     from the shape of its text — and a transparent underline still has a
-     shape, so it showed as a shadow line before any hover. A rule drawn
-     under the heading instead, that fades in. */
+  /* A heading that is a link says so on hover by swelling a little, as a
+     thing under glass does when the glass is brought closer, with its
+     colour coming up — not by an underline, which a glass title's shadow
+     would show before any hover. */
   display: inline-block;
-  position: relative;
   text-decoration: none;
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease;
 }
-.hub-link::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0.08em;
-  height: 2px;
-  border-radius: 1px;
-  background: currentColor;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.hub-link:hover::after,
-.hub-link:focus-visible::after {
-  opacity: 1;
+.hub-link:hover,
+.hub-link:focus-visible {
+  transform: scale(1.04);
+  filter: saturate(1.35) brightness(1.08);
 }
 
 /* SLIDE-IN CAPTION */
@@ -1784,9 +1783,12 @@ canvas {
      that hangs outside this box */
   animation: menu-down 0.28s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
 }
+/* The clip reaches well past the box on every side, so the menu's shadow
+   is inside it from the start rather than appearing once the clip has
+   opened; the lower edge alone moves. */
 @keyframes menu-down {
-  from { clip-path: inset(0 0 100% 0 round 12px); opacity: 0.5; }
-  to { clip-path: inset(0 0 0 0 round 12px); opacity: 1; }
+  from { clip-path: inset(-60px -60px 100% -60px round 12px); opacity: 0.5; }
+  to { clip-path: inset(-60px -60px -60px -60px round 12px); opacity: 1; }
 }
 .nav-submenu {
   border-top-left-radius: 0;
@@ -1802,12 +1804,12 @@ canvas {
    under way before the row has quite finished, so it is one motion with a
    bend in it rather than two with a stop between. */
 @keyframes submenu-out {
-  0% { clip-path: inset(0 100% calc(100% - 46px) 0 round 0 12px 12px 0); opacity: 0.6; }
-  28% { clip-path: inset(0 22% calc(100% - 46px) 0 round 0 12px 12px 0); opacity: 1; }
-  48% { clip-path: inset(0 2% calc(72% - 33px) 0 round 0 12px 12px 0); }
-  66% { clip-path: inset(0 0 calc(34% - 16px) 0 round 0 12px 12px 0); }
-  84% { clip-path: inset(0 0 calc(9% - 4px) 0 round 0 12px 12px 0); }
-  100% { clip-path: inset(0 0 0 0 round 0 12px 12px 0); }
+  0% { clip-path: inset(-60px 100% calc(100% - 46px) 0 round 0 12px 12px 0); opacity: 0.6; }
+  28% { clip-path: inset(-60px 22% calc(100% - 46px) 0 round 0 12px 12px 0); opacity: 1; }
+  48% { clip-path: inset(-60px 2% calc(72% - 33px) 0 round 0 12px 12px 0); }
+  66% { clip-path: inset(-60px -60px calc(34% - 16px) 0 round 0 12px 12px 0); }
+  84% { clip-path: inset(-60px -60px calc(9% - 4px) 0 round 0 12px 12px 0); }
+  100% { clip-path: inset(-60px -60px -60px 0 round 0 12px 12px 0); }
 }
 /* The row a submenu opens from is not positioned — the glass rule above
    would make it so, and the submenu would then hang off the row, a padding

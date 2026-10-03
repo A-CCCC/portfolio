@@ -51,34 +51,137 @@ const last = new WeakMap()
 // A title's sheen crosses it the moment it is in view, not on a clock
 // started at page load: each title is watched until it is on screen and
 // then marked, and the stylesheet starts its sweep from the mark.
+// Each flash is a short animation started by setting data-flash and
+// cleared when it ends, so between flashes nothing on the title animates
+// (which matters: see .glass-title[data-flash] in the stylesheet). The
+// first flash comes half a second after the title is seen, the rest every
+// eleven seconds while the tab is showing.
+const FLASH_EVERY = 11000
+function flash(el) {
+  if (document.hidden) return
+  el.removeAttribute('data-flash')
+  void el.offsetWidth                 // so the next set starts the animation afresh
+  el.setAttribute('data-flash', '')
+}
+function keepFlashing(el) {
+  if (el.__flashing) return
+  el.__flashing = true
+  el.addEventListener('animationend', (e) => { if (e.animationName === 'glass-sheen') el.removeAttribute('data-flash') })
+  setTimeout(() => flash(el), 500)
+  const timer = setInterval(() => { if (el.isConnected) flash(el); else clearInterval(timer) }, FLASH_EVERY)
+}
 const seeing = typeof IntersectionObserver === 'undefined' ? null : new IntersectionObserver((entries) => {
   for (const e of entries) {
     if (!e.isIntersecting) continue
     e.target.setAttribute('data-lit', '')
+    keepFlashing(e.target)
     seeing.unobserve(e.target)
   }
 }, { threshold: 0.6 })
 
-// The wave of colour behind a title (see .glass-title::after) and under a
-// panel (.glass-panel::before): six pools,
-// evenly spaced across the width and alternately low and high, each drawn
-// a little off its place and a little off its size, so every title's wave
-// is its own and all of them still read as the one pattern.
-const POOLS = 6
+// The colour behind a title (see .glass-title::after) and under a panel
+// (.glass-panel::before): folds of silk. Several broad swathes of colour
+// lie over one another, each a smooth curve flowing diagonally across,
+// each a different colour from the page's few, blurred into each other;
+// and along the top of each fold a soft crest of light where the light
+// catches it. Drawn afresh for every element, so no two are folded the
+// same and all are the one cloth. The colours come from the stylesheet
+// (--silk-1..4), so the cloth is sunlit on the light page and cool on the
+// dark, and turns over with the theme.
 const between = (lo, hi) => lo + Math.random() * (hi - lo)
-// A panel is a shorter box than a title's line, so its pools are set wider
-// and far taller — the same pools as shares of a different box — or they
-// come out as round spots instead of overlapping into a ribbon.
-function wave(el, panel) {
-  for (let k = 0; k < POOLS; k += 1) {
-    const x = -2 + k * 23 + between(-5, 5)
-    const y = (k % 2 === 0 ? between(70, 84) : between(18, 32))
-    const w = panel ? between(36, 46) : between(23, 32)
-    const h = panel ? between(150, 190) : between(58, 74)
-    el.style.setProperty(`--w${k + 1}p`, `${x.toFixed(0)}% ${y.toFixed(0)}%`)
-    el.style.setProperty(`--w${k + 1}s`, `${w.toFixed(0)}% ${h.toFixed(0)}%`)
+function silk(el, panel) {
+  const colours = [1, 2, 3, 4].map((k) => getComputedStyle(el).getPropertyValue(`--silk-${k}`).trim() || '#888')
+  // The cloth is drawn in the element's own proportions — 1000 wide, as
+  // tall as the element is wide-to-tall — so a blur is as soft across as
+  // down, and a fold on a wide title is not squeezed sideways into blots.
+  const r = el.getBoundingClientRect()
+  const H = Math.max(120, Math.min(1000, Math.round(1000 * (r.height || 1) / (r.width || 1))))
+  // The folds' shapes are drawn once and kept on the element, so a redraw
+  // for a change of theme recolours the same cloth rather than refolding it
+  if (!el.__silk || Math.abs(el.__silk.H - H) > H * 0.25) {
+    // Two or three folds: most of the cloth is a smooth mix, with a
+    // sweep or two through it
+    const folds = 2 + Math.floor(Math.random() * 2)
+    el.__silk = Array.from({ length: folds }, (_, f) => {
+      const base = H * (0.2 + f * (0.6 / Math.max(1, folds - 1))) + between(-0.12, 0.12) * H
+      const tilt = between(-0.52, 0.52) * H
+      const n = 4
+      const pts = []
+      for (let k = 0; k <= n; k += 1) {
+        const t = k / n
+        pts.push([-150 + t * 1300, base + (t - 0.5) * tilt + (k === 0 || k === n ? 0 : between(-0.11, 0.11) * H)])
+      }
+      // Not every fold runs the whole way across: about half of them turn
+      // away before one edge and leave by the top or the bottom instead,
+      // the last point carried up or down and off the cloth.
+      if (Math.random() < 0.5) {
+        const end = Math.random() < 0.5 ? 0 : n
+        const off = Math.random() < 0.5 ? -0.4 * H : 1.4 * H
+        pts[end][0] = end === 0 ? between(50, 300) : between(700, 950)
+        pts[end][1] = off
+        // the point before it leans the same way, so the turn is a curve
+        const prev = end === 0 ? 1 : n - 1
+        pts[prev][1] += (off < 0 ? -1 : 1) * between(0.12, 0.26) * H
+      }
+      return { pts, crest: between(0.08, 0.16), width: between(60, 120), colour: (f + 1) % colours.length }
+    })
+    el.__silk.H = H
   }
+  // In a 1000 x 1000 box that is stretched to the element, so the folds
+  // keep their shape whatever the element's proportions.
+  const spline = (list) => {
+    let d = ''
+    for (let k = 0; k < list.length - 1; k += 1) {
+      const p0 = list[Math.max(0, k - 1)], p1 = list[k], p2 = list[k + 1], p3 = list[Math.min(list.length - 1, k + 2)]
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6]
+      const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6]
+      d += ` C ${c1[0].toFixed(0)} ${c1[1].toFixed(0)}, ${c2[0].toFixed(0)} ${c2[1].toFixed(0)}, ${p2[0].toFixed(0)} ${p2[1].toFixed(0)}`
+    }
+    return d
+  }
+  // Each fold: a curve from off the left edge to off the right, rising or
+  // falling across (the diagonal flow) with a gentle wave in it, filled
+  // from the curve down — so each lies over the ones below and only its
+  // upper edge shows, as a fold's does — and along that edge a soft crest
+  // of light where the light catches the fold.
+  let paths = ''
+  let crests = ''
+  for (const fold of el.__silk) {
+    const edge = `M ${fold.pts[0][0]} ${fold.pts[0][1]}` + spline(fold.pts)
+    paths += `<path d='${edge} L 1150 ${H * 1.3} L -150 ${H * 1.3} Z' fill='${colours[fold.colour]}'/>`
+    crests += `<path d='${edge}' fill='none' stroke='white' stroke-opacity='${fold.crest.toFixed(2)}' stroke-width='${fold.width.toFixed(0)}' stroke-linecap='round'/>`
+  }
+  // Blurred broadly, so the folds mix into one another and no edge is a line
+  // Blurred broadly, so the folds mix into one another and no edge is a
+  // line: a share of the width, which is the long way across the cloth
+  const blur = panel ? 55 : 70
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 ${H}' preserveAspectRatio='none'>`
+    + `<filter id='b' x='-30%' y='-30%' width='160%' height='160%'><feGaussianBlur stdDeviation='${blur}'/></filter>`
+    + `<filter id='c' x='-30%' y='-30%' width='160%' height='160%'><feGaussianBlur stdDeviation='${blur * 0.75}'/></filter>`
+    + `<rect x='-200' y='${-0.2 * H}' width='1400' height='${1.4 * H}' fill='${colours[0]}'/>`
+    + `<g filter='url(#b)'>${paths}</g>`
+    + `<g filter='url(#c)'>${crests}</g>`
+    + `</svg>`
+  const next = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+  const was = el.style.getPropertyValue('--river')
+  if (was && was !== next) {
+    // The old cloth over the new, fading out: see --river-was in the
+    // stylesheet. The fade is the theme's own.
+    el.style.setProperty('--river-was', was)
+    el.classList.remove('silk-turning')
+    void el.offsetWidth                   // restart the fade
+    el.classList.add('silk-turning')
+  }
+  el.style.setProperty('--river', next)
   el.setAttribute('data-wave', '')
+}
+
+// When the theme turns over, the silk is recoloured in the new theme's
+// colours (its folds kept), once the cross-fade has run.
+if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined') {
+  new MutationObserver(() => {
+    for (const el of document.querySelectorAll('[data-wave]')) silk(el, el.classList.contains('glass-panel'))
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
 }
 
 function gather() {
@@ -87,7 +190,7 @@ function gather() {
   for (const el of surfaces) {
     const title = el.classList.contains('glass-title')
     const panel = el.classList.contains('glass-panel')
-    if ((title || panel) && !el.hasAttribute('data-wave')) wave(el, panel)
+    if ((title || panel) && !el.hasAttribute('data-wave')) silk(el, panel)
     if (title && seeing && !el.hasAttribute('data-lit')) seeing.observe(el)
   }
 }

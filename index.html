@@ -53,7 +53,10 @@
              it is cut to the letters, so bending never pulls empty space in
              from outside a letter and leaves a hole at its edge: the outline
              stays the font's own. -->
-        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.014" numOctaves="1" seed="7" result="noise"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.006 0.010" numOctaves="1" seed="7" result="noise-raw"/>
+        <!-- Smoothed before it drives the bend: raw noise is grainy, and the
+             grain shows as a pixelated edge in what it bends. -->
+        <feGaussianBlur in="noise-raw" stdDeviation="2.5" result="noise"/>
         <feDisplacementMap in="waved" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" result="bent-raw"/>
         <feComposite in="bent-raw" in2="waved" operator="over" result="bent-full"/>
         <feComposite in="bent-full" in2="SourceAlpha" operator="in" result="body"/>
@@ -62,8 +65,8 @@
         <feMorphology in="SourceAlpha" operator="erode" radius="2.4" result="inner"/>
         <feComposite in="SourceAlpha" in2="inner" operator="out" result="edge"/>
         <feComposite in="bent-hard" in2="edge" operator="in" result="edge-bent"/>
-        <feGaussianBlur in="SourceAlpha" stdDeviation="1.7" result="soft"/>
-        <feSpecularLighting in="soft" surfaceScale="5" specularConstant="0.85" specularExponent="22" lighting-color="#ffffff" result="gloss">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="2.4" result="soft"/>
+        <feSpecularLighting in="soft" surfaceScale="4" specularConstant="0.7" specularExponent="18" lighting-color="#ffffff" result="gloss">
           <fePointLight x="-260" y="-420" z="520"/>
         </feSpecularLighting>
         <feComposite in="gloss" in2="SourceAlpha" operator="in" result="gloss-in"/>

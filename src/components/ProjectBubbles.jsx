@@ -291,6 +291,42 @@ export default function ProjectBubbles() {
   // to the eye and the page fades under it, and then the page is the
   // project's. A modified click (a new tab) and a reader with motion turned
   // down get the link as it is.
+  // Each bubble's float and breath, started on the element itself with the
+  // numbers written in, so the browser can run them on the compositor and
+  // the page is not restyled every frame. Paused while the pointer rests
+  // on the bubble, so it is easy to click. Off for anyone with motion
+  // turned down.
+  const float = (spot, i) => (el) => {
+    if (!el || el.__floating) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    el.__floating = true
+    const pulse = 1.08 + (i % 3) * 0.02
+    // The breath (8–12% larger) rides on the float as one transform
+    // animation, at ~0.72x the drift period so the two never stay in step:
+    // the drift's cycle is sampled at the breath's beats and the two are
+    // written into one set of keyframes. Two animations on one property
+    // family can keep each other off the compositor; one cannot.
+    const D = spot.duration * 1000
+    const B = spot.duration * 720
+    const steps = 48
+    const frames = []
+    for (let k = 0; k <= steps; k += 1) {
+      const t = k / steps                       // of one breath cycle
+      const ms = t * B
+      const dPhase = ((ms + (spot.delay - (spot.delay - 2.5)) * 1000) % D) / D
+      const dx = spot.drift[0] * (0.5 - 0.5 * Math.cos(dPhase * 2 * Math.PI))
+      const dy = spot.drift[1] * (0.5 - 0.5 * Math.cos(dPhase * 2 * Math.PI))
+      const sc = 1 + (pulse - 1) * (0.5 - 0.5 * Math.cos(t * 2 * Math.PI))
+      frames.push({ transform: `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0) scale(${sc.toFixed(4)})` })
+    }
+    // the breath's cycle and the drift's share a period only every so
+    // often; the keyframes cover one breath, and the drift is restated
+    // from where it was, which the eye does not catch at this pace
+    const motion = el.animate(frames, { duration: B, delay: (spot.delay - 2.5) * 1000, iterations: Infinity, easing: 'linear' })
+    el.addEventListener('mouseenter', () => motion.pause())
+    el.addEventListener('mouseleave', () => motion.play())
+  }
+
   const navigate = useNavigate()
   const [swelling, setSwelling] = useState(null)
   const [popping, setPopping] = useState(null)
@@ -386,14 +422,12 @@ export default function ProjectBubbles() {
               ].filter(Boolean).join(' ')}
               title={project.label}
               aria-label={project.label}
+              // The float and the breath, as animations with their values
+              // written in (see Float): a keyframe that reads a variable
+              // runs on the main thread and recomputes the page's style
+              // every frame, and these ran all day on the front page.
+              ref={float(spot, i)}
               style={{
-                '--drift-x': `${spot.drift[0]}px`,
-                '--drift-y': `${spot.drift[1]}px`,
-                // Breathe between 8% and 12% larger, cycling at ~0.72x the drift
-                // period so the two never stay in step.
-                '--pulse': 1.08 + (i % 3) * 0.02,
-                animationDuration: `${spot.duration}s, ${(spot.duration * 0.72).toFixed(1)}s`,
-                animationDelay: `${spot.delay}s, ${(spot.delay - 2.5).toFixed(1)}s`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
