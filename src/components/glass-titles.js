@@ -47,7 +47,7 @@ export function startGlassTitles() {
         // the panel's own tone over the silk, most of the way, as the CSS
         // card had it: the words sit on a panel, not on a cloth
         tint: () => getComputedStyle(document.documentElement).getPropertyValue('--panel-a').trim(),
-        tintA: (dark) => (dark ? 0.62 : 0.5),
+        tintA: (dark) => 0.5 + 0.12 * dark,   // dark eases 0..1 with the theme
       })
       el.classList.add('lg-gl-panel')
     }

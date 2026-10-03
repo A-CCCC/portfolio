@@ -28,11 +28,15 @@ const VERT = `
 attribute vec2 p;
 uniform vec4 box;
 uniform vec2 res;
-varying vec2 uv;
+uniform vec2 origin;
+varying vec2 pxv;
 void main() {
   vec2 pixel = box.xy + (p * 0.5 + 0.5) * box.zw;
-  uv = vec2(pixel.x / res.x, 1.0 - pixel.y / res.y);
-  gl_Position = vec4(uv * 2.0 - 1.0, 0.0, 1.0);
+  pxv = pixel;
+  // drawn at the canvas's top-left corner, wherever it is on the page, so
+  // the canvas need only be as big as the largest surface
+  vec2 local = (pixel - origin) / res;
+  gl_Position = vec4(local.x * 2.0 - 1.0, 1.0 - local.y * 2.0, 0.0, 1.0);
 }
 `
 
@@ -40,9 +44,11 @@ void main() {
 // page measures things; the shader flips for sampling.
 const FRAG = `
 precision highp float;
-varying vec2 uv;
+varying vec2 pxv;            // this pixel, in px of the page at the render scale
 uniform sampler2D backdrop;
 uniform sampler2D image;    // what is in this lens, if it brings its own
+uniform sampler2D imageWas; // the picture it had before the theme turned, fading out
+uniform float imgMix;       // how far the new picture has come in, 0..1
 uniform float useImage;     // 1: sample 'image' in imgRect over 'bg'; 0: the shared backdrop
 uniform vec4 imgRect;       // x, y, w, h of the image on the canvas, px
 uniform vec3 bg;            // the page's colour round the image
@@ -56,6 +62,7 @@ uniform float rimA;         // how much of the rim light
 uniform float sphereA;      // a ball's shading: darker towards the edge away from the light
 uniform float sheen;        // the sheen band's place across the surface, 0..1 (<0 none)
 uniform vec2 res;           // canvas size, px
+uniform vec2 win;           // the window, px (the shared backdrop's size)
 uniform vec2 centre;        // lens centre, px
 uniform vec2 halfSize;          // halfSize size, px (a circle: both the radius)
 uniform float radius;       // corner radius, px (a circle: the radius)
@@ -80,11 +87,12 @@ vec3 sampleBackdrop(vec2 px) {
     vec2 t = (px - imgRect.xy) / imgRect.zw;
     if (t.x < 0.0 || t.y < 0.0 || t.x > 1.0 || t.y > 1.0) return bg;
     vec4 c = texture2D(image, t);
+    if (imgMix < 0.999) c = mix(texture2D(imageWas, t), c, imgMix);
     return mix(bg, c.rgb, c.a);
   }
   // A canvas is uploaded top row first, so the texture's v runs down the
   // page as px.y does: no flip
-  vec2 t = px / res;
+  vec2 t = px / win;
   return texture2D(backdrop, clamp(t, 0.0, 1.0)).rgb;
 }
 
@@ -100,12 +108,13 @@ vec3 frosted(vec2 px, float amount) {
 }
 
 void main() {
-  vec2 px = uv * res;
-  px.y = res.y - px.y;
+  vec2 px = pxv;
   vec2 q = px - centre;
   float d;          // distance to the edge, px, negative inside
   float edge;       // coverage, antialiased
   float tilt;       // how far the face tilts here, 0 flat .. 1 edge-on
+  float ramp = -1.0; // letters: 1 at the outline falling evenly to 0 inside
+  float ins = 0.0;   // letters: how far in from the outline, 0..1
   vec2 grad;        // outward direction at the edge
   if (useMask > 0.5) {
     // The glass is the letters. Their crisp shape is the coverage; the
@@ -116,14 +125,25 @@ void main() {
     edge = texture2D(mask, t).a;
     if (edge <= 0.003) discard;
     float s = texture2D(soft, t).a;
-    vec2 st = vec2(1.5) / maskRect.zw;
+    // The slope, over a reach of a third of the blur rather than a pixel or
+    // two: the blurred shape is stored in 8 bits, and at a high resolution
+    // a difference across a pixel is mostly rounding, which showed as
+    // streaks in the letters. Two reaches, averaged, for a smooth normal.
+    vec2 st = vec2(softPx * 0.33) / maskRect.zw;
+    vec2 st2 = st * 0.5;
     vec2 g = vec2(texture2D(soft, t + vec2(st.x, 0.0)).a - texture2D(soft, t - vec2(st.x, 0.0)).a,
-                  texture2D(soft, t + vec2(0.0, st.y)).a - texture2D(soft, t - vec2(0.0, st.y)).a);
+                  texture2D(soft, t + vec2(0.0, st.y)).a - texture2D(soft, t - vec2(0.0, st.y)).a)
+           + 2.0 * vec2(texture2D(soft, t + vec2(st2.x, 0.0)).a - texture2D(soft, t - vec2(st2.x, 0.0)).a,
+                  texture2D(soft, t + vec2(0.0, st2.y)).a - texture2D(soft, t - vec2(0.0, st2.y)).a);
     grad = -normalize(g + 1e-5);
     d = -(s - 0.5) * 2.0 * softPx;
     float inset = clamp((s - 0.5) * 2.0, 0.0, 1.0);
     float h = sqrt(max(0.0, 1.0 - (1.0 - inset) * (1.0 - inset)));
     tilt = 1.0 - h;
+    // starts well inside the stroke and eases out to the edge, so the
+    // colour and the light shade into each other over the whole stroke
+    ramp = 1.0 - smoothstep(-0.15, 1.35, inset);
+    ins = inset;
   } else {
     d = sdBox(q, halfSize, radius);
     // Antialiased edge of the slab
@@ -145,10 +165,17 @@ void main() {
   // more the steeper the tilt; red, green and blue by slightly different
   // amounts, so the rim shows a faint fringe of colour
   vec2 bend = -grad * tilt * depth;
+  // Letters take their colour from how far in from their own outline a
+  // point is — the cloth read along a line down the word, as the O's bands
+  // of colour follow its ring — so the colour runs in bands that follow
+  // the shape of every letter, still changing across the word as the cloth
+  // does; a slab takes what is behind it, bent.
+  vec2 at = px;
+  if (useMask > 0.5) at = vec2(px.x, imgRect.y + imgRect.w * (0.12 + 0.76 * ins));
   vec3 col;
-  col.r = frosted(px + bend * 1.06, frost).r;
-  col.g = frosted(px + bend, frost).g;
-  col.b = frosted(px + bend * 0.94, frost).b;
+  col.r = frosted(at + bend * 1.06, frost).r;
+  col.g = frosted(at + bend, frost).g;
+  col.b = frosted(at + bend * 0.94, frost).b;
 
   // The glass's own tint over it
   col = mix(col, tint, tintA);
@@ -164,12 +191,16 @@ void main() {
 
   // Fresnel: the rim is brighter, seen edge-on, and brighter still on the
   // side facing the light
-  float fres = pow(tilt, 1.6);
+  // The light at the edge. On a slab it follows the curve of the rim; on
+  // letters it follows an even ramp in from the outline instead, so the
+  // colour of the face fades into the light at the edge rather than
+  // stopping at a line
+  float fres = ramp >= 0.0 ? pow(ramp, 0.9) * 0.78 : pow(tilt, 1.6);
   float lit = 0.5 + 0.5 * dot(grad, -toLight);         // the rim facing the light
   vec3 white = vec3(1.0);
   col += white * fres * (0.18 + 0.42 * lit) * (0.8 + 0.5 * dark) * rimA;
   // A thin bright line right at the rim, on the lit side
-  float line = smoothstep(2.2, 0.6, -d) * (0.35 + 0.65 * lit);
+  float line = smoothstep(2.2, 0.6, -d) * (0.35 + 0.65 * lit) * (ramp >= 0.0 ? 0.25 : 1.0);
   col += white * line * (0.45 + 0.3 * dark) * rimA;
   // The shade on the far side's inner edge, where the slab's thickness darkens the view
   float shade = fres * (1.0 - lit) * 0.22 * (1.0 + 0.6 * dark);
@@ -246,7 +277,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   gl.enableVertexAttribArray(pLoc)
   gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0)
   const U = {}
-  for (const n of ['box', 'mask', 'soft', 'useMask', 'maskRect', 'softPx', 'specA', 'rimA', 'sphereA', 'sheen', 'image', 'useImage', 'imgRect', 'bg', 'backdrop', 'res', 'centre', 'halfSize', 'radius', 'depth', 'rimW', 'light', 'tint', 'tintA', 'frost', 'dark', 'hueA', 'hue']) {
+  for (const n of ['imageWas', 'imgMix', 'box', 'mask', 'soft', 'useMask', 'maskRect', 'softPx', 'specA', 'rimA', 'sphereA', 'sheen', 'image', 'useImage', 'imgRect', 'bg', 'backdrop', 'res', 'win', 'origin', 'centre', 'halfSize', 'radius', 'depth', 'rimW', 'light', 'tint', 'tintA', 'frost', 'dark', 'hueA', 'hue']) {
     U[n] = gl.getUniformLocation(prog, n)
   }
   gl.enable(gl.BLEND)
@@ -355,16 +386,26 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   let W = 0, H = 0
   let backDirty = true
 
+  // The resolution surfaces are drawn at: the screen's density times any
+  // pinch-zoom, so zoomed-in glass is as sharp as the zoomed-in text next to
+  // it. In steps, so a pinch rebuilds the letters a few times, not every
+  // frame of it.
+  const STEPS = [1, 1.5, 2, 3, 4, 5, 6]
+  const maxSize = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE) || 4096
   const size = () => {
-    dpr = Math.min(window.devicePixelRatio || 1, 2)
-    W = Math.round(window.innerWidth * dpr)
-    H = Math.round(window.innerHeight * dpr)
-    canvas.width = W; canvas.height = H
-    back.width = W; back.height = H
-    gl.viewport(0, 0, W, H)
+    const raw = (window.devicePixelRatio || 1) * (window.visualViewport?.scale || 1)
+    dpr = STEPS.find((v) => v >= raw - 0.01) ?? STEPS[STEPS.length - 1]
+    back.width = Math.round(window.innerWidth * dpr); back.height = Math.round(window.innerHeight * dpr)
     backDirty = true
   }
   size()
+  // The GL canvas: as big as the largest surface needs, grown when one needs more
+  const fit = (cw, ch) => {
+    if (cw <= W && ch <= H) return
+    W = Math.min(maxSize, Math.max(W, cw, 256)); H = Math.min(maxSize, Math.max(H, ch, 256))
+    canvas.width = W; canvas.height = H
+    gl.viewport(0, 0, W, H)
+  }
 
   const paintBackdrop = () => {
     if (!backdropOf) { backDirty = false; return }
@@ -388,23 +429,44 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   }
 
   let alive = true
+  // the theme's fade (--theme-fade), and where the light/dark value is in it
+  const FADE = 900
+  const theme = { value: null, from: 0, to: null, at: 0 }
+  // At rest the glass only changes as the light drifts, which is slow: it is
+  // looked at ten times a second then, and every frame only while something
+  // is moving — a scroll, the theme's fade, a sheen, a silk's fade.
+  let lastLook = 0
+  let hotUntil = 0
   const frame = () => {
     if (!alive) return
+    const t0 = performance.now()
+    if (t0 > hotUntil && t0 - lastLook < 100) { requestAnimationFrame(frame); return }
+    lastLook = t0
     if (backDirty || live) paintBackdrop()
     gl.clearColor(0, 0, 0, 0)
     gl.clear(gl.COLOR_BUFFER_BIT)
-    const dark = css('color-scheme') === 'dark' ? 1 : 0
+    // Light or dark, eased over the theme's own fade rather than flipped
+    const darkTo = css('color-scheme') === 'dark' ? 1 : 0
+    const now = performance.now()
+    if (theme.to === null) { theme.value = darkTo; theme.to = darkTo; theme.at = -1e9; theme.from = darkTo }
+    if (darkTo !== theme.to) { theme.from = theme.value; theme.to = darkTo; theme.at = now }
+    if (now - theme.at < FADE + 50) hotUntil = now + 120
+    const k = Math.min(1, (now - theme.at) / FADE)
+    theme.value = theme.from + (theme.to - theme.from) * (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2)
+    const dark = theme.value
     // The light, from the same place the CSS glass has it: above and left
     // of the window, drifting (see useLight.js)
     const lx = lightNow.x
     const ly = lightNow.y
     gl.uniform1i(U.backdrop, 0)
     gl.uniform1i(U.image, 1)
+    gl.uniform1i(U.imageWas, 4)
+    gl.uniform1f(U.imgMix, 1)
     gl.uniform1i(U.mask, 2)
     gl.uniform1i(U.soft, 3)
-    const page = parseColour(css('--bg') || '#ffffff')
-    gl.uniform3f(U.bg, page[0], page[1], page[2])
-    gl.uniform2f(U.res, W, H)
+    const pageBg = parseColour(css('--bg') || '#ffffff')
+    gl.uniform3f(U.bg, pageBg[0], pageBg[1], pageBg[2])
+    gl.uniform2f(U.win, back.width, back.height)
     gl.uniform2f(U.light, lx * dpr, ly * dpr)
     gl.uniform1f(U.dark, dark)
     // One surface: drawn into the GL canvas where its element is. True if
@@ -415,9 +477,10 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       const r = el.getBoundingClientRect()
       if (r.bottom < 0 || r.top > window.innerHeight || r.width < 2) return false
       const cs = getComputedStyle(el)
-      let op = 1
-      for (let a = el, k = 0; a && k < 6; a = a.parentElement, k += 1) op *= parseFloat(getComputedStyle(a).opacity)
-      if (op < 0.05 || (s.skip && s.skip(el))) return false
+      // its fading is the page's: the canvas is inside the element, so the
+      // element's opacity and its parents' apply to it as to the rest
+      const op = 1
+      if (s.skip && s.skip(el)) return false
       const circle = cs.borderRadius.includes('%') || s.circle
       const radius = circle ? Math.min(r.width, r.height) / 2 : Math.min(parseFloat(cs.borderRadius) || 0, r.width / 2, r.height / 2)
       const hue = s.hue ? parseColour(cs.getPropertyValue('--lg-hue').trim() || '#ffffff') : null
@@ -427,17 +490,17 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       gl.uniform1f(U.depth, (s.depth ?? (circle ? 22 : 14)) * dpr)
       gl.uniform1f(U.rimW, (s.rim ?? (circle ? radius * 0.55 : 26)) * dpr)
       const tintCss = typeof s.tint === 'function' ? s.tint(el) : s.tint
-      const t = tintCss ? parseColour(tintCss) : [dark ? 0.1 : 1, dark ? 0.1 : 1, dark ? 0.11 : 1, 1]
+      const t = tintCss ? parseColour(tintCss) : [1 - 0.9 * dark, 1 - 0.9 * dark, 1 - 0.89 * dark, 1]
       gl.uniform3f(U.tint, t[0], t[1], t[2])
       const tintA = typeof s.tintA === 'function' ? s.tintA(dark) : s.tintA
-      gl.uniform1f(U.tintA, (tintA ?? (dark ? 0.16 : 0.22)) * op)
+      gl.uniform1f(U.tintA, (tintA ?? (0.22 - 0.06 * dark)) * op)
       gl.uniform1f(U.frost, (s.frost ?? 2.5) * dpr)
       gl.uniform1f(U.hueA, hue ? 0.85 : 0)
       gl.uniform3f(U.hue, hue ? hue[0] : 1, hue ? hue[1] : 1, hue ? hue[2] : 1)
       gl.uniform1f(U.specA, s.specA ?? 1)
       gl.uniform1f(U.sphereA, s.sphere ? 1 : 0)
       // on a light page white light on pale glass washes it out: less of it there
-      gl.uniform1f(U.rimA, dark ? 1 : (s.rimOnLight ?? 1))
+      gl.uniform1f(U.rimA, (s.rimOnLight ?? 1) + (1 - (s.rimOnLight ?? 1)) * dark)
       gl.uniform1f(U.useMask, 0)
       gl.uniform1f(U.sheen, -1)
       if (s.letters) {
@@ -457,18 +520,37 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         }
       }
       // A lens that brings its own picture: sampled where the page has it
+      // The silk. When it changes (the theme turned), the one it had stays
+      // and fades out over the theme's fade while the new one comes in; and
+      // until the new one has loaded, the old is drawn as it was.
       const silk = s.silk && s.silk(el)
-      const fromUrl = silk && urlTexture(silk)
-      if (s.silk && !fromUrl) return false          // not loaded yet: the CSS glass shows
+      const fresh = silk && urlTexture(silk)
+      if (fresh && (!s.silkNow || s.silkNow.tex !== fresh.tex)) {
+        s.silkWas = s.silkNow || fresh
+        s.silkNow = fresh
+        s.silkAt = s.silkWas === fresh ? -1e9 : now
+      }
+      const fromUrl = s.silkNow
+      if (s.silk && !fromUrl) return false          // nothing loaded yet: the CSS glass shows
       if (fromUrl) {
+        const m = Math.min(1, (now - (s.silkAt ?? -1e9)) / FADE)
         gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, fromUrl.tex)
+        gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, (s.silkWas || fromUrl).tex)
         gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex)
+        gl.uniform1f(U.imgMix, m < 0.5 ? 2 * m * m : 1 - Math.pow(-2 * m + 2, 2) / 2)
         gl.uniform1f(U.useImage, 1)
         // the silk is drawn over the element's whole box
         gl.uniform4f(U.imgRect, r.left * dpr, r.top * dpr, r.width * dpr, r.height * dpr)
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
         return true
       }
+      // What is round the picture: the page's colour — or, for a lens that
+      // asks to be lifted (a near-black model), its own colour mixed in on
+      // the dark page, so the model is not lost against it
+      if (s.lift && hue) {
+        const k = s.lift * dark
+        gl.uniform3f(U.bg, pageBg[0] + (hue[0] * 0.55 - pageBg[0]) * k, pageBg[1] + (hue[1] * 0.55 - pageBg[1]) * k, pageBg[2] + (hue[2] * 0.55 - pageBg[2]) * k)
+      } else gl.uniform3f(U.bg, pageBg[0], pageBg[1], pageBg[2])
       const img = s.image && s.image(el)
       const itex = img && imageTexture(img)
       if (itex) {
@@ -502,23 +584,45 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       const cw = Math.max(1, Math.round((r.width + 2 * pad * kx) * dpr)), ch = Math.max(1, Math.round((r.height + 2 * pad * ky) * dpr))
       const into = s.into
       if (r.bottom < -pad || r.top > window.innerHeight + pad) continue
-      // this surface's box, and only it, is cleared and drawn
-      gl.scissor(Math.floor(x), Math.floor(H - y - ch), cw + 1, ch + 1)
+      // Drawn again only when what it shows would change: the light's
+      // direction to it, its size (in steps of 2%), the theme's fade, its
+      // silk's fade, a sheen crossing, its picture arriving. A lens inside
+      // its element does not change as the element moves, so at rest, and
+      // as most things scroll, nothing is drawn at all.
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2
+      const ang = Math.round(Math.atan2(cy - lightNow.y, cx - lightNow.x) * 57.3)
+      const flashing = now - (s.el.__flashAt ?? -1e9) < 1450
+      const silkFade = s.silkNow ? Math.min(1, (now - (s.silkAt ?? -1e9)) / FADE) : -1
+      if (flashing || (silkFade >= 0 && silkFade < 1)) hotUntil = now + 120
+      const pic = s.image ? !!(s.image(s.el)?.complete) : 0
+      const key = `${ang}|${Math.round(Math.log(cw) * 50)}|${Math.round(Math.log(ch) * 50)}|${dark.toFixed(2)}|${silkFade.toFixed(2)}|${s.silkNow?.tex ? 1 : 0}|${flashing ? now : 0}|${pic}|${dpr}|${s.skip ? s.skip(s.el) : 0}`
+      if (key === s.drawn) continue
+      // the surface is drawn at the canvas's corner, its box cleared first
+      if (cw > maxSize || ch > maxSize) continue
+      fit(cw, ch)
+      gl.uniform2f(U.res, W, H)
+      gl.uniform2f(U.origin, x, y)
+      gl.scissor(0, H - ch, cw, ch)
       gl.clear(gl.COLOR_BUFFER_BIT)
       gl.uniform4f(U.box, x - 1, y - 1, cw + 2, ch + 2)
       if (into.width !== cw || into.height !== ch) { into.width = cw; into.height = ch }
       const ctx = into.getContext('2d')
       ctx.clearRect(0, 0, cw, ch)
-      if (draw(s)) ctx.drawImage(canvas, x, y, cw, ch, 0, 0, cw, ch)
+      s.draws = (s.draws || 0) + 1
+      if (draw(s)) { ctx.drawImage(canvas, 0, 0, cw, ch, 0, 0, cw, ch); s.drawn = key } else s.drawn = null
     }
     gl.disable(gl.SCISSOR_TEST)
     requestAnimationFrame(frame)
   }
   requestAnimationFrame(frame)
 
-  const onScroll = () => { backDirty = true }
+  const onScroll = () => { backDirty = true; hotUntil = performance.now() + 250 }
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('resize', size)
+  window.visualViewport?.addEventListener('resize', size)
+  // a pointer over the page can set a hover going (a heading swelling)
+  const onPointer = () => { hotUntil = performance.now() + 500 }
+  window.addEventListener('pointermove', onPointer, { passive: true })
 
   return {
     // A surface stands in for an element: drawn where the element is, in
@@ -541,10 +645,15 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       return () => { surfaces.delete(s); into.remove() }
     },
     repaint() { backDirty = true },
+    // where the theme's fade is, and each surface's silk fade, for checking
+    draws() { return [...surfaces].map((x) => `${x.el.className.toString().split(' ').slice(0, 2).join('.')}:${x.draws || 0}`) },
+    state() { const now = performance.now(); return { theme: theme.value, silk: [...surfaces].filter((x) => x.silkNow).map((x) => Math.min(1, (now - (x.silkAt ?? -1e9)) / FADE)) } },
     stop() {
       alive = false
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', size)
+      window.visualViewport?.removeEventListener('resize', size)
+      window.removeEventListener('pointermove', onPointer)
       canvas.remove()
     },
   }
@@ -555,6 +664,8 @@ let shared
 export function glassLayer() {
   if (shared === undefined) {
     try { shared = mountLiquidGlass({}) } catch (err) { console.warn('liquid glass:', err); shared = null }
+    // reachable from the console, for looking into it
+    if (shared) window.__liquidGlass = shared
   }
   return shared
 }

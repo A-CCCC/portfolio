@@ -302,10 +302,13 @@ export default function ProjectBubbles() {
       const glass = glassLayer()
       if (!glass) return
       document.documentElement.classList.add('lg-gl')
+      const darkModels = new Set(bubbleProjects.filter((pr) => pr.darkModel).map((pr) => pr.path))
       for (const b of layerRef.current.querySelectorAll('.bubble')) {
+        // a near-black model is backed in its bubble's colour on the dark page
+        const lift = darkModels.has(new URL(b.href).pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '')) ? 0.42 : 0
         // A sphere of clear glass: no frost over the model, the bend only
         // near the rim so the model reads, a soft spot of the light
-        removers.push(glass.add(b, { circle: true, sphere: true, hue: true, frost: 0, depth: 9, rim: b.offsetWidth * 0.22, tintA: 0, specA: 0.45, rimOnLight: 0.7, image: (el) => el.querySelector('img'), skip: (el) => el.classList.contains('bubble-popping') || el.classList.contains('bubble-swelling') }))
+        removers.push(glass.add(b, { circle: true, sphere: true, hue: true, lift, frost: 0, depth: 9, rim: b.offsetWidth * 0.22, tintA: 0, specA: 0.45, rimOnLight: 0.7, image: (el) => el.querySelector('img'), skip: (el) => el.classList.contains('bubble-popping') || el.classList.contains('bubble-swelling') }))
       }
     }).catch((err) => console.warn('liquid glass:', err))
     return () => {

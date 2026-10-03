@@ -29,7 +29,9 @@ export const accessibility = [
 ]
 
 export const convenience = [
-  { label: 'Backup Camera Wiper', path: '/solutions/convenience/backup-camera-wiper', image: asset('/thumbnails/backup-camera-wiper.webp') },
+  // A near-black model: its bubble is backed in its own colour on the dark
+  // page, or the model is lost against it (see ProjectBubbles)
+  { label: 'Backup Camera Wiper', path: '/solutions/convenience/backup-camera-wiper', image: asset('/thumbnails/backup-camera-wiper.webp'), darkModel: true },
   { label: 'Modular Car Container', path: '/solutions/convenience/modular-car-container', image: asset('/thumbnails/modular-car-container.webp') },
   { label: 'Sunglasses Holder', path: '/solutions/convenience/sunglasses-holder', image: asset('/thumbnails/sunglasses-holder.webp') },
   { label: 'Car Key Holder', path: '/solutions/convenience/car-key-holder', image: asset('/thumbnails/car-key-holder.webp') },
