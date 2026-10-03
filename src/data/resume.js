@@ -24,7 +24,7 @@ export const RESUME = {
             heading: 'Bullis School',
             place: 'Potomac, MD',
             role: 'Class of 2028',
-            note: 'Unweighted GPA = 100.00/100 (4.0), weighted GPA = 105.00/100',
+            note: 'Unweighted GPA = 99.67/100 (4.0), weighted GPA = 104.67/100',
           },
         ],
       },

@@ -94,7 +94,7 @@
   --lg-rim: rgba(255, 232, 150, 1);
   --lg-rim-far: rgba(255, 224, 140, 0.75);
   --lg-edge: rgba(0, 0, 0, 0.14);
-  --lg-under: rgba(0, 0, 0, 0.16);
+  --lg-under: rgba(0, 0, 0, 0.09);
   --lg-shade: rgba(0, 0, 0, 0.16);
   --lg-glint: rgba(255, 250, 218, 0.92);
   --lg-cast: rgba(255, 138, 92, 0.17);
@@ -161,7 +161,7 @@
   --band-lg-rim: rgba(163, 198, 237, 0.85);
   --band-lg-rim-far: rgba(163, 198, 237, 0.35);
   --band-lg-edge: rgba(0, 0, 0, 0.32);
-  --band-lg-under: rgba(0, 0, 0, 0.35);
+  --band-lg-under: rgba(0, 0, 0, 0.22);
   --band-lg-shade: rgba(0, 0, 0, 0.38);
   --band-lg-glint: rgba(161, 189, 234, 0.4);
   --band-lg-cast: rgba(110, 205, 165, 0.13);
@@ -193,7 +193,7 @@
   --lg-rim: rgba(163, 198, 237, 0.85);
   --lg-rim-far: rgba(163, 198, 237, 0.35);
   --lg-edge: rgba(0, 0, 0, 0.32);
-  --lg-under: rgba(0, 0, 0, 0.35);
+  --lg-under: rgba(0, 0, 0, 0.22);
   --lg-shade: rgba(0, 0, 0, 0.38);
   --lg-glint: rgba(161, 189, 234, 0.4);
   --lg-cast: rgba(110, 205, 165, 0.13);
@@ -250,7 +250,7 @@
   --band-lg-rim: rgba(163, 198, 237, 0.85);
   --band-lg-rim-far: rgba(163, 198, 237, 0.35);
   --band-lg-edge: rgba(0, 0, 0, 0.32);
-  --band-lg-under: rgba(0, 0, 0, 0.35);
+  --band-lg-under: rgba(0, 0, 0, 0.22);
   --band-lg-shade: rgba(0, 0, 0, 0.38);
   --band-lg-glint: rgba(161, 189, 234, 0.4);
   --band-lg-cast: rgba(110, 205, 165, 0.13);
@@ -288,7 +288,7 @@
     --lg-rim: rgba(163, 198, 237, 0.85);
     --lg-rim-far: rgba(163, 198, 237, 0.35);
     --lg-edge: rgba(0, 0, 0, 0.32);
-    --lg-under: rgba(0, 0, 0, 0.35);
+    --lg-under: rgba(0, 0, 0, 0.22);
     --lg-shade: rgba(0, 0, 0, 0.38);
     --lg-glint: rgba(161, 189, 234, 0.4);
     --lg-cast: rgba(110, 205, 165, 0.13);
@@ -337,7 +337,7 @@
     --band-lg-rim: rgba(163, 198, 237, 0.85);
     --band-lg-rim-far: rgba(163, 198, 237, 0.35);
     --band-lg-edge: rgba(0, 0, 0, 0.32);
-    --band-lg-under: rgba(0, 0, 0, 0.35);
+    --band-lg-under: rgba(0, 0, 0, 0.22);
     --band-lg-shade: rgba(0, 0, 0, 0.38);
     --band-lg-glint: rgba(161, 189, 234, 0.4);
     --band-lg-cast: rgba(110, 205, 165, 0.13);
@@ -385,6 +385,11 @@
    the page's own glass either way. The featured and current project cards
    on the home page wear this. */
 .glass-panel {
+  /* The words on a coloured panel need more than the page's greys, which
+     are set against white or black: the body text near the ink, the muted
+     line a step behind it. */
+  --text-body: color-mix(in srgb, var(--text) 82%, var(--panel-b));
+  --text-muted: color-mix(in srgb, var(--text) 64%, var(--panel-b));
   /* The glass over the river: the panel's own tone in a smooth gradient of
      the page's colours with one ribbon of light wandering across it, as
      behind the titles, on a layer of its own under the card's contents and
@@ -463,7 +468,7 @@
   box-shadow:
     inset 0 0 26px 0 var(--lit-band),
     inset calc(var(--shadow-dx) * 0.3) calc(var(--shadow-dy) * 0.25) 2px var(--lit-rim-far),
-    inset calc(var(--shadow-dx) * -0.6) calc(var(--shadow-dy) * -0.5) 9px -2px var(--lg-under),
+    inset calc(var(--shadow-dx) * -0.5) calc(var(--shadow-dy) * -0.4) 12px -4px var(--lg-under),
     calc(var(--shadow-dx) * 0.4) calc(var(--shadow-dy) * 0.25) 4px -1px var(--lg-edge),
     var(--shadow-dx) var(--shadow-dy) 36px -4px var(--lg-shade);
 }
@@ -721,7 +726,7 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
   --spot: color-mix(in srgb, white 70%, var(--lit-glint));
   --spot-size: 42% 30%;
   --rim-back: color-mix(in srgb, var(--lit-rim) 60%, transparent);
-  --sphere: var(--lg-under);
+  --sphere: color-mix(in srgb, var(--lg-under), black 12%);
   --glint-size: 86% 66%;
   /* The edge: a ring of light all round where the glass turns away (a
      bubble's edge is always brighter than its middle), a lit crescent on
@@ -1780,24 +1785,28 @@ canvas {
    square and its edge a pixel over the menu's, so the join is seamless. */
 .nav-menu {
   /* backwards, not both: a clip kept after the open would clip the submenu
-     that hangs outside this box */
-  animation: menu-down 0.28s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+     that hangs outside this box. The clip reaches past the box on every
+     side, so the shadow is inside it from the start. */
+  animation: menu-down 0.42s ease-out backwards;
 }
-/* The clip reaches well past the box on every side, so the menu's shadow
-   is inside it from the start rather than appearing once the clip has
-   opened; the lower edge alone moves. */
 @keyframes menu-down {
   from { clip-path: inset(-60px -60px 100% -60px round 12px); opacity: 0.5; }
   to { clip-path: inset(-60px -60px -60px -60px round 12px); opacity: 1; }
 }
 .nav-submenu {
+  /* Level with the row it opens from (the component sets its top from
+     the row's index and the row height), so the pointer can cross straight
+     into it from any row; its top-left corner is square where it meets
+     the menu, and the rest keep the radius. */
   border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
   margin-left: -1px;
   /* Its top row comes out sideways from the menu first, then the rest lets
      down from it. The row is a label's padding and line (about 46px with
      the menu's own padding). */
-  animation: submenu-out 0.5s ease-out both;
+  /* At a pace per row — a long list takes longer to let down than a
+     short one — rather than in a set time: the sideways beat plus a
+     share for each row (four rows is the 0.5s it was). */
+  animation: submenu-out calc(0.18s + var(--rows, 4) * 0.08s) ease-out both;
 }
 /* The two movements overlap rather than hand over: the row is most of the
    way out before the rest begins to let down, and the letting down is
@@ -1815,6 +1824,8 @@ canvas {
    would make it so, and the submenu would then hang off the row, a padding
    lower and a padding in — so the submenu is placed against the menu. */
 .nav-menu > .nav-group { position: static; z-index: auto; }
+/* A row of a menu: a label's line and padding */
+.nav-menu { --nav-row: 40px; }
 /* The menus over the page, as glass the page shows through: a lighter
    blur than a card's and a thinner fill, so what is under them is still
    there, softened and coloured; and in Chromium the lens itself

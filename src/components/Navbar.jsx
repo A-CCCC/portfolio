@@ -127,12 +127,16 @@ const linkStyle = {
   fontSize: TYPE.small,
 }
 
+// The bold comes on at once, not over a transition: a weight that
+// animates is laid out and painted afresh on every frame, the whole page
+// with it, and every other animation on the page stuttered for the 200ms
+// of it. The label reserves its bold width (see .nav-label), so nothing
+// moves when it switches.
 const hoverStyle = (isHovered) => ({
   fontWeight: isHovered ? 600 : 400,
   borderRadius: 8,
   position: 'relative',
   isolation: 'isolate',
-  transition: 'font-weight 0.2s ease',
 })
 
 // The highlight under a hovered link: a pill of glass, always there under the
@@ -317,7 +321,7 @@ export default function Navbar() {
 
               {!ghost && openTab === tab.label && (
                 <div className="glass glass-vivid nav-menu" style={{ ...dropdownStyle, top: '100%', left: 0, minWidth: 140 }}>
-                  {tab.categories.map((category) => (
+                  {tab.categories.map((category, row) => (
                     <div
                       key={category.label}
                       // Not positioned (see .nav-group): the submenu inside is
@@ -345,7 +349,7 @@ export default function Navbar() {
                           left edge on the menu's right edge, the corners on
                           that side square, so the two read as one panel. */}
                       {!ghost && category.items.length > 0 && openCategory === category.label && (
-                        <div className="glass glass-vivid nav-menu nav-submenu" style={{ ...dropdownStyle, top: 0, left: '100%', minWidth: 150 }}>
+                        <div className="glass glass-vivid nav-menu nav-submenu" style={{ ...dropdownStyle, top: `calc(${row} * var(--nav-row))`, left: '100%', minWidth: 150, '--rows': category.items.length }}>
                           {category.items.map((item) => (
                             <Link
                               key={item.label}
