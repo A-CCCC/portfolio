@@ -1663,6 +1663,21 @@ canvas {
   color: var(--text);
 }
 
+/* A link set in a line of words — the address and the profile under About
+   me — says so by an underline that fades in on approach. Always there and
+   transparent at rest, so the words never move when it appears. */
+.under-link {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color 0.3s ease;
+}
+.under-link:hover,
+.under-link:focus-visible {
+  text-decoration-color: currentColor;
+}
+
 /* An address or a profile: plain, underlined on approach rather than always. */
 .reach-link {
   padding: 8px 14px;

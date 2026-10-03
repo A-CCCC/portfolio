@@ -142,7 +142,7 @@ export default function Home() {
                 <span className="reach-group" style={{ '--pair-gap': '20px' }}>
                   <EmailLink
                     email={REACH.email}
-                    className="hub-link"
+                    className="under-link"
                     style={{ color: 'var(--text-body)', fontSize: TYPE.small }}
                   />
                   <span className="reach-pair" style={{ '--pair-gap': '20px' }}>
@@ -151,7 +151,7 @@ export default function Home() {
                       href={REACH.linkedin}
                       target="_blank"
                       rel="noreferrer"
-                      className="hub-link"
+                      className="under-link"
                       style={{ color: 'var(--text-body)', fontSize: TYPE.small }}
                     >
                       LinkedIn
