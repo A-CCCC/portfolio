@@ -39,6 +39,9 @@ const ANGLE_STEP = 1
 const SHADOW_STEP = 1
 
 let armed = false
+// Where the light is now, in px of the window, for anything else lit by it
+// (the WebGL glass reads it each frame; a style write would restyle the page)
+export const lightNow = { x: -0.12 * 1280, y: -0.3 * 800 }
 let pending = false
 let drifting = false
 
@@ -62,6 +65,7 @@ function flash(el) {
   el.removeAttribute('data-flash')
   void el.offsetWidth                 // so the next set starts the animation afresh
   el.setAttribute('data-flash', '')
+  el.__flashAt = performance.now()    // for the WebGL letters, which draw their own sheen
 }
 function keepFlashing(el) {
   if (el.__flashing) return
@@ -155,7 +159,9 @@ function silk(el, panel) {
   // Blurred broadly, so the folds mix into one another and no edge is a
   // line: a share of the width, which is the long way across the cloth
   const blur = panel ? 55 : 70
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 ${H}' preserveAspectRatio='none'>`
+  // An intrinsic size as well as the viewBox: the WebGL glass uploads this
+  // as a texture, and an image with no size of its own uploads as nothing
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='${H}' viewBox='0 0 1000 ${H}' preserveAspectRatio='none'>`
     + `<filter id='b' x='-30%' y='-30%' width='160%' height='160%'><feGaussianBlur stdDeviation='${blur}'/></filter>`
     + `<filter id='c' x='-30%' y='-30%' width='160%' height='160%'><feGaussianBlur stdDeviation='${blur * 0.75}'/></filter>`
     + `<rect x='-200' y='${-0.2 * H}' width='1400' height='${1.4 * H}' fill='${colours[0]}'/>`
@@ -203,6 +209,8 @@ function place() {
   const t = performance.now() / 1000
   const lx = w * (LIGHT.x + (drifting ? DRIFT.x * Math.sin((t / DRIFT_PERIOD.x) * 2 * Math.PI) : 0))
   const ly = h * (LIGHT.y + (drifting ? DRIFT.y * Math.sin((t / DRIFT_PERIOD.y) * 2 * Math.PI + 1.3) : 0))
+  lightNow.x = lx
+  lightNow.y = ly
   const far = Math.hypot(w - lx, h - ly)
   for (const el of surfaces) {
     const r = el.getBoundingClientRect()

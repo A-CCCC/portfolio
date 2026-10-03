@@ -88,6 +88,8 @@
   --lg-hue-share: 44%;
   --vivid-a: #ffd23f;
   --vivid-b: #ff8c5a;
+  --band-vivid-a: #4f94ff;
+  --band-vivid-b: #3ccf78;
   --lg-fill: rgba(255, 255, 255, 0.55);
   --lg-band: rgba(255, 250, 230, 0.75);
   --lg-line: rgba(255, 255, 255, 0.9);
@@ -195,6 +197,8 @@
   --lg-hue-share: 60%;
   --vivid-a: #4f94ff;
   --vivid-b: #3ccf78;
+  --band-vivid-a: #4f94ff;
+  --band-vivid-b: #3ccf78;
   --lg-band: rgba(141, 169, 229, 0.12);
   --lg-line: rgba(255, 255, 255, 0.4);
   --lg-rim: rgba(163, 198, 237, 0.85);
@@ -296,6 +300,8 @@
   --lg-hue-share: 60%;
   --vivid-a: #4f94ff;
   --vivid-b: #3ccf78;
+  --band-vivid-a: #4f94ff;
+  --band-vivid-b: #3ccf78;
     --lg-band: rgba(141, 169, 229, 0.12);
     --lg-line: rgba(255, 255, 255, 0.4);
     --lg-rim: rgba(163, 198, 237, 0.85);
@@ -649,7 +655,10 @@
    values, which is the other page's: on the light page the band is black
    and wears the dark glass, on the dark page the band is pale and wears
    the light. The tokens cross-fade like all the others. */
-[data-inverted] {
+[data-inverted],
+[data-glass-inverted] {
+  --vivid-a: var(--band-vivid-a);
+  --vivid-b: var(--band-vivid-b);
   --lg-fill: var(--band-lg-fill);
   --lg-tint-share: var(--band-lg-tint-share);
   --lg-hue-share: var(--band-lg-hue-share);
@@ -719,7 +728,34 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
   display: none;
 }
 
+/* A title the WebGL glass draws (glass-titles.js): its CSS glass stands
+   down — the letters' cloth and gloss are hidden, the shadow they cast
+   stays — and the lens draws the letters over it. */
+.lg-gl-text::after,
+.lg-gl-text::before { visibility: hidden; }
+/* A card the WebGL glass draws: its CSS cloth, rim and fill stand down,
+   its drop shadow stays, and the lens is drawn in a canvas under its words */
+.glass.lg-gl-panel {
+  background: none;
+  box-shadow: var(--shadow-dx) var(--shadow-dy) 36px -4px var(--lg-shade);
+}
+.lg-gl-panel::before,
+.lg-gl-panel::after { display: none; }
+.glass > .liquid-glass-surface { position: absolute; }
+
 /* HOME-PAGE PROJECT BUBBLES */
+
+/* With the WebGL glass drawing the bubbles (liquid-glass.js), their CSS
+   glass stands down: no fill, glint, rim or inner shading — only the drop
+   shadow under them, which the lens does not draw. The model under the
+   lens is painted by the lens, so it is hidden here. */
+.lg-gl .glass.bubble {
+  background: none;
+  box-shadow: var(--shadow-dx) var(--shadow-dy) 36px -4px var(--lg-shade);
+}
+.lg-gl .glass.bubble::after,
+.lg-gl .glass.bubble::before { display: none; }
+.lg-gl .glass.bubble:not(.bubble-popping):not(.bubble-swelling) img { visibility: hidden; }
 
 /* A bubble is a disc of the glass, in its tint, with the model inside. */
 /* A surface with a hue: the theme's neutral glass, with a light of that
@@ -1182,8 +1218,10 @@ html.diving { overflow: hidden; }
   z-index: -1;
   border-radius: inherit;
   --lg-tint: var(--hover);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  /* What is behind the pill, blurred and brightened — through the small
+     lens where there is one (index.html), as the menus have the large */
+  -webkit-backdrop-filter: blur(6px) saturate(1.6) brightness(1.05);
+  backdrop-filter: blur(6px) saturate(1.6) brightness(1.05);
   box-shadow:
     inset 0 0 12px 0 var(--lit-band),
     inset calc(var(--shadow-dx) * 0.3) calc(var(--shadow-dy) * 0.25) 2px var(--lit-rim-far),
@@ -1346,6 +1384,8 @@ canvas {
 @property --lg-cast { syntax: "<color>"; inherits: true; initial-value: transparent; }
 @property --vivid-a { syntax: "<color>"; inherits: true; initial-value: #4f94ff; }
 @property --vivid-b { syntax: "<color>"; inherits: true; initial-value: #3ccf78; }
+@property --band-vivid-a { syntax: "<color>"; inherits: true; initial-value: #4f94ff; }
+@property --band-vivid-b { syntax: "<color>"; inherits: true; initial-value: #3ccf78; }
 @property --lg-tint-share { syntax: "<percentage>"; inherits: true; initial-value: 100%; }
 @property --lg-hue-share { syntax: "<percentage>"; inherits: true; initial-value: 100%; }
 @property --card-1a { syntax: "<color>"; inherits: true; initial-value: #eaf1fb; }
@@ -1876,6 +1916,10 @@ canvas {
   -webkit-backdrop-filter: blur(7px) saturate(1.5);
   backdrop-filter: blur(7px) saturate(1.5);
   --lg-fill: color-mix(in srgb, var(--lg-fill) 75%, transparent);
+}
+[data-lens] .nav-lit {
+  -webkit-backdrop-filter: url(#lg-lens-sm) saturate(1.6) brightness(1.05);
+  backdrop-filter: url(#lg-lens-sm) saturate(1.6) brightness(1.05);
 }
 [data-lens] .nav-menu,
 [data-lens] .nav-sheet {

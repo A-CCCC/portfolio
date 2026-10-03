@@ -594,13 +594,17 @@ export default function Navbar() {
             // scroll can least afford one.
             clipPath: HIDDEN,
             // The panel's own colors, handed to the same styles the real bar
-            // uses — nothing below needs to know it is being inverted.
+            // uses — nothing below needs to know it is being inverted. Its
+            // glass too (data-glass-inverted, which the stylesheet treats as
+            // an inverted panel; not data-inverted, which the bar looks for
+            // to know when to turn over).
             '--text': 'var(--band-ink)',
             '--text-body': 'var(--band-body)',
             '--text-muted': 'var(--band-body)',
             '--border': 'var(--band-body)',
             '--hover': 'var(--band-hover)',
           }}
+          data-glass-inverted=""
         >
         {links(true)}
       </div>

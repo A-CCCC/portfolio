@@ -7,7 +7,7 @@
 // own that nobody downloads for a page they never reach the foot of.
 import {
   ACESFilmicToneMapping, AmbientLight, Box3, DirectionalLight, Group,
-  HemisphereLight, Mesh, PCFSoftShadowMap, PerspectiveCamera, PlaneGeometry,
+  HemisphereLight, Mesh, PCFShadowMap, PerspectiveCamera, PlaneGeometry,
   PMREMGenerator, Scene, ShadowMaterial, Vector3, WebGLRenderer,
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
@@ -32,7 +32,7 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
   // where the game's own renders sit.
   renderer.toneMappingExposure = 0.75
   renderer.shadowMap.enabled = true
-  renderer.shadowMap.type = PCFSoftShadowMap
+  renderer.shadowMap.type = PCFShadowMap
 
   const scene = new Scene()
   // A room to reflect: the steel of the Mortar reads as steel only with

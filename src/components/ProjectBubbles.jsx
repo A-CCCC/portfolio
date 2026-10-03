@@ -287,6 +287,34 @@ export default function ProjectBubbles() {
     setCast(drawCast(slots))
   }, [slots])
 
+  // The bubbles drawn as lenses (liquid-glass.js): the model in each is
+  // handed to the lens as its picture, and the bubble is a slab of clear glass over it
+  // that bends it at the rim, fringes it with colour where the bend is
+  // hardest, and catches the moving light. Where there is no WebGL, or
+  // motion is turned down, the CSS glass stays.
+  const layerRef = useRef(null)
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+    const removers = []
+    let gone = false
+    import('./liquid-glass').then(({ glassLayer }) => {
+      if (gone || !layerRef.current) return
+      const glass = glassLayer()
+      if (!glass) return
+      document.documentElement.classList.add('lg-gl')
+      for (const b of layerRef.current.querySelectorAll('.bubble')) {
+        // A sphere of clear glass: no frost over the model, the bend only
+        // near the rim so the model reads, a soft spot of the light
+        removers.push(glass.add(b, { circle: true, sphere: true, hue: true, frost: 0, depth: 9, rim: b.offsetWidth * 0.22, tintA: 0, specA: 0.45, rimOnLight: 0.7, image: (el) => el.querySelector('img'), skip: (el) => el.classList.contains('bubble-popping') || el.classList.contains('bubble-swelling') }))
+      }
+    }).catch((err) => console.warn('liquid glass:', err))
+    return () => {
+      gone = true
+      document.documentElement.classList.remove('lg-gl')
+      for (const off of removers) off()
+    }
+  }, [cast])
+
   // A click pops the bubble: the glass bursts, the project inside comes up
   // to the eye and the page fades under it, and then the page is the
   // project's. A modified click (a new tab) and a reader with motion turned
@@ -375,6 +403,7 @@ export default function ProjectBubbles() {
     <>
     {popping && createPortal(<div className="bubble-veil" aria-hidden="true" style={{ '--pop-hue': popHue }} />, document.body)}
     <div
+      ref={layerRef}
       className={`bubble-layer${popping ? ' bubble-layer-popping' : ''}`}
       aria-hidden={visible ? undefined : 'true'}
       style={{

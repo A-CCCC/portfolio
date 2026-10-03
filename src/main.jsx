@@ -18,6 +18,9 @@ warmFramesWhenIdle()
 // Everything in glass is lit from one point fixed to the window; as the
 // page scrolls past it, each surface's light moves. See components/useLight.js.
 lightTheGlass()
+// and the titles drawn as lenses of their own letters, where WebGL is (see
+// components/glass-titles.js)
+import('./components/glass-titles').then((m) => m.startGlassTitles()).catch(() => {})
 // The lens behind the navbar's menus (see index.html) is an SVG filter in a
 // backdrop-filter, which only Chromium draws; Safari and Firefox would drop
 // the blur with it. So it is switched on only where it works.
