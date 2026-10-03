@@ -59,6 +59,7 @@ uniform vec4 maskRect;      // x, y, w, h of the mask on the canvas, px
 uniform float softPx;       // the blur of 'soft', px
 uniform float specA;        // how much of the broad specular
 uniform float rimA;         // how much of the rim light
+uniform float glowA;        // letters: how much they glow — lit from within, a halo round them
 uniform float sphereA;      // a ball's shading: darker towards the edge away from the light
 uniform float sheen;        // the sheen band's place across the surface, 0..1 (<0 none)
 uniform vec2 res;           // canvas size, px
@@ -132,6 +133,7 @@ void main() {
   float ins = 0.0;   // letters: how far in from the outline, 0..1
   float cap = 0.0;   // letters: how sharply the lines at a set depth turn here — a stroke's end
   vec2 grad;        // outward direction at the edge
+  float gw = 1.0;   // how much that direction means: letters, near nothing down a stroke's middle
   if (useMask > 0.5) {
     // The glass is the letters. Their crisp shape is the coverage; the
     // blurred shape is a height field — half way up at the outline, full
@@ -139,7 +141,22 @@ void main() {
     vec2 t = (px - maskRect.xy) / maskRect.zw;
     if (t.x < 0.0 || t.y < 0.0 || t.x > 1.0 || t.y > 1.0) discard;
     edge = texture2D(mask, t).a;
-    if (edge <= 0.003) discard;
+    if (edge <= 0.003) {
+      // Outside a letter: its glow, if it has one — the light it gives off,
+      // spilling past its edge in its own colour and falling away
+      if (glowA <= 0.0) discard;
+      float hA = texture2D(soft, t).a;
+      for (int i = 0; i < 8; i++) {
+        float a = float(i) * 0.785398;
+        hA += texture2D(soft, t + vec2(cos(a), sin(a)) * softPx * 2.2 / maskRect.zw).a;
+      }
+      hA /= 9.0;
+      if (hA < 0.01) discard;
+      vec3 hc = mix(sampleBackdrop(vec2(px.x, imgRect.y + imgRect.w * 0.5)), vec3(1.0), 0.2);
+      float k = clamp(hA * glowA * (0.45 + 0.4 * dark), 0.0, 1.0);
+      gl_FragColor = vec4(hc * k, k);
+      return;
+    }
     float s = texture2D(soft, t).a;
     // The slope, over a reach of a third of the blur rather than a pixel or
     // two: the blurred shape is stored in 8 bits, and at a high resolution
@@ -152,6 +169,12 @@ void main() {
            + 2.0 * vec2(texture2D(soft, t + vec2(st2.x, 0.0)).a - texture2D(soft, t - vec2(st2.x, 0.0)).a,
                   texture2D(soft, t + vec2(0.0, st2.y)).a - texture2D(soft, t - vec2(0.0, st2.y)).a);
     grad = -normalize(g + 1e-5);
+    // Down the middle of a stroke the slope is near nothing and its
+    // direction flips from one side to the other; a light or a bend keyed to
+    // that direction flipped with it, and creased each letter down its
+    // middle and into its corners like folded paper. Both fade out where the
+    // slope does, so the glass rounds smoothly over the top of a stroke.
+    gw = smoothstep(0.03, 0.3, length(g));
     d = -(s - 0.5) * 2.0 * softPx;
     float inset = clamp((s - 0.5) * 2.0, 0.0, 1.0);
     float h = sqrt(max(0.0, 1.0 - (1.0 - inset) * (1.0 - inset)));
@@ -189,7 +212,7 @@ void main() {
   // Refraction: the view through a tilted face is displaced inward, the
   // more the steeper the tilt; red, green and blue by slightly different
   // amounts, so the rim shows a faint fringe of colour
-  vec2 bend = -grad * tilt * depth;
+  vec2 bend = -grad * tilt * depth * gw;
   // Letters take their colour from how far in from their own outline a
   // point is — the cloth read along a line down the word, as the O's bands
   // of colour follow its ring — so the colour runs in bands that follow
@@ -233,8 +256,12 @@ void main() {
     float bristle = vnoise(vec2(ins * 14.0 + 2.3, along * 3.0));
     float stop = 1.0 - smoothstep(0.18, 0.45, cap + (bristle - 0.5) * 0.25);
     float body = (1.0 - ramp) * stop;
-    col = mix(col, col * 0.62, body * n1 * 0.85);
+    // the darker streaks only faint where a letter glows: they fight the glow
+    col = mix(col, col * 0.62, body * n1 * 0.85 * (1.0 - 0.65 * glowA));
     col += vec3(1.0) * body * n2 * 0.18;
+    // Lit from within: the body of the stroke brightened in its own colour,
+    // most down the middle, so the letter gives light rather than takes it
+    col += col * glowA * (0.32 + 0.12 * dark) * (1.0 - ramp);
   }
 
   // The glass's own tint over it
@@ -256,7 +283,7 @@ void main() {
   // colour of the face fades into the light at the edge rather than
   // stopping at a line
   float fres = ramp >= 0.0 ? pow(ramp, 0.9) * 0.78 : pow(tilt, 1.6);
-  float lit = 0.5 + 0.5 * dot(grad, -toLight);         // the rim facing the light
+  float lit = 0.5 + 0.5 * dot(grad, -toLight) * gw;    // the rim facing the light
   vec3 white = vec3(1.0);
   col += white * fres * (0.18 + 0.42 * lit) * (0.8 + 0.5 * dark) * rimA;
   // A thin bright line right at the rim, on the lit side
@@ -341,7 +368,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   gl.enableVertexAttribArray(pLoc)
   gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0)
   const U = {}
-  for (const n of ['imageWas', 'imgMix', 'box', 'mask', 'soft', 'useMask', 'maskRect', 'softPx', 'specA', 'rimA', 'sphereA', 'sheen', 'image', 'useImage', 'imgRect', 'bg', 'backdrop', 'res', 'win', 'origin', 'centre', 'halfSize', 'radius', 'depth', 'rimW', 'light', 'tint', 'tintA', 'frost', 'dark', 'hueA', 'hue']) {
+  for (const n of ['imageWas', 'imgMix', 'box', 'mask', 'soft', 'useMask', 'maskRect', 'softPx', 'specA', 'rimA', 'glowA', 'sphereA', 'sheen', 'image', 'useImage', 'imgRect', 'bg', 'backdrop', 'res', 'win', 'origin', 'centre', 'halfSize', 'radius', 'depth', 'rimW', 'light', 'tint', 'tintA', 'frost', 'dark', 'hueA', 'hue']) {
     U[n] = gl.getUniformLocation(prog, n)
   }
   gl.enable(gl.BLEND)
@@ -565,6 +592,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       // here once blended a bubble's model with a title's silk mid-fade
       gl.uniform1f(U.imgMix, 1)
       gl.uniform1f(U.specA, s.specA ?? 1)
+      gl.uniform1f(U.glowA, s.glow ?? 0)
       gl.uniform1f(U.sphereA, s.sphere ? 1 : 0)
       // on a light page white light on pale glass washes it out: less of it there
       gl.uniform1f(U.rimA, (s.rimOnLight ?? 1) + (1 - (s.rimOnLight ?? 1)) * dark)

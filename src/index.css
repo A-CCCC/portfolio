@@ -118,7 +118,7 @@
   --silk-3: #f6bb62;
   --silk-4: #f07a3c;
   --band-silk-1: #4f86d8;
-  --band-silk-2: #3fbf9a;
+  --band-silk-2: #1fc9c0;
   --band-silk-3: #8fb8ff;
   --band-silk-4: #2f6fcf;
   --gt-streak-2: rgba(255, 160, 96, 0.85);
@@ -216,13 +216,13 @@
   --gt-sheen-2: rgba(150, 228, 195, 0.95);
   --gt-streak-1: rgba(96, 160, 255, 0.95);
   --silk-1: #4f86d8;
-  --silk-2: #3fbf9a;
+  --silk-2: #1fc9c0;
   --silk-3: #8fb8ff;
   --silk-4: #2f6fcf;
   /* the band's silk is the page's own: the band is a shade off the
      page here, not the other page */
   --band-silk-1: #4f86d8;
-  --band-silk-2: #3fbf9a;
+  --band-silk-2: #1fc9c0;
   --band-silk-3: #8fb8ff;
   --band-silk-4: #2f6fcf;
   --gt-streak-2: rgba(80, 225, 170, 0.9);
@@ -319,13 +319,13 @@
     --gt-sheen-2: rgba(150, 228, 195, 0.95);
     --gt-streak-1: rgba(96, 160, 255, 0.95);
   --silk-1: #4f86d8;
-  --silk-2: #3fbf9a;
+  --silk-2: #1fc9c0;
   --silk-3: #8fb8ff;
   --silk-4: #2f6fcf;
   /* the band's silk is the page's own: the band is a shade off the
      page here, not the other page */
   --band-silk-1: #4f86d8;
-  --band-silk-2: #3fbf9a;
+  --band-silk-2: #1fc9c0;
   --band-silk-3: #8fb8ff;
   --band-silk-4: #2f6fcf;
     --gt-streak-2: rgba(80, 225, 170, 0.9);

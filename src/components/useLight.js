@@ -106,9 +106,14 @@ function silk(el, panel) {
     // Two or three folds: most of the cloth is a smooth mix, with a
     // sweep or two through it
     const folds = 2 + Math.floor(Math.random() * 2)
-    el.__silk = Array.from({ length: folds }, (_, f) => {
-      const base = H * (0.2 + f * (0.6 / Math.max(1, folds - 1))) + between(-0.12, 0.12) * H
-      const tilt = between(-0.52, 0.52) * H
+    // the second colour (turquoise on the dark page, orange on the light) is
+    // one more fold, drawn last, lying across the middle of the cloth — the
+    // part the letters' cores take their colour from — so every title
+    // carries a touch of it
+    const mid = folds
+    el.__silk = Array.from({ length: folds + 1 }, (_, f) => {
+      const base = f === mid ? H * between(0.4, 0.52) : H * (0.2 + f * (0.6 / Math.max(1, folds - 1))) + between(-0.12, 0.12) * H
+      const tilt = (f === mid ? between(-0.22, 0.22) : between(-0.52, 0.52)) * H
       const n = 4
       const pts = []
       for (let k = 0; k <= n; k += 1) {
@@ -118,7 +123,7 @@ function silk(el, panel) {
       // Not every fold runs the whole way across: about half of them turn
       // away before one edge and leave by the top or the bottom instead,
       // the last point carried up or down and off the cloth.
-      if (Math.random() < 0.5) {
+      if (f !== mid && Math.random() < 0.5) {
         const end = Math.random() < 0.5 ? 0 : n
         const off = Math.random() < 0.5 ? -0.4 * H : 1.4 * H
         pts[end][0] = end === 0 ? between(50, 300) : between(700, 950)
@@ -127,7 +132,7 @@ function silk(el, panel) {
         const prev = end === 0 ? 1 : n - 1
         pts[prev][1] += (off < 0 ? -1 : 1) * between(0.12, 0.26) * H
       }
-      return { pts, crest: between(0.08, 0.16), width: between(60, 120), colour: (f + 1) % colours.length }
+      return { pts, crest: between(0.08, 0.16), width: between(60, 120), colour: f === mid ? 1 : 2 + (f % 2) }
     })
     el.__silk.H = H
   }

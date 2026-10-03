@@ -332,30 +332,30 @@ export default function ProjectBubbles() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     el.__floating = true
     const pulse = 1.08 + (i % 3) * 0.02
-    // The breath (8–12% larger) rides on the float as one transform
-    // animation, at ~0.72x the drift period so the two never stay in step:
-    // the drift's cycle is sampled at the breath's beats and the two are
-    // written into one set of keyframes. Two animations on one property
-    // family can keep each other off the compositor; one cannot.
-    const D = spot.duration * 1000
-    const B = spot.duration * 720
-    const steps = 48
-    const frames = []
-    for (let k = 0; k <= steps; k += 1) {
-      const t = k / steps                       // of one breath cycle
-      const ms = t * B
-      const dPhase = ((ms + (spot.delay - (spot.delay - 2.5)) * 1000) % D) / D
-      const dx = spot.drift[0] * (0.5 - 0.5 * Math.cos(dPhase * 2 * Math.PI))
-      const dy = spot.drift[1] * (0.5 - 0.5 * Math.cos(dPhase * 2 * Math.PI))
-      const sc = 1 + (pulse - 1) * (0.5 - 0.5 * Math.cos(t * 2 * Math.PI))
-      frames.push({ transform: `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0) scale(${sc.toFixed(4)})` })
+    // The drift and the breath (8–12% larger, at ~0.72x the drift's period
+    // so the two never stay in step), as two animations on two properties —
+    // transform and scale, each of which the compositor runs — so each loops
+    // on its own period. Both are smooth all round: the drift goes round a
+    // closed oval rather than out and back, and the breath follows a sine,
+    // sampled finely and played at an even pace, so nothing ever stops and
+    // turns. (An out-and-back line with an easing over the whole loop sped
+    // up into its far end and reversed there, like a bump.)
+    const STEPS = 48
+    const [ax, ay] = spot.drift
+    const tilt = (i % 2 ? 1 : -1) * 0.35        // each oval leans its own way
+    const loop = []
+    const swell = []
+    for (let k = 0; k <= STEPS; k += 1) {
+      const a = (k / STEPS) * Math.PI * 2
+      // an oval through the resting place, its long axis along the drift
+      const u = Math.sin(a), v = (1 - Math.cos(a)) * 0.5
+      loop.push({ transform: `translate3d(${(ax * v + ay * u * tilt).toFixed(2)}px, ${(ay * v - ax * u * tilt).toFixed(2)}px, 0)` })
+      swell.push({ scale: `${(1 + (pulse - 1) * (1 - Math.cos(a)) * 0.5).toFixed(4)}` })
     }
-    // the breath's cycle and the drift's share a period only every so
-    // often; the keyframes cover one breath, and the drift is restated
-    // from where it was, which the eye does not catch at this pace
-    const motion = el.animate(frames, { duration: B, delay: (spot.delay - 2.5) * 1000, iterations: Infinity, easing: 'linear' })
-    el.addEventListener('mouseenter', () => motion.pause())
-    el.addEventListener('mouseleave', () => motion.play())
+    const drift = el.animate(loop, { duration: spot.duration * 1000, delay: spot.delay * 1000, iterations: Infinity, easing: 'linear' })
+    const breath = el.animate(swell, { duration: spot.duration * 720, delay: (spot.delay - 2.5) * 1000, iterations: Infinity, easing: 'linear' })
+    el.addEventListener('mouseenter', () => { drift.pause(); breath.pause() })
+    el.addEventListener('mouseleave', () => { drift.play(); breath.play() })
   }
 
   const navigate = useNavigate()

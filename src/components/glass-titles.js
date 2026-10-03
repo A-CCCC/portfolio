@@ -27,6 +27,7 @@ export function startGlassTitles() {
       seen.add(el)
       layer.add(el, {
         letters: true,
+        glow: 0.45,               // lit from within, with a halo
         pad: 14,                  // the letters' glow reaches past their box
         silk: silkOf,
         specA: 0,                 // no broad spot on letters; the rim and the sheen light them
