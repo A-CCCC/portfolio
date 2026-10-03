@@ -76,6 +76,21 @@ uniform float dark;         // 1 on the dark page: highlights brighter, shade de
 uniform float hueA;         // a coloured light on this surface, 0..1
 uniform vec3 hue;
 
+// Value noise, for the streaks in the letters
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float vnoise(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+
+// The slope of the letters' blurred shape at a point of the mask
+vec2 softSlope(sampler2D sm, vec2 t, vec2 st) {
+  return vec2(texture2D(sm, t + vec2(st.x, 0.0)).a - texture2D(sm, t - vec2(st.x, 0.0)).a,
+              texture2D(sm, t + vec2(0.0, st.y)).a - texture2D(sm, t - vec2(0.0, st.y)).a);
+}
+
 // Signed distance to a rounded box, negative inside
 float sdBox(vec2 q, vec2 h, float r) {
   vec2 d = abs(q) - (h - vec2(r));
@@ -115,6 +130,7 @@ void main() {
   float tilt;       // how far the face tilts here, 0 flat .. 1 edge-on
   float ramp = -1.0; // letters: 1 at the outline falling evenly to 0 inside
   float ins = 0.0;   // letters: how far in from the outline, 0..1
+  float cap = 0.0;   // letters: how sharply the lines at a set depth turn here — a stroke's end
   vec2 grad;        // outward direction at the edge
   if (useMask > 0.5) {
     // The glass is the letters. Their crisp shape is the coverage; the
@@ -144,6 +160,15 @@ void main() {
     // colour and the light shade into each other over the whole stroke
     ramp = 1.0 - smoothstep(-0.15, 1.35, inset);
     ins = inset;
+    // How sharply the lines at this depth turn: the slope's direction a
+    // little way either side along them. Small down a straight stroke and
+    // round the wide bowl of an O, large where the lines turn round the end
+    // of a stroke.
+    vec2 tg = vec2(-grad.y, grad.x);
+    vec2 hT = tg * (softPx * 0.6) / maskRect.zw;
+    vec2 ga = normalize(softSlope(soft, t + hT, st) + 1e-5);
+    vec2 gb = normalize(softSlope(soft, t - hT, st) + 1e-5);
+    cap = abs(ga.x * gb.y - ga.y * gb.x) / 1.2;
   } else {
     d = sdBox(q, halfSize, radius);
     // Antialiased edge of the slab
@@ -176,6 +201,41 @@ void main() {
   col.r = frosted(at + bend * 1.06, frost).r;
   col.g = frosted(at + bend, frost).g;
   col.b = frosted(at + bend * 0.94, frost).b;
+
+  // Streaks in the letters: what the glass bends is drawn out along the
+  // stroke, not left in soft blobs — long along the letter's edge, narrow
+  // across it, mostly deeper and a few lighter, in the body of the stroke
+  // and fading out towards its rim. Measured in the letters' own blur, so
+  // they are the same at any resolution.
+  if (useMask > 0.5) {
+    // Across a streak: the distance in from the outline, which follows the
+    // letter's shape everywhere without a turn or a seam. Along it: the
+    // page's x, slowly, so a streak runs long and unbroken down a stroke
+    // and changes only over the length of a word.
+    float along = px.x / (softPx * 26.0);
+    // Fine lines: where a smooth field crosses its middle there is one thin
+    // line, which wanders as freely as the field does; the field runs
+    // slowly along the stroke and quickly across it, so the lines flow down
+    // the stroke. Sharp-edged — a pixel soft and no more — but never jagged.
+    float f1 = vnoise(vec2(along * 0.9, ins * 7.0));
+    float f2 = vnoise(vec2(along * 0.7 + 13.7, ins * 9.0 + 4.1));
+    float r1 = 1.0 - abs(f1 * 2.0 - 1.0);
+    float r2 = 1.0 - abs(f2 * 2.0 - 1.0);
+#ifdef DERIV
+    float a1 = fwidth(r1) * 1.1, a2 = fwidth(r2) * 1.1;
+#else
+    float a1 = 0.04, a2 = 0.04;
+#endif
+    float n1 = smoothstep(0.9 - a1, 0.9 + a1, r1);
+    float n2 = smoothstep(0.93 - a2, 0.93 + a2, r2);
+    // At the end of a stroke the streaks stop, as a brush's bristles do —
+    // each at its own point — rather than turning round the end
+    float bristle = vnoise(vec2(ins * 14.0 + 2.3, along * 3.0));
+    float stop = 1.0 - smoothstep(0.18, 0.45, cap + (bristle - 0.5) * 0.25);
+    float body = (1.0 - ramp) * stop;
+    col = mix(col, col * 0.62, body * n1 * 0.85);
+    col += vec3(1.0) * body * n2 * 0.18;
+  }
 
   // The glass's own tint over it
   col = mix(col, tint, tintA);
@@ -262,7 +322,11 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   const prog = gl.createProgram()
   try {
     gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT))
-    gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG))
+    // the screen's rate of change in the shader, so a fine line is soft by
+    // exactly a pixel at any resolution; without it, a fixed softness
+    const deriv = gl.getExtension('OES_standard_derivatives')
+    const head = deriv ? '#extension GL_OES_standard_derivatives : enable\n#define DERIV 1\n' : ''
+    gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, head + FRAG))
     gl.linkProgram(prog)
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog))
   } catch (err) {
@@ -497,6 +561,9 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       gl.uniform1f(U.frost, (s.frost ?? 2.5) * dpr)
       gl.uniform1f(U.hueA, hue ? 0.85 : 0)
       gl.uniform3f(U.hue, hue ? hue[0] : 1, hue ? hue[1] : 1, hue ? hue[2] : 1)
+      // nothing of the last surface's carries over: a silk's fade left set
+      // here once blended a bubble's model with a title's silk mid-fade
+      gl.uniform1f(U.imgMix, 1)
       gl.uniform1f(U.specA, s.specA ?? 1)
       gl.uniform1f(U.sphereA, s.sphere ? 1 : 0)
       // on a light page white light on pale glass washes it out: less of it there
@@ -549,14 +616,17 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       // the dark page, so the model is not lost against it
       if (s.lift && hue) {
         const k = s.lift * dark
-        gl.uniform3f(U.bg, pageBg[0] + (hue[0] * 0.55 - pageBg[0]) * k, pageBg[1] + (hue[1] * 0.55 - pageBg[1]) * k, pageBg[2] + (hue[2] * 0.55 - pageBg[2]) * k)
+        gl.uniform3f(U.bg, pageBg[0] + (hue[0] * 0.45 - pageBg[0]) * k, pageBg[1] + (hue[1] * 0.45 - pageBg[1]) * k, pageBg[2] + (hue[2] * 0.45 - pageBg[2]) * k)
       } else gl.uniform3f(U.bg, pageBg[0], pageBg[1], pageBg[2])
       const img = s.image && s.image(el)
       const itex = img && imageTexture(img)
       if (itex) {
         const ir = img.getBoundingClientRect()
         // object-fit: cover, as the page draws it
-        const k = Math.max(ir.width / img.naturalWidth, ir.height / img.naturalHeight)
+        // a lens may draw its picture smaller than the page has it (s.inset),
+        // so what is near the picture's edge sits clear of the rim, where the
+        // glass bends it outward
+        const k = Math.max(ir.width / img.naturalWidth, ir.height / img.naturalHeight) * (s.inset ?? 1)
         const iw = img.naturalWidth * k, ih = img.naturalHeight * k
         gl.activeTexture(gl.TEXTURE1)
         gl.bindTexture(gl.TEXTURE_2D, itex)
