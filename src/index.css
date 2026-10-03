@@ -101,14 +101,14 @@
   /* The titles' glass on the light page: dark glass — the ink, lighter
      towards the light — with a white line of light along the edges that
      face it, a soft grey shadow, and a sheen crossing it. */
-  --gt-ink: rgba(205, 128, 36, 0.95);
-  --gt-ink-foot: rgba(165, 78, 30, 0.95);
+  --gt-ink: rgba(232, 160, 60, 0.95);
+  --gt-ink-foot: rgba(222, 136, 62, 0.95);
   --gt-light: rgba(255, 246, 190, 0.95);
   --gt-shadow: rgba(0, 0, 0, 0.22);
   --gt-sheen: rgba(255, 226, 110, 0.75);
   --gt-sheen-2: rgba(255, 140, 84, 0.8);
   --gt-streak-1: rgba(255, 206, 80, 0.9);
-  --gt-streak-2: rgba(255, 128, 64, 0.85);
+  --gt-streak-2: rgba(255, 160, 96, 0.85);
 
   /* Carousel card tints — cycled by index */
   --card-1a: #eaf1fb;  --card-1b: #d5e4f6;
@@ -387,6 +387,13 @@
   z-index: 0;
   pointer-events: none;
   background-image:
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, 0.38) 0px, rgba(255, 255, 255, 0.38) 1.5px, transparent 1.5px, transparent 5px,
+      rgba(0, 0, 0, 0.1) 5px, rgba(0, 0, 0, 0.1) 7px, transparent 7px, transparent 12px,
+      rgba(255, 255, 255, 0.22) 12px, rgba(255, 255, 255, 0.22) 13px, transparent 13px, transparent 21px),
+    repeating-linear-gradient(178deg,
+      transparent 0px, transparent 9px, rgba(255, 255, 255, 0.3) 9px, rgba(255, 255, 255, 0.3) 11px,
+      transparent 11px, transparent 24px, rgba(0, 0, 0, 0.08) 24px, rgba(0, 0, 0, 0.08) 27px, transparent 27px, transparent 33px),
     radial-gradient(ellipse var(--w1s, 26% 70%) at var(--w1p, -2% 78%), var(--gt-streak-1) 0%, transparent 70%),
     radial-gradient(ellipse var(--w2s, 30% 64%) at var(--w2p, 22% 28%), var(--gt-streak-2) 0%, transparent 70%),
     radial-gradient(ellipse var(--w3s, 27% 72%) at var(--w3p, 46% 74%), var(--gt-streak-1) 0%, transparent 70%),
@@ -394,6 +401,8 @@
     radial-gradient(ellipse var(--w5s, 28% 70%) at var(--w5p, 94% 72%), var(--gt-streak-1) 0%, transparent 70%),
     radial-gradient(ellipse var(--w6s, 24% 60%) at var(--w6p, 112% 30%), var(--gt-streak-2) 0%, transparent 70%),
     linear-gradient(165deg, var(--panel-a) 0%, var(--panel-b) 100%);
+  /* The glass (index.html): the streaks swelled into a ribbon, the colour
+     bent inside, a gloss on the lit edges */
   filter: url(#lg-letters);
   /* Not solid: the glass's own glint and edges under it still show */
   opacity: 0.72;
@@ -545,8 +554,11 @@
      another along a rise and fall across the width, each overlapping the
      next, so together they make one ribbon that waves — over the ink,
      which is lighter towards the light. The sheen crosses over all of it.
-     The pools are a share of the title's width, so a long title shows the
-     whole wave and a short one a sweep of it. Where each pool sits and how
+     Over the pools run fine streaks, light and dark, drawn straight across
+     and swelled into the wave by the glass (index.html), so the ribbon is
+     made of strands the way a ribbon is. The pools are a share of the
+     title's width, so a long title shows the whole wave and a short one a
+     sweep of it. Where each pool sits and how
      big it is are drawn afresh for every title (useLight.js writes them;
      these are the stand-ins), so no two titles wave quite the same. */
   background-image:
@@ -554,6 +566,13 @@
       transparent 0%, transparent 34%,
       var(--gt-sheen-2) 42%, var(--gt-sheen) 50%, var(--gt-sheen-2) 58%,
       transparent 66%, transparent 100%),
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, 0.38) 0px, rgba(255, 255, 255, 0.38) 1.5px, transparent 1.5px, transparent 5px,
+      rgba(0, 0, 0, 0.1) 5px, rgba(0, 0, 0, 0.1) 7px, transparent 7px, transparent 12px,
+      rgba(255, 255, 255, 0.22) 12px, rgba(255, 255, 255, 0.22) 13px, transparent 13px, transparent 21px),
+    repeating-linear-gradient(178deg,
+      transparent 0px, transparent 9px, rgba(255, 255, 255, 0.3) 9px, rgba(255, 255, 255, 0.3) 11px,
+      transparent 11px, transparent 24px, rgba(0, 0, 0, 0.08) 24px, rgba(0, 0, 0, 0.08) 27px, transparent 27px, transparent 33px),
     radial-gradient(ellipse var(--w1s, 26% 70%) at var(--w1p, -2% 78%), var(--gt-streak-1) 0%, transparent 70%),
     radial-gradient(ellipse var(--w2s, 30% 64%) at var(--w2p, 22% 28%), var(--gt-streak-2) 0%, transparent 70%),
     radial-gradient(ellipse var(--w3s, 27% 72%) at var(--w3p, 46% 74%), var(--gt-streak-1) 0%, transparent 70%),
@@ -561,8 +580,8 @@
     radial-gradient(ellipse var(--w5s, 28% 70%) at var(--w5p, 94% 72%), var(--gt-streak-1) 0%, transparent 70%),
     radial-gradient(ellipse var(--w6s, 24% 60%) at var(--w6p, 112% 30%), var(--gt-streak-2) 0%, transparent 70%),
     linear-gradient(var(--light-angle), var(--gt-ink) 0%, var(--gt-ink-foot) 100%);
-  background-size: 300% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-  background-repeat: no-repeat;
+  background-size: 300% 100%, auto, auto, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-repeat: no-repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -572,7 +591,7 @@
   /* The band waits off the text until the title has come into view (the
      light script marks it — see useLight.js), then crosses almost at once,
      and again every eleven seconds. */
-  background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
 }
 .glass-title[data-lit]::after {
   animation: glass-sheen 11s ease-in-out infinite;
@@ -616,11 +635,11 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
    gradient clipped to the text is the dearest paint on the page, and this
    would otherwise redraw every one every frame. */
 @keyframes glass-sheen {
-  0%, 5% { background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
-  17%, 100% { background-position: -10% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  0%, 5% { background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  17%, 100% { background-position: -10% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .glass-title[data-lit]::after { animation: none; background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  .glass-title[data-lit]::after { animation: none; background-position: 110% 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
 }
 
 /* CAROUSEL CARDS */

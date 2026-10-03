@@ -43,16 +43,22 @@
            outline of the letters kept crisp; and a gloss along the edges
            that face the light. -->
       <filter id="lg-letters" x="-4%" y="-14%" width="108%" height="128%" color-interpolation-filters="sRGB">
+        <!-- First the wave: the streaks in the texture are drawn straight,
+             and a broad, slow swell bends them into a ribbon that rises and
+             falls across the width, as a ribbon does and ruled lines do not. -->
+        <feTurbulence type="fractalNoise" baseFrequency="0.0022 0.004" numOctaves="1" seed="3" result="swell"/>
+        <feDisplacementMap in="SourceGraphic" in2="swell" scale="90" xChannelSelector="R" yChannelSelector="G" result="waved-raw"/>
+        <feComposite in="waved-raw" in2="SourceGraphic" operator="over" result="waved"/>
+        <!-- Then the glass. Each bent layer is laid over the unbent one before
+             it is cut to the letters, so bending never pulls empty space in
+             from outside a letter and leaves a hole at its edge: the outline
+             stays the font's own. -->
         <feTurbulence type="fractalNoise" baseFrequency="0.008 0.014" numOctaves="1" seed="7" result="noise"/>
-        <!-- Each bent layer is laid over the unbent one before it is cut to
-             the letters, so bending never pulls empty space in from outside
-             a letter and leaves a hole at its edge: the outline stays the
-             font's own. -->
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" result="bent-raw"/>
-        <feComposite in="bent-raw" in2="SourceGraphic" operator="over" result="bent-full"/>
+        <feDisplacementMap in="waved" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" result="bent-raw"/>
+        <feComposite in="bent-raw" in2="waved" operator="over" result="bent-full"/>
         <feComposite in="bent-full" in2="SourceAlpha" operator="in" result="body"/>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="11" xChannelSelector="R" yChannelSelector="G" result="bent-hard-raw"/>
-        <feComposite in="bent-hard-raw" in2="SourceGraphic" operator="over" result="bent-hard"/>
+        <feDisplacementMap in="waved" in2="noise" scale="11" xChannelSelector="R" yChannelSelector="G" result="bent-hard-raw"/>
+        <feComposite in="bent-hard-raw" in2="waved" operator="over" result="bent-hard"/>
         <feMorphology in="SourceAlpha" operator="erode" radius="2.4" result="inner"/>
         <feComposite in="SourceAlpha" in2="inner" operator="out" result="edge"/>
         <feComposite in="bent-hard" in2="edge" operator="in" result="edge-bent"/>
