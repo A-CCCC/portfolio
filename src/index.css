@@ -115,6 +115,10 @@
   --silk-2: #f58f46;
   --silk-3: #f6bb62;
   --silk-4: #f07a3c;
+  --band-silk-1: #4f86d8;
+  --band-silk-2: #3fbf9a;
+  --band-silk-3: #8fb8ff;
+  --band-silk-4: #2f6fcf;
   --gt-streak-2: rgba(255, 160, 96, 0.85);
 
   /* Carousel card tints — cycled by index */
@@ -141,9 +145,12 @@
      text pasted on top. */
   --caption-ink: #222426;
 
-  --band-bg: #000000;
-  --band-ink: #f5f5f7;
-  --band-body: #a8a8ad;
+  /* The alternate band on the light page is the dark page itself — its
+     own warm near-black, not a cold pure black — with the dark page's
+     text and glass on it. */
+  --band-bg: #1a1915;
+  --band-ink: #f2f2f2;
+  --band-body: #b0b0b0;
   --band-hover: rgba(255, 255, 255, 0.16);
   --band-gt-ink: rgba(196, 212, 242, 0.92);
   --band-gt-ink-foot: rgba(172, 196, 240, 0.9);
@@ -208,6 +215,12 @@
   --silk-2: #3fbf9a;
   --silk-3: #8fb8ff;
   --silk-4: #2f6fcf;
+  /* the band's silk is the page's own: the band is a shade off the
+     page here, not the other page */
+  --band-silk-1: #4f86d8;
+  --band-silk-2: #3fbf9a;
+  --band-silk-3: #8fb8ff;
+  --band-silk-4: #2f6fcf;
   --gt-streak-2: rgba(80, 225, 170, 0.9);
 
   --card-1a: #24313f;  --card-1b: #1a232e;
@@ -303,6 +316,12 @@
   --silk-2: #3fbf9a;
   --silk-3: #8fb8ff;
   --silk-4: #2f6fcf;
+  /* the band's silk is the page's own: the band is a shade off the
+     page here, not the other page */
+  --band-silk-1: #4f86d8;
+  --band-silk-2: #3fbf9a;
+  --band-silk-3: #8fb8ff;
+  --band-silk-4: #2f6fcf;
     --gt-streak-2: rgba(80, 225, 170, 0.9);
 
     --card-1a: #24313f;  --card-1b: #1a232e;
@@ -651,6 +670,10 @@
   --gt-sheen-2: var(--band-gt-sheen-2);
   --gt-streak-1: var(--band-gt-streak-1);
   --gt-streak-2: var(--band-gt-streak-2);
+  --silk-1: var(--band-silk-1);
+  --silk-2: var(--band-silk-2);
+  --silk-3: var(--band-silk-3);
+  --silk-4: var(--band-silk-4);
 }
 
 /* A page title stands alone on its screen: shrunk to the words and
@@ -1211,6 +1234,13 @@ html.diving { overflow: hidden; }
 .slide-caption {
   color: var(--caption-ink);
   text-shadow: var(--caption-shadow);
+}
+/* The caption over the picture is a glass title like the others — the
+   page's cloth showing through the letters, bent at their edges — so as
+   it slides across the picture it reads as coloured glass passing over
+   it; its own caption colour and shadow give way to the title's. */
+.slide-caption.glass-title {
+  color: transparent;
 }
 
 * {

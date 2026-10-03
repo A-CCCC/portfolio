@@ -373,6 +373,10 @@ export default function Navbar() {
                 if (!category || category.items.length === 0) return null
                 return (
                   <div
+                    // Keyed by its category: moving to another row hands this a
+                    // new element, so its open plays again; without the key the
+                    // one element is kept and only its rows change.
+                    key={category.label}
                     className="glass glass-vivid nav-menu nav-submenu"
                     onMouseEnter={() => holdCategory(category.label)}
                     onMouseLeave={dropCategory}
@@ -470,7 +474,12 @@ export default function Navbar() {
       if (!nav || !ghostRef.current) return
       const bar = nav.getBoundingClientRect()
       let best = null
-      for (const panel of document.querySelectorAll('[data-inverted]')) {
+      // On the dark page the alternate band is only a shade off the page,
+      // and the bar turning over as it crosses one made more of the edge
+      // than there is; it turns over only on the light page, where the
+      // band is the dark page's own colour.
+      const dark = getComputedStyle(document.documentElement).colorScheme === 'dark'
+      for (const panel of dark ? [] : document.querySelectorAll('[data-inverted]')) {
         const p = panel.getBoundingClientRect()
         const top = Math.max(bar.top, p.top)
         const bottom = Math.min(bar.bottom, p.bottom)
@@ -513,7 +522,11 @@ export default function Navbar() {
     measure()
     window.addEventListener('scroll', measure, { passive: true })
     window.addEventListener('resize', measure)
+    // and when the theme turns over, since the bar turns only on the light page
+    const themed = new MutationObserver(measure)
+    themed.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
     return () => {
+      themed.disconnect()
       window.removeEventListener('scroll', measure)
       window.removeEventListener('resize', measure)
     }

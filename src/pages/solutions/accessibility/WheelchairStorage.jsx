@@ -221,7 +221,7 @@ export default function WheelchairStorage() {
 
             {/* Arrives from the right and settles in the open middle of the U,
                 so the model's arms end up wrapping it. */}
-            <h2 className="slide-caption" style={{
+            <h2 className="slide-caption glass-title" data-text="Custom Wheelchair Storage" style={{
               ...captionStyle,
               position: 'absolute',
               left: '56%',
