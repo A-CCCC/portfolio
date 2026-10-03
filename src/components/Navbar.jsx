@@ -152,7 +152,6 @@ function Star() {
   return (
     <span className="nav-star" aria-hidden="false">
       <span aria-hidden="true">*</span>
-      <span className="nav-star-tip" aria-hidden="true">This page is under construction</span>
       <span className="sr-only"> (under construction)</span>
     </span>
   )
@@ -185,6 +184,14 @@ export default function Navbar() {
     return () => clearTimeout(t)
   }, [menuOpen])
   const [openCategory, setOpenCategory] = useState(null)
+  // Leaving a row or its submenu closes the submenu only after a moment:
+  // the pointer crossing from the row into the submenu leaves the row for
+  // a frame or two on the way (the two are siblings, with a seam between),
+  // and a close on the instant cut the crossing off. Arriving anywhere
+  // that keeps it open cancels the close.
+  const closing = useRef(null)
+  const holdCategory = (label) => { clearTimeout(closing.current); setOpenCategory(label) }
+  const dropCategory = () => { clearTimeout(closing.current); closing.current = setTimeout(() => setOpenCategory(null), 220) }
   const [hovered, setHovered] = useState(null)
   const [nearBottom, setNearBottom] = useState(false)
   // The clips are written straight onto these rather than held in state. A
@@ -302,7 +309,7 @@ export default function Navbar() {
               key={tab.label}
               style={{ position: 'relative' }}
               onMouseEnter={() => setOpenTab(tab.label)}
-              onMouseLeave={() => { setOpenTab(null); setOpenCategory(null) }}
+              onMouseLeave={() => { setOpenTab(null); clearTimeout(closing.current); setOpenCategory(null) }}
             >
               <Link
                 to={tab.path}
@@ -320,15 +327,17 @@ export default function Navbar() {
               </Link>
 
               {!ghost && openTab === tab.label && (
-                <div className="glass glass-vivid nav-menu" style={{ ...dropdownStyle, top: '100%', left: 0, minWidth: 140 }}>
+                <div
+                  className="glass glass-vivid nav-menu"
+                  ref={(el) => { if (el) el.parentElement.style.setProperty('--menu-w', `${el.offsetWidth - 1}px`) }}
+                  style={{ ...dropdownStyle, top: '100%', left: 0, minWidth: 140 }}
+                >
                   {tab.categories.map((category, row) => (
                     <div
                       key={category.label}
-                      // Not positioned (see .nav-group): the submenu inside is
-                      // placed against the menu, not this row, so the two line up.
                       className="nav-group"
-                      onMouseEnter={() => setOpenCategory(category.label)}
-                      onMouseLeave={() => setOpenCategory(null)}
+                      onMouseEnter={() => holdCategory(category.label)}
+                      onMouseLeave={dropCategory}
                     >
                       <Link
                         to={category.path}
@@ -345,37 +354,69 @@ export default function Navbar() {
                         <Lit on={openCategory === category.label} />
                       </Link>
 
-                      {/* Joined to the menu it came from: top edges level, its
-                          left edge on the menu's right edge, the corners on
-                          that side square, so the two read as one panel. */}
-                      {!ghost && category.items.length > 0 && openCategory === category.label && (
-                        <div className="glass glass-vivid nav-menu nav-submenu" style={{ ...dropdownStyle, top: `calc(${row} * var(--nav-row))`, left: '100%', minWidth: 150, '--rows': category.items.length }}>
-                          {category.items.map((item) => (
-                            <Link
-                              key={item.label}
-                              to={item.path}
-                              className="nav-label"
-                              data-label={item.label}
-                              onMouseEnter={() => setHovered(item.label)}
-                              onMouseLeave={() => setHovered(null)}
-                              style={{
-                                ...linkStyle,
-                                ...hoverStyle(hovered === item.label),
-                                display: 'block',
-                                padding: '10px 14px',
-                              }}
-                            >
-                              {item.label}
-                              {PENDING.has(item.path) && <Star />}
-                              <Lit on={hovered === item.label} />
-                            </Link>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
               )}
+
+              {/* The submenu: beside the menu rather than inside it. A glass
+                  surface sees only through its nearest ancestor that is
+                  glass itself, so a submenu inside the menu blurred the
+                  menu's blur and not the page; out here it sees the page.
+                  Level with the row it opens from, its left edge on the
+                  menu's right edge, the corners on that side square. The
+                  menu's width is measured, since the submenu is no longer
+                  laid out against it. */}
+              {!ghost && openTab === tab.label && (() => {
+                const row = tab.categories.findIndex((c) => c.label === openCategory)
+                const category = row >= 0 ? tab.categories[row] : null
+                if (!category || category.items.length === 0) return null
+                return (
+                  <div
+                    className="glass glass-vivid nav-menu nav-submenu"
+                    onMouseEnter={() => holdCategory(category.label)}
+                    onMouseLeave={dropCategory}
+                    style={{
+                      ...dropdownStyle,
+                      top: `calc(100% + ${row} * var(--nav-row))`,
+                      left: 'var(--menu-w, 140px)',
+                      minWidth: 150,
+                      '--rows': category.items.length,
+                    }}
+                  >
+                    {category.items.map((item) => (
+                      <Link
+                        key={item.label}
+                        to={item.path}
+                        className="nav-label"
+                        data-label={item.label}
+                        onMouseEnter={() => setHovered(item.label)}
+                        onMouseLeave={() => setHovered(null)}
+                        style={{
+                          ...linkStyle,
+                          ...hoverStyle(hovered === item.label),
+                          display: 'block',
+                          padding: '10px 14px',
+                        }}
+                      >
+                        {item.label}
+                        {PENDING.has(item.path) && <Star />}
+                        <Lit on={hovered === item.label} />
+                      </Link>
+                    ))}
+                    {/* The note for a starred page, under the whole menu rather
+                        than under its row — a row's note printed over the row
+                        below it — shown while a starred row is pointed at. */}
+                    <span
+                      className="nav-star-tip"
+                      aria-hidden="true"
+                      style={{ opacity: category.items.some((it) => it.label === hovered && PENDING.has(it.path)) ? 1 : 0 }}
+                    >
+                      This page is under construction
+                    </span>
+                  </div>
+                )
+              })()}
             </div>
           ))}
 

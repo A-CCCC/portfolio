@@ -1696,27 +1696,26 @@ canvas {
    right edge, so a menu at the edge of the window keeps them on screen, and
    over whatever item sits below. */
 .nav-menu .nav-label { position: relative; }
+/* The note for a starred page: a small chip of the panel's colour hung
+   just under the menu, in line with its left edge, shown while a starred
+   row is pointed at (the component sets its opacity). Under the menu
+   rather than under the row, since a row's note printed over the row
+   below it. */
 .nav-star-tip {
   position: absolute;
-  right: 14px;
-  top: 100%;
-  z-index: 1;
-  margin-top: 2px;
+  left: 0;
+  top: calc(100% + 6px);
   padding: 6px 10px;
   border-radius: 8px;
   white-space: nowrap;
   font-size: 0.78rem;
   font-weight: 400;
   letter-spacing: 0.01em;
-  color: var(--text-body);
-  opacity: 0;
+  color: var(--text);
+  background: var(--panel);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
   pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-.nav-label:hover .nav-star-tip,
-.nav-label:focus-visible .nav-star-tip {
-  opacity: 1;
-  transition-delay: 0.25s;
+  transition: opacity 0.3s ease 0.2s;
 }
 /* Read aloud, not seen */
 .sr-only {
@@ -1793,20 +1792,32 @@ canvas {
   from { clip-path: inset(-60px -60px 100% -60px round 12px); opacity: 0.5; }
   to { clip-path: inset(-60px -60px -60px -60px round 12px); opacity: 1; }
 }
+/* A reach to the left of the submenu, invisible, over the seam between it
+   and the menu and a little of the menu's edge, so a pointer crossing the
+   seam at a slant is still over one or the other the whole way. */
+.nav-submenu::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -14px;
+  width: 14px;
+}
 .nav-submenu {
   /* Level with the row it opens from (the component sets its top from
      the row's index and the row height), so the pointer can cross straight
      into it from any row; its top-left corner is square where it meets
      the menu, and the rest keep the radius. */
   border-top-left-radius: 0;
-  margin-left: -1px;
   /* Its top row comes out sideways from the menu first, then the rest lets
      down from it. The row is a label's padding and line (about 46px with
      the menu's own padding). */
   /* At a pace per row — a long list takes longer to let down than a
      short one — rather than in a set time: the sideways beat plus a
      share for each row (four rows is the 0.5s it was). */
-  animation: submenu-out calc(0.18s + var(--rows, 4) * 0.08s) ease-out both;
+  /* backwards, not both: a clip kept after the open stops the glass
+     seeing the page behind it, and the submenu came out flat. */
+  animation: submenu-out calc(0.18s + var(--rows, 4) * 0.08s) ease-out backwards;
 }
 /* The two movements overlap rather than hand over: the row is most of the
    way out before the rest begins to let down, and the letting down is
