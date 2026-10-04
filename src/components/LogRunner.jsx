@@ -52,7 +52,9 @@ const ACCELERATION = 0.004     // and never stops; there is no top speed
 // extra room, which hands back in spacing what the speed takes away in warning.
 // Without it the game does not get harder so much as it stops being playable.
 const SPEED_EASE = 11
-const RELIEF = 0.55
+// A little of it, not much: at more, the gaps opened faster than the speed
+// closed them, and a long run grew easier the longer it went.
+const RELIEF = 0.15
 
 // One jump's worth of ground, in frames: take-off to landing under a constant
 // pull. Spacing is written in these units, so a gap means the same thing to the
@@ -66,6 +68,11 @@ const RAMP_DISTANCE = 24000
 const GAP_START = 2.4
 const GAP_END = 1.35
 const GAP_JITTER = 0.7
+// and past that, on through a long run, closing further still — to a gap that
+// leaves just room to land and go again — so the late game keeps tightening
+// rather than levelling off
+const LATE_DISTANCE = 40000
+const GAP_FLOOR = 1.18
 
 // Collision runs against a coarse map of each sprite's own shape rather than its
 // rectangle. The elixir collector is a thin pipe over a wide base and the barrel
@@ -354,9 +361,11 @@ export default function LogRunner() {
       // that stretch shrinks from well over two jumps to a shade over one. Since
       // it is scaled by the current speed, it stays clearable throughout.
       const run = Math.min(1, g.distance / RAMP_DISTANCE)
+      const late = Math.min(1, Math.max(0, (g.distance - RAMP_DISTANCE) / LATE_DISTANCE))
       const relief = 1 + Math.max(0, (g.speed - SPEED_EASE) / SPEED_EASE) * RELIEF
-      const gap = (GAP_START + (GAP_END - GAP_START) * run) * relief
-      const jitter = GAP_JITTER * (1 - 0.65 * run)
+      const base = run < 1 ? GAP_START + (GAP_END - GAP_START) * run : GAP_END + (GAP_FLOOR - GAP_END) * late
+      const gap = base * relief
+      const jitter = GAP_JITTER * (1 - 0.65 * run - 0.2 * late)
       g.nextSpawn = w + reach * (gap + Math.random() * jitter)
     }
 

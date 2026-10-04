@@ -2501,3 +2501,59 @@ html.theme-snap *::after {
   animation-duration: 0.6s;
   animation-timing-function: ease-in-out;
 }
+
+/* THE PHOTO STRIP — a section's photographs on a phone (PhotoStory.jsx).
+   A row to swipe, snapping each photo to the middle, the next one showing
+   at the edge; every photo at a common height in its own shape, its corners
+   rounded; the one in the middle full, the others a step back; and dots
+   under it, in the flow of the page, so nothing hangs over what follows. */
+.photo-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  /* room either side, so the first and last can come to the middle too
+     (the strip snaps to the first on its own, centred) */
+  padding: 6px 50vw 14px;
+  margin: 0 calc(var(--gutter) * -1);
+}
+.photo-strip::-webkit-scrollbar { display: none; }
+/* its own size, over the phone's rule for a picture in a stacked row
+   (.split img), which held it to the strip's inner width — none, with the
+   strip's room either side — and to a height of its own */
+.photo-strip img,
+.split .photo-strip img {
+  flex: 0 0 auto;
+  height: min(50vh, 420px) !important;
+  width: auto !important;
+  max-width: 86vw !important;
+  max-height: none !important;
+  object-fit: cover;
+  border-radius: 16px;
+  scroll-snap-align: center;
+  box-shadow: var(--card-shadow);
+  opacity: 0.55;
+  scale: 0.94;
+  transition: opacity 0.35s ease, scale 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.photo-strip img.is-at { opacity: 1; scale: 1; }
+.photo-strip-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.photo-strip-dots button {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--text-muted);
+  opacity: 0.4;
+  cursor: pointer;
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+.photo-strip-dots button.is-at { width: 20px; opacity: 0.9; }

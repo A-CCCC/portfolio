@@ -489,6 +489,11 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   // Laid out word by word where the page has each word, in the element's
   // own font, so the glass is exactly the text the page set.
   const MARGIN = 14
+  // The letters' rounded shape — their curve, so their light and the bend
+  // in them — is read from a blurred copy of them. A canvas blurs with
+  // ctx.filter where it can; Safari (and so every browser on an iPhone)
+  // has not had it, and drew the copy sharp: no curve, so letters flat and
+  // unlit. There the blur is done by hand (blurAlpha, below).
   const letters = (s) => {
     const el = s.el
     const cs = getComputedStyle(el)
@@ -503,34 +508,46 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     const c = crisp.getContext('2d')
     c.scale(dpr, dpr)
     c.font = cs.font
-    if ('letterSpacing' in c) c.letterSpacing = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing
     c.fillStyle = '#fff'
     c.textBaseline = 'alphabetic'
+    // Letter by letter, each where the page set it. A word drawn whole was
+    // spaced by the canvas, which on a phone's browser ignores the title's
+    // letter-spacing: the glass letters crept away from the page's along
+    // every word, and the shadow the page's text casts sat off them.
+    const met = c.measureText('Hg')
+    const asc = met.fontBoundingBoxAscent ?? met.actualBoundingBoxAscent
+    const desc = met.fontBoundingBoxDescent ?? met.actualBoundingBoxDescent
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
     const range = document.createRange()
     for (let node = walker.nextNode(); node; node = walker.nextNode()) {
       const text = node.textContent
-      const re = /\S+/g
-      let m
-      while ((m = re.exec(text))) {
-        range.setStart(node, m.index)
-        range.setEnd(node, m.index + m[0].length)
-        const r = range.getClientRects()[0]
-        if (!r) continue
-        const met = c.measureText(m[0])
-        const asc = met.fontBoundingBoxAscent ?? met.actualBoundingBoxAscent
-        const desc = met.fontBoundingBoxDescent ?? met.actualBoundingBoxDescent
-        const x = (r.left - box.left) * kx + MARGIN
-        const top = (r.top - box.top) * ky
-        const y = top + (r.height * ky - (asc + desc)) / 2 + asc + MARGIN
-        c.fillText(m[0], x, y)
+      for (let i = 0; i < text.length;) {
+        const ch = String.fromCodePoint(text.codePointAt(i))
+        const next = i + ch.length
+        if (/\S/.test(ch)) {
+          range.setStart(node, i)
+          range.setEnd(node, next)
+          const r = range.getClientRects()[0]
+          if (r) {
+            const x = (r.left - box.left) * kx + MARGIN
+            const top = (r.top - box.top) * ky
+            const y = top + (r.height * ky - (asc + desc)) / 2 + asc + MARGIN
+            c.fillText(ch, x, y)
+          }
+        }
+        i = next
       }
     }
     const softPx = Math.max(2.5, parseFloat(cs.fontSize) * 0.07)
     const blurred = document.createElement('canvas'); blurred.width = cw; blurred.height = ch
     const b = blurred.getContext('2d')
-    b.filter = `blur(${softPx * dpr}px)`
-    b.drawImage(crisp, 0, 0)
+    if (canvasBlurs()) {
+      b.filter = `blur(${softPx * dpr}px)`
+      b.drawImage(crisp, 0, 0)
+    } else {
+      b.drawImage(crisp, 0, 0)
+      blurAlpha(b, cw, ch, softPx * dpr)
+    }
     const was = s.mask
     s.mask = { key, crisp: upload(crisp, was?.crisp), soft: upload(blurred, was?.soft), softPx, w, h }
     return s.mask
@@ -857,4 +874,58 @@ export function glassLayer() {
     if (shared) window.__liquidGlass = shared
   }
   return shared
+}
+
+// Whether this browser's 2D canvas blurs (ctx.filter) — asked once, by
+// blurring a dot and looking beside it
+let blurs = null
+function canvasBlurs() {
+  if (blurs !== null) return blurs
+  try {
+    const t = document.createElement('canvas'); t.width = 9; t.height = 9
+    const x = t.getContext('2d', { willReadFrequently: true })
+    x.filter = 'blur(2px)'
+    x.fillStyle = '#fff'
+    x.fillRect(4, 4, 1, 1)
+    blurs = x.getImageData(1, 4, 1, 1).data[3] > 0
+  } catch { blurs = false }
+  return blurs
+}
+
+// A Gaussian blur of a white mask's coverage, by hand: three box blurs
+// across and three down, which come out all but the same as a Gaussian of
+// that radius. Only when a title's letters are laid out, not every frame.
+function blurAlpha(ctx, w, h, sigma) {
+  const img = ctx.getImageData(0, 0, w, h)
+  const d = img.data
+  let a = new Float32Array(w * h)
+  for (let i = 0; i < w * h; i += 1) a[i] = d[i * 4 + 3]
+  let tmp = new Float32Array(w * h)
+  // box widths for three passes approximating this sigma
+  const n = 3
+  const ideal = Math.sqrt((12 * sigma * sigma) / n + 1)
+  let wl = Math.floor(ideal); if (wl % 2 === 0) wl -= 1
+  const wu = wl + 2
+  const m = Math.round((12 * sigma * sigma - n * wl * wl - 4 * n * wl - 3 * n) / (-4 * wl - 4))
+  const sizes = [0, 1, 2].map((k) => (k < m ? wl : wu))
+  const pass = (src, dst, r, across) => {
+    const len = across ? w : h, lines = across ? h : w
+    const at = across ? (line, k) => line * w + k : (line, k) => k * w + line
+    const scale = 1 / (r + r + 1)
+    for (let line = 0; line < lines; line += 1) {
+      let sum = 0
+      for (let k = -r; k <= r; k += 1) sum += src[at(line, Math.min(len - 1, Math.max(0, k)))]
+      for (let k = 0; k < len; k += 1) {
+        dst[at(line, k)] = sum * scale
+        sum += src[at(line, Math.min(len - 1, k + r + 1))] - src[at(line, Math.max(0, k - r))]
+      }
+    }
+  }
+  for (const size of sizes) {
+    const r = Math.max(0, (size - 1) / 2)
+    pass(a, tmp, r, true)
+    pass(tmp, a, r, false)
+  }
+  for (let i = 0; i < w * h; i += 1) { d[i * 4] = 255; d[i * 4 + 1] = 255; d[i * 4 + 2] = 255; d[i * 4 + 3] = a[i] }
+  ctx.putImageData(img, 0, 0)
 }

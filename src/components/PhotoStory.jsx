@@ -4,7 +4,7 @@
 // paragraph beside its photos, alternating sides down the page. Extracted from
 // the Wheelchair Storage page so other project pages tell their story the same
 // way rather than each growing its own copy of a carousel.
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
 import useIsPhone from '../hooks/useIsPhone'
 import Reveal from './Reveal'
@@ -80,7 +80,83 @@ const STACK_TILT = 28      // deg of rotateY on the neighbours
 const STACK_LIFT = 90
 const STACK_BACK_SCALE = 0.78   // how far the neighbours shrink behind the front one
 
+// On a phone, a strip to swipe along rather than the ring: each photograph
+// at a common height in its own shape, the next one showing at the edge so
+// the strip reads as something to swipe, snapping to the middle, with a row
+// of dots under it for where in the set it is. The ring, gathered in to a
+// phone's width, was a cramped stack with its neighbours clipped off at the
+// sides; and its arrows hung below it without taking any room, over
+// whatever came next.
+function PhotoStrip({ photos, heading }) {
+  const track = useRef(null)
+  const [at, setAt] = useState(0)
+
+  const go = (i, behavior = 'smooth') => {
+    const el = track.current
+    const c = el?.children[i]
+    if (c) el.scrollTo({ left: c.offsetLeft + c.offsetWidth / 2 - el.clientWidth / 2, behavior })
+  }
+
+  // The photo nearest the middle is the one the dots light up
+  useEffect(() => {
+    const el = track.current
+    if (!el) return undefined
+    const look = () => {
+      const mid = el.scrollLeft + el.clientWidth / 2
+      let best = 0, dist = Infinity
+      ;[...el.children].forEach((c, i) => {
+        const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid)
+        if (d < dist) { dist = d; best = i }
+      })
+      setAt(best)
+    }
+    el.addEventListener('scroll', look, { passive: true })
+    // the first photo in the middle to begin with, once it has a width
+    const first = el.children[0]
+    const centre = () => { if (el.scrollLeft < 2) go(0, 'instant') }
+    if (first?.complete) centre(); else first?.addEventListener('load', centre, { once: true })
+    return () => el.removeEventListener('scroll', look)
+  }, [])
+
+
+  return (
+    <div>
+      <div ref={track} className="photo-strip">
+        {photos.map((file, i) => (
+          <img
+            key={file}
+            src={file}
+            alt={`${heading} — ${i + 1} of ${photos.length}`}
+            loading={i < 2 ? 'eager' : 'lazy'}
+            onClick={() => go(i)}
+            className={i === at ? 'is-at' : undefined}
+          />
+        ))}
+      </div>
+      <div className="photo-strip-dots" role="tablist" aria-label={`${heading} photos`}>
+        {photos.map((file, i) => (
+          <button
+            key={file}
+            type="button"
+            role="tab"
+            aria-selected={i === at}
+            aria-label={`Photo ${i + 1} of ${photos.length}`}
+            className={i === at ? 'is-at' : undefined}
+            onClick={() => go(i)}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function PhotoCarousel({ photos, heading }) {
+  const phone = useIsPhone()
+  if (phone) return <PhotoStrip photos={photos} heading={heading} />
+  return <PhotoRing photos={photos} heading={heading} />
+}
+
+function PhotoRing({ photos, heading }) {
   const spread = useIsPhone() ? STACK_SPREAD_PHONE : STACK_SPREAD
 
   // `turn` counts the steps taken rather than naming the front photo, and it is
@@ -151,6 +227,11 @@ export function PhotoCarousel({ photos, heading }) {
                 maxWidth: '100%',
                 objectFit: 'contain',
                 borderRadius: 16,
+                // and, for the ones behind, the same corners as a clip: tilted
+                // in 3D, an image's rounded corners were dropped by some
+                // browsers, and they came out square. Not the front one, which
+                // is not tilted — a clip would cut off its shadow.
+                clipPath: isActive ? 'none' : 'inset(0 round 16px)',
                 display: 'block',
                 cursor: isActive ? 'default' : 'pointer',
                 // Sideways travel follows the ring, so a photo at the very back

@@ -190,8 +190,37 @@ export default function Navbar() {
   // and a close on the instant cut the crossing off. Arriving anywhere
   // that keeps it open cancels the close.
   const closing = useRef(null)
-  const holdCategory = (label) => { clearTimeout(closing.current); setOpenCategory(label) }
-  const dropCategory = () => { clearTimeout(closing.current); closing.current = setTimeout(() => setOpenCategory(null), 220) }
+  const dropping = useRef(false)
+  // the open one, as of now — not as of the last render, which a pointer
+  // already over the next row can be ahead of
+  const current = useRef(null)
+  const holdCategory = (label) => { clearTimeout(closing.current); dropping.current = false; current.current = label; setOpenCategory(label) }
+  const dropCategory = () => { clearTimeout(closing.current); dropping.current = true; closing.current = setTimeout(() => { dropping.current = false; setOpenCategory(null) }, 220) }
+  // and a backstop for that: while a submenu is open, a pointer anywhere but
+  // its row or the submenu itself lets it go. A quick move (a trackpad's
+  // flick, most of all) could leave the row without the browser saying so,
+  // and the submenu then stayed open under a pointer long gone from it.
+  useEffect(() => {
+    if (!openCategory) return undefined
+    const check = (e) => {
+      const t = e.target
+      if (t.closest?.('.nav-submenu') || t.closest?.('.nav-group')?.dataset.category === current.current) return
+      // Off the menus altogether — back up to the bar's own label, say — it
+      // goes at once: the moment's grace is for crossing the seam into the
+      // submenu, and held for a pointer heading the other way, the row stayed
+      // lit for half a second after it had gone.
+      if (!t.closest?.('.nav-menu')) {
+        clearTimeout(closing.current)
+        dropping.current = false
+        current.current = null
+        setOpenCategory(null)
+        return
+      }
+      if (!dropping.current) dropCategory()
+    }
+    document.addEventListener('pointermove', check, { passive: true })
+    return () => document.removeEventListener('pointermove', check)
+  }, [openCategory !== null])
   const [hovered, setHovered] = useState(null)
   const [nearBottom, setNearBottom] = useState(false)
   // The clips are written straight onto these rather than held in state. A
@@ -336,6 +365,7 @@ export default function Navbar() {
                     <div
                       key={category.label}
                       className="nav-group"
+                      data-category={category.label}
                       onMouseEnter={() => holdCategory(category.label)}
                       onMouseLeave={dropCategory}
                     >
