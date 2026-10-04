@@ -39,6 +39,7 @@ import BarrelDrop from './components/BarrelDrop'
 import SnakeGame from './components/SnakeGame'
 import Navbar from './components/Navbar'
 import ScrollToTop from './components/ScrollToTop'
+import EggCrack from './components/EggCrack'
 import ThemeToggle from './components/ThemeToggle'
 import SiteFooter from './components/SiteFooter'
 import Loads from './components/Loads'
@@ -53,6 +54,8 @@ export default function App() {
       <Navbar />
       <ScrollToTop />
       <ThemeToggle />
+      {/* the way into the games, cracked open (see the component) */}
+      <EggCrack />
       <Routes>
         <Route path="/" element={<Home />} />
         {/* Routed either way. In public the pages say they are coming, rather

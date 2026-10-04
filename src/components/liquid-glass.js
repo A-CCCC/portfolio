@@ -60,7 +60,7 @@ uniform float softPx;       // the blur of 'soft', px
 uniform float specA;        // how much of the broad specular
 uniform float rimA;         // how much of the rim light
 uniform float glowA;        // letters: how much they glow — lit from within, a halo round them
-uniform float rowMix;       // letters: how far a block of lines takes its colour from patches of the cloth
+uniform float rowMix;       // letters: how far a block of lines takes its colour across the cloth, on a slant
 uniform float sphereA;      // a ball's shading: darker towards the edge away from the light
 uniform float sheen;        // the sheen band's place across the surface, 0..1 (<0 none)
 uniform vec2 res;           // canvas size, px
@@ -155,7 +155,7 @@ void main() {
       hA /= 9.0;
       if (hA < 0.01) discard;
       vec3 hc = mix(sampleBackdrop(vec2(px.x, imgRect.y + imgRect.w * 0.5)), vec3(1.0), 0.2);
-      float k = clamp(hA * glowA * (0.45 + 0.4 * dark), 0.0, 1.0);
+      float k = clamp(hA * glowA * (0.22 + 0.63 * dark), 0.0, 1.0);   // a haze round them on the light page, which blurred their edges: less of it there
       gl_FragColor = vec4(hc * k, k);
       return;
     }
@@ -226,23 +226,17 @@ void main() {
   // the shape of every letter, still changing across the word as the cloth
   // does; a slab takes what is behind it, bent.
   vec2 at = px;
-  // A heading of several lines: its letters take their colour from soft,
-  // uneven patches of the cloth that drift across words and lines alike —
-  // the cloth's colours mixing through the block as they do behind a card —
-  // rather than all from the one band, which left a large block of thin
-  // letters (they never reach deep into a stroke) one colour all over. Not
-  // by line: each line a colour read as stripes. Measured in the block's
-  // height, so the patches are as large on any block, and seeded by where
-  // the block is, so no two blocks share a pattern.
+  // A heading of several lines also takes its colour by where on the cloth
+  // it lies, not only by the depth in the stroke — or every line of it
+  // showed the same band, and a large block of thin letters, which never
+  // reach deep into a stroke, one colour all over. Across the block the
+  // colours mix as they do across the cloth behind a card.
+  // On a diagonal, from the block's top left to its bottom right, so the
+  // bands cross the lines at a slant rather than each line being one.
   if (useMask > 0.5) {
-    float row = 0.12 + 0.76 * ins;
-    if (rowMix > 0.0) {
-      vec2 q = (px - imgRect.xy) / imgRect.w;
-      vec2 seed = imgRect.xy * 0.0137;
-      float n = 0.68 * vnoise(q * 1.25 + seed) + 0.32 * vnoise(q * 2.7 + seed.yx + 7.3);
-      row = mix(row, 0.1 + 0.72 * smoothstep(0.22, 0.78, n), rowMix);
-    }
-    at = vec2(px.x, imgRect.y + imgRect.w * row);
+    vec2 tb = clamp((px - imgRect.xy) / imgRect.zw, 0.0, 1.0);
+    float slant = clamp(0.75 * tb.y + 0.65 * tb.x - 0.05, 0.0, 1.0);
+    at = vec2(px.x, mix(imgRect.y + imgRect.w * (0.12 + 0.76 * ins), imgRect.y + imgRect.w * slant, rowMix));
   }
   vec3 col;
   col.r = frosted(at + bend * 1.06, frost).r;
@@ -348,16 +342,19 @@ void main() {
     col *= lightness;
     float L = 1.0 - dark;
     col = mix(col, bg, 0.05 * L * (1.0 - shoulder));               // the page a little through the flat top
-    col += white * pow(nh, 60.0) * 0.95;                            // the sharp highlight
-    col += white * pow(nh, 9.0) * (0.16 + 0.1 * dark) * shoulder;   // the sheen round it
-    col += white * pow(1.0 - nrm.z, 3.0) * (0.25 + 0.2 * dark) * rimA;   // the rim, seen side-on
+    // On the light page the white light it gives back is held down: white
+    // on a pale letter against a white page is what made the words hard to
+    // read. The dark page keeps all of it.
+    col += white * pow(nh, 60.0) * (0.95 - 0.55 * L);               // the sharp highlight
+    col += white * pow(nh, 9.0) * (0.06 + 0.2 * dark) * shoulder;   // the sheen round it
+    col += white * pow(1.0 - nrm.z, 3.0) * (0.08 + 0.37 * dark) * rimA;   // the rim, seen side-on
     // and its own light over that: the glow, which the shading above would
     // otherwise take away — the body of the stroke lit from within
     col += col * glowA * (0.42 + 0.18 * dark) * (1.0 - 0.6 * shoulder) * (0.3 + 0.7 * dark);
     // On the light page a glass letter is coloured glass against white: its
     // colour held rich, or it pales into the page
     float luma = dot(col, vec3(0.299, 0.587, 0.114));
-    col = mix(col, max(vec3(0.0), luma + (col - luma) * 1.45) * 0.95, L);
+    col = mix(col, max(vec3(0.0), luma + (col - luma) * 1.7) * 0.92, L);
   }
   // A ball is shaded: deeper towards its edge, deepest on the side away from
   // the light — which is what makes a white ball on a white page round
@@ -668,8 +665,8 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       gl.uniform1f(U.imgMix, 1)
       gl.uniform1f(U.specA, s.specA ?? 1)
       gl.uniform1f(U.glowA, s.glow ?? 0)
-      // lines in the block: no patches for a title on one line, most of the
-      // way to them from three lines on
+      // lines in the block: none of the mix for a title on one line, most of
+      // it from three lines on
       if (s.letters) {
         const lines = r.height / (parseFloat(getComputedStyle(el).fontSize) * 1.25 || r.height)
         gl.uniform1f(U.rowMix, Math.max(0, Math.min(0.75, (lines - 1.2) * 0.7)))

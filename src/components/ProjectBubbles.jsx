@@ -1,7 +1,7 @@
 // src/components/ProjectBubbles.jsx
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Gamepad2 } from 'lucide-react'
+import { EggIcon } from './EggCrack'
 import useFadeIn from '../hooks/useFadeIn'
 import { accessibility, clashRoyale, convenience, halloween, misc, bubbleProjects } from '../data/projects'
 import useIsPhone, { useIsShort } from '../hooks/useIsPhone'
@@ -492,7 +492,8 @@ export default function ProjectBubbles() {
               }}
             >
               {project.icon
-                ? <Gamepad2
+                ? <EggIcon
+                    className="bubble-icon"
                     size={spot.size * 0.42}
                     strokeWidth={1.5}
                     style={{ opacity: 0.55 }}
