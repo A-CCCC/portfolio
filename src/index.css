@@ -2456,3 +2456,18 @@ canvas {
   from { opacity: 1; scale: 0.3; }
   to { opacity: 0; scale: 2.4; }
 }
+
+/* A change of theme under the browser's cross-fade (ThemeToggle): the page
+   underneath turns at once, nothing easing — the fade between the two
+   pictures is the whole transition, and the graphics chip draws it. */
+html.theme-snap,
+html.theme-snap *,
+html.theme-snap *::before,
+html.theme-snap *::after {
+  transition: none !important;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.6s;
+  animation-timing-function: ease-in-out;
+}

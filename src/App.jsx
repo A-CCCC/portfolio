@@ -1,61 +1,70 @@
 // src/App.jsx
+import { Suspense, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { page, preloadPages } from './lib-page'
 import Home from './pages/Home'
-import About from './pages/About'
-import Contact from './pages/Contact'
-import Projects from './pages/Projects'
-import ClashRoyale from './pages/projects/ClashRoyale'
-import SkeletonBarrel from './pages/projects/SkeletonBarrel'
-import ElixirCollector from './pages/projects/ElixirCollector'
-import CannonCart from './pages/projects/CannonCart'
-import Mortar from './pages/projects/Mortar'
-// the-log: held back for now, see src/data/projects.js
-// import TheLog from './pages/projects/TheLog'
-import Halloween from './pages/projects/Halloween'
-import DarthVader from './pages/projects/halloween/DarthVader'
-import Stormtrooper from './pages/projects/halloween/Stormtrooper'
-import ScoutTrooper from './pages/projects/halloween/ScoutTrooper'
-import Electrobinoculars from './pages/projects/halloween/Electrobinoculars'
-import Lightsaber from './pages/projects/halloween/Lightsaber'
-import Minecraft from './pages/projects/halloween/Minecraft'
-import Misc from './pages/projects/Misc'
-import RCCarRepair from './pages/projects/misc/RCCarRepair'
-import MothTrap from './pages/solutions/convenience/MothTrap'
-import Solutions from './pages/Solutions'
-import Accessibility from './pages/solutions/Accessibility'
-import WheelchairStorage from './pages/solutions/accessibility/WheelchairStorage'
-import SmartKinesiologyTape from './pages/solutions/accessibility/SmartKinesiologyTape'
-import Convenience from './pages/solutions/Convenience'
-import BackupCameraWiper from './pages/solutions/convenience/BackupCameraWiper'
-import ModularCarContainer from './pages/solutions/convenience/ModularCarContainer'
-import SunglassesHolder from './pages/solutions/convenience/SunglassesHolder'
-import CarKeyHolder from './pages/solutions/convenience/CarKeyHolder'
-import KetchupExtruder from './pages/solutions/convenience/KetchupExtruder'
-import NotFound from './pages/NotFound'
-// Not in the navbar: easter eggs for anyone who finds them.
-import Games from './pages/Games'
-import LogRunner from './components/LogRunner'
-import BarrelDrop from './components/BarrelDrop'
-import SnakeGame from './components/SnakeGame'
 import Navbar from './components/Navbar'
 import ScrollToTop from './components/ScrollToTop'
 import EggCrack from './components/EggCrack'
 import ThemeToggle from './components/ThemeToggle'
 import SiteFooter from './components/SiteFooter'
 import Loads from './components/Loads'
-import Loading from './pages/Loading'
+// The front page comes with the site; every other page is fetched when it is
+// needed, and all of them quietly once the first has settled (see lib-page).
+const About = page(() => import('./pages/About'))
+const Contact = page(() => import('./pages/Contact'))
+const Projects = page(() => import('./pages/Projects'))
+const ClashRoyale = page(() => import('./pages/projects/ClashRoyale'))
+const SkeletonBarrel = page(() => import('./pages/projects/SkeletonBarrel'))
+const ElixirCollector = page(() => import('./pages/projects/ElixirCollector'))
+const CannonCart = page(() => import('./pages/projects/CannonCart'))
+const Mortar = page(() => import('./pages/projects/Mortar'))
+// the-log: held back for now, see src/data/projects.js
+// import TheLog from './pages/projects/TheLog'
+const Halloween = page(() => import('./pages/projects/Halloween'))
+const DarthVader = page(() => import('./pages/projects/halloween/DarthVader'))
+const Stormtrooper = page(() => import('./pages/projects/halloween/Stormtrooper'))
+const ScoutTrooper = page(() => import('./pages/projects/halloween/ScoutTrooper'))
+const Electrobinoculars = page(() => import('./pages/projects/halloween/Electrobinoculars'))
+const Lightsaber = page(() => import('./pages/projects/halloween/Lightsaber'))
+const Minecraft = page(() => import('./pages/projects/halloween/Minecraft'))
+const Misc = page(() => import('./pages/projects/Misc'))
+const RCCarRepair = page(() => import('./pages/projects/misc/RCCarRepair'))
+const MothTrap = page(() => import('./pages/solutions/convenience/MothTrap'))
+const Solutions = page(() => import('./pages/Solutions'))
+const Accessibility = page(() => import('./pages/solutions/Accessibility'))
+const WheelchairStorage = page(() => import('./pages/solutions/accessibility/WheelchairStorage'))
+const SmartKinesiologyTape = page(() => import('./pages/solutions/accessibility/SmartKinesiologyTape'))
+const Convenience = page(() => import('./pages/solutions/Convenience'))
+const BackupCameraWiper = page(() => import('./pages/solutions/convenience/BackupCameraWiper'))
+const ModularCarContainer = page(() => import('./pages/solutions/convenience/ModularCarContainer'))
+const SunglassesHolder = page(() => import('./pages/solutions/convenience/SunglassesHolder'))
+const CarKeyHolder = page(() => import('./pages/solutions/convenience/CarKeyHolder'))
+const KetchupExtruder = page(() => import('./pages/solutions/convenience/KetchupExtruder'))
+const NotFound = page(() => import('./pages/NotFound'))
+// Not in the navbar: easter eggs for anyone who finds them.
+const Games = page(() => import('./pages/Games'))
+const LogRunner = page(() => import('./components/LogRunner'))
+const BarrelDrop = page(() => import('./components/BarrelDrop'))
+const SnakeGame = page(() => import('./components/SnakeGame'))
+const Loading = page(() => import('./pages/Loading'))
 
 export default function App() {
+  useEffect(() => { preloadPages() }, [])
   // Under a subfolder, /solutions is really /Portfolio/solutions. Vite puts the
   // subfolder in BASE_URL at build time and the router takes it from there; at a
   // domain root it is '/' and nothing changes.
   return (
+    // (A change of page is a React transition in this router, so a page still
+    // being fetched leaves the one showing in place until it comes.)
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Navbar />
       <ScrollToTop />
       <ThemeToggle />
       {/* the way into the games, cracked open (see the component) */}
       <EggCrack />
+      {/* Nothing in the moment a page is still being fetched */}
+      <Suspense fallback={null}>
       <Routes>
         <Route path="/" element={<Home />} />
         {/* Routed either way. In public the pages say they are coming, rather
@@ -107,6 +116,7 @@ export default function App() {
         <Route path="/loading" element={<Loading />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
       <SiteFooter />
     </BrowserRouter>
   )

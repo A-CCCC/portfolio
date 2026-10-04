@@ -1,5 +1,6 @@
 // src/components/ThemeToggle.jsx
 import { useState, useEffect } from 'react'
+import { flushSync } from 'react-dom'
 import { Sun, Moon } from 'lucide-react'
 
 const options = [
@@ -51,6 +52,24 @@ export default function ThemeToggle() {
     const timer = setTimeout(() => setShown(false), FOLD_MS)
     return () => clearTimeout(timer)
   }, [open])
+
+  // A new theme, under the browser's own cross-fade where there is one: a
+  // picture of the page as it was fading into the page as it is, drawn by
+  // the graphics chip. Easing forty colours across every element instead,
+  // a frame at a time — and the glass redrawn with them — was more than a
+  // phone could keep up with. Under it the page turns at once
+  // (html.theme-snap). Where there is no such fade, the colours ease as before.
+  const choose = (value) => {
+    const root = document.documentElement
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (value === theme || !document.startViewTransition || still) { setTheme(value); return }
+    root.classList.add('theme-snap')
+    const turn = document.startViewTransition(() => {
+      flushSync(() => setTheme(value))
+      root.setAttribute('data-theme', value)
+    })
+    turn.finished.finally(() => root.classList.remove('theme-snap'))
+  }
 
   const current = options.find((o) => o.value === theme)
 
@@ -129,7 +148,7 @@ export default function ThemeToggle() {
           {options.map((option, index) => (
             <button
               key={option.value}
-              onClick={() => { if (option.value !== theme) setChosen(true); setTheme(option.value); setOpen(false) }}
+              onClick={() => { if (option.value !== theme) setChosen(true); choose(option.value); setOpen(false) }}
               onMouseEnter={() => setHoverIndex(index)}
               aria-label={option.label}
               className="theme-option"

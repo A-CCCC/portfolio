@@ -175,7 +175,9 @@ function silk(el, panel) {
     + `</svg>`
   const next = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
   const was = el.style.getPropertyValue('--river')
-  if (was && was !== next) {
+  // (not under the browser's cross-fade, which is the fade then — and the
+  // restart below asks for a layout of every cloth, one by one)
+  if (was && was !== next && !document.documentElement.classList.contains('theme-snap')) {
     // The old cloth over the new, fading out: see --river-was in the
     // stylesheet. The fade is the theme's own.
     el.style.setProperty('--river-was', was)

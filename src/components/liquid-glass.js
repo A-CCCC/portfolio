@@ -612,7 +612,10 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     const darkTo = css('color-scheme') === 'dark' ? 1 : 0
     const now = performance.now()
     if (theme.to === null) { theme.value = darkTo; theme.to = darkTo; theme.at = -1e9; theme.from = darkTo }
-    if (darkTo !== theme.to) { theme.from = theme.value; theme.to = darkTo; theme.at = now }
+    // A switch made under the browser's own cross-fade (html.theme-snap: see
+    // ThemeToggle) is turned at once — the cross-fade is the transition
+    const snap = document.documentElement.classList.contains('theme-snap')
+    if (darkTo !== theme.to) { theme.from = theme.value; theme.to = darkTo; theme.at = snap ? -1e9 : now }
     if (now - theme.at < FADE + 50) hotUntil = now + 120
     const k = Math.min(1, (now - theme.at) / FADE)
     theme.value = theme.from + (theme.to - theme.from) * (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2)
@@ -701,7 +704,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       if (fresh && (!s.silkNow || s.silkNow.tex !== fresh.tex)) {
         s.silkWas = s.silkNow || fresh
         s.silkNow = fresh
-        s.silkAt = s.silkWas === fresh ? -1e9 : now
+        s.silkAt = s.silkWas === fresh || document.documentElement.classList.contains('theme-snap') ? -1e9 : now
       }
       const fromUrl = s.silkNow
       if (s.silk && !fromUrl) return false          // nothing loaded yet: the CSS glass shows
