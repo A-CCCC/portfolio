@@ -27,7 +27,7 @@ export function startGlassTitles() {
       seen.add(el)
       layer.add(el, {
         letters: true,
-        glow: 0.45,               // lit from within, with a halo
+        glow: 0.6,                // lit from within, with a halo
         pad: 14,                  // the letters' glow reaches past their box
         silk: silkOf,
         specA: 0,                 // no broad spot on letters; the rim and the sheen light them
@@ -48,7 +48,9 @@ export function startGlassTitles() {
         // the panel's own tone over the silk, most of the way, as the CSS
         // card had it: the words sit on a panel, not on a cloth
         tint: () => getComputedStyle(document.documentElement).getPropertyValue('--panel-a').trim(),
-        tintA: (dark) => 0.5 + 0.12 * dark,   // dark eases 0..1 with the theme
+        // less of the tone over the cloth on the light page, where the
+        // cloth is the sunset (dark eases 0..1 with the theme)
+        tintA: (dark) => 0.3 + 0.32 * dark,
       })
       el.classList.add('lg-gl-panel')
     }

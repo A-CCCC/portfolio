@@ -70,6 +70,11 @@ export default function Home() {
             position: 'relative',
             zIndex: 1,
             marginTop: 10,
+            // The title and what is under it are centred as one: with this
+            // the group is as tall as a page's title and line (24px and a
+            // 31px line under the title), so the title sits at the same
+            // height as on every other page.
+            marginBottom: 7,
             color: 'var(--text)',
             textDecoration: 'none',
             fontSize: TYPE.small,

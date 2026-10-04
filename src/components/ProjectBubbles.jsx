@@ -368,6 +368,10 @@ export default function ProjectBubbles() {
     e.preventDefault()
     if (swelling) return
     const bubble = e.currentTarget
+    // Every bubble holds still from the moment one is clicked: the page
+    // dives in about the clicked one's centre, and one still drifting
+    // wandered off that point, which the dive's scale made a wobble.
+    for (const b of document.querySelectorAll('.bubble')) b.getAnimations().forEach((a) => { if (a.effect?.getKeyframes()[0]?.transform || a.effect?.getKeyframes()[0]?.scale) a.pause() })
     setSwelling(path)
     setPopHue(hue)
     setTimeout(() => {

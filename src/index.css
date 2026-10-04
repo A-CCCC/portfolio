@@ -409,6 +409,23 @@
    under the white, on the dark page a near-black just over the dark — in
    the page's own glass either way. The featured and current project cards
    on the home page wear this. */
+/* On the light page a panel is a sunset under glass: its own cloth in warm
+   yellow, orange and a soft rose, and a warm white over it — not the
+   page's grey, which over orange came out brown */
+:root:not([data-theme='dark']) .glass-panel {
+  --silk-1: #ffd36b;
+  --silk-2: #ff9a5c;
+  --silk-3: #ffbf7a;
+  --silk-4: #ff8f86;
+  --panel-a: #fff4e6;
+  --panel-b: #ffe9d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] .glass-panel {
+    --silk-1: #4f86d8; --silk-2: #1fc9c0; --silk-3: #8fb8ff; --silk-4: #2f6fcf;
+    --panel-a: #2a2a2f; --panel-b: #17171a;
+  }
+}
 .glass-panel {
   /* The words on a coloured panel need more than the page's greys, which
      are set against white or black: the body text near the ink, the muted
@@ -893,6 +910,72 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
    in the bubble grows in view rather than off the edge; the bar and the
    switch are fixed outside it and stay. */
 html.diving { overflow: hidden; }
+/* The sweep onward (page-sweep.js): the page goes off to the left, the
+   next comes in from the right. Moved, not faded to nothing, so it reads
+   as travelling; quick, so it never holds the reader up. */
+.page-leave {
+  animation: page-leave 0.24s cubic-bezier(0.55, 0, 0.9, 0.4) forwards;
+  pointer-events: none;
+}
+@keyframes page-leave {
+  to { transform: translateX(-14%); opacity: 0; }
+}
+.page-arrive {
+  animation: page-arrive 0.36s cubic-bezier(0.15, 0.7, 0.3, 1) both;
+}
+@keyframes page-arrive {
+  from { transform: translateX(14%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+/* and back again (the browser's back button): the page leaves to the
+   right and the one before comes in from the left */
+.page-leave-back {
+  animation: page-leave-back 0.26s cubic-bezier(0.55, 0, 0.9, 0.4) forwards;
+}
+/* A picture of the page left behind by the back button (page-sweep.js)
+   moves off at once: the next page is being drawn under it in those first
+   frames, and an easing that starts slowly barely moved it before it went */
+.page-ghost.page-leave,
+.page-ghost.page-leave-back {
+  animation-timing-function: cubic-bezier(0.25, 0.6, 0.5, 1);
+}
+@keyframes page-leave-back {
+  to { transform: translateX(14%); opacity: 0; }
+}
+.page-arrive-back {
+  animation: page-arrive-back 0.36s cubic-bezier(0.15, 0.7, 0.3, 1) both;
+}
+@keyframes page-arrive-back {
+  from { transform: translateX(-14%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+/* The page left by a navbar link (page-sweep.js), sinking back while the
+   next one grows out of the link over it */
+.page-recede {
+  animation: page-recede 0.56s cubic-bezier(0.3, 0.7, 0.2, 1) forwards;
+}
+@keyframes page-recede {
+  to { transform: scale(0.96); opacity: 0.35; }
+}
+/* The edge of a page growing out of a navbar link (page-sweep.js): the
+   lit link's own tint, clearing as it widens, with a light rim and a
+   shadow to show where the new page ends and the old begins. */
+@property --fill { syntax: '<number>'; inherits: false; initial-value: 0; }
+.page-grow-rim {
+  position: fixed;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(120deg,
+    color-mix(in srgb, var(--vivid-a) calc(var(--fill) * 100%), transparent),
+    color-mix(in srgb, var(--vivid-b) calc(var(--fill) * 100%), transparent));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--vivid-a) 45%, rgba(255, 255, 255, 0.35)),
+    inset 0 0 24px color-mix(in srgb, var(--vivid-a) 30%, transparent),
+    0 18px 50px rgba(0, 0, 0, 0.35);
+}
+html:has(.page-leave), html:has(.page-arrive),
+html:has(.page-leave-back), html:has(.page-arrive-back) { overflow-x: hidden; }
+
 .page-diving {
   transform-origin: var(--dive-x) var(--dive-y);
   animation: page-dive 0.58s cubic-bezier(0.55, 0, 0.8, 0.4) forwards;
@@ -1293,6 +1376,14 @@ body {
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
+/* Nothing makes the page scroll sideways: a title's glow, or a caption
+   before it has slid in, reaching past the edge is trimmed there. clip,
+   not hidden, so it makes no scroll box and nothing sticky stops sticking. */
+html { overflow-x: clip; }
+
+/* A heading that wraps is split into lines of even length, rather than
+   leaving one word on a line of its own */
+h1, h2, h3 { text-wrap: balance; }
 
 canvas {
   background: transparent !important;
@@ -1719,6 +1810,10 @@ canvas {
   color: var(--text-muted);
   user-select: none;
 }
+/* LinkedIn wrapped below the address (reach-wrap.js): no bar starting the
+   line, pointing at nothing */
+.reach-wrapped .reach-sep { display: none; }
+.reach-wrapped { flex-basis: 100%; justify-content: inherit; }
 
 /* The bar and the link after it, kept on one line. A row of links wraps on a
    narrow phone, and a separator that wrapped on its own would be left hanging

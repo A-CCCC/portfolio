@@ -134,6 +134,7 @@ void main() {
   float cap = 0.0;   // letters: how sharply the lines at a set depth turn here — a stroke's end
   vec2 grad;        // outward direction at the edge
   float gw = 1.0;   // how much that direction means: letters, near nothing down a stroke's middle
+  vec3 nrm = vec3(0.0, 0.0, 1.0);   // letters: the surface's normal, from the shape as a solid
   if (useMask > 0.5) {
     // The glass is the letters. Their crisp shape is the coverage; the
     // blurred shape is a height field — half way up at the outline, full
@@ -175,6 +176,11 @@ void main() {
     // middle and into its corners like folded paper. Both fade out where the
     // slope does, so the glass rounds smoothly over the top of a stroke.
     gw = smoothstep(0.03, 0.3, length(g));
+    // The letter as a solid: its blurred shape is a height — up on the
+    // stroke, down to nothing at the outline — and the surface's normal
+    // leans outward as steeply as the height falls, upright on the flat top
+    // of the stroke. Continuous everywhere, so nothing creases.
+    nrm = normalize(vec3(-g * 3.2, 1.0));
     d = -(s - 0.5) * 2.0 * softPx;
     float inset = clamp((s - 0.5) * 2.0, 0.0, 1.0);
     float h = sqrt(max(0.0, 1.0 - (1.0 - inset) * (1.0 - inset)));
@@ -261,7 +267,7 @@ void main() {
     col += vec3(1.0) * body * n2 * 0.18;
     // Lit from within: the body of the stroke brightened in its own colour,
     // most down the middle, so the letter gives light rather than takes it
-    col += col * glowA * (0.32 + 0.12 * dark) * (1.0 - ramp);
+    col += col * glowA * (0.32 + 0.12 * dark) * (1.0 - ramp) * (0.35 + 0.65 * dark);
   }
 
   // The glass's own tint over it
@@ -283,15 +289,58 @@ void main() {
   // colour of the face fades into the light at the edge rather than
   // stopping at a line
   float fres = ramp >= 0.0 ? pow(ramp, 0.9) * 0.78 : pow(tilt, 1.6);
-  float lit = 0.5 + 0.5 * dot(grad, -toLight) * gw;    // the rim facing the light
+  // the rim facing the light: its outward direction towards the light
+  // (toLight runs from the surface to the light). This had the sign the
+  // wrong way round, and lit the rim on the side away from the light.
+  float lit = 0.5 + 0.5 * dot(grad, toLight) * gw;
   vec3 white = vec3(1.0);
-  col += white * fres * (0.18 + 0.42 * lit) * (0.8 + 0.5 * dark) * rimA;
+  float slab = 1.0 - useMask;       // the tricks below are a slab's; letters are lit as solids
+  // the edge-on brightening too: all round on the dark page, only towards
+  // the light on the light page
+  col += slab * white * fres * (0.18 * mix(smoothstep(0.3, 0.9, lit), 1.0, dark) + 0.42 * lit) * (0.8 + 0.5 * dark) * rimA;
   // A thin bright line right at the rim, on the lit side
-  float line = smoothstep(2.2, 0.6, -d) * (0.35 + 0.65 * lit) * (ramp >= 0.0 ? 0.25 : 1.0);
-  col += white * line * (0.45 + 0.3 * dark) * rimA;
+  // The bright line at the rim: all the way round on the dark page, where a
+  // faint line on the far side reads as glass; only on the side facing the
+  // light on the light page, where it read as a white edge on the shadow side
+  float line = smoothstep(2.2, 0.6, -d) * mix(smoothstep(0.35, 0.9, lit), 0.35 + 0.65 * lit, dark) * (ramp >= 0.0 ? 0.25 : 1.0);
+  col += slab * white * line * (0.45 + 0.3 * dark) * rimA;
   // The shade on the far side's inner edge, where the slab's thickness darkens the view
   float shade = fres * (1.0 - lit) * 0.22 * (1.0 + 0.6 * dark);
-  col -= shade;
+  col -= slab * shade;
+  // On the light page a letter reads as glass by what glass does on white:
+  // a little of the page seen through the middle of the stroke, its edge
+  // deepened and saturated where the glass is thickest to the eye — most on
+  // the side away from the light — and a crisp line of light along the side
+  // facing it. On the dark page the glow and the rim light do this.
+  if (useMask > 0.5) {
+    // The letter lit as a solid by the light above and to one side: faces
+    // turned to it brighter, faces turned away in shade, a sharp highlight
+    // where the curve of the shoulder reflects it to the eye and a broad
+    // sheen round that, and the edge seen nearly side-on catching a little
+    // of the sky (Fresnel). Glass: the shade is never black, the colour
+    // deepens and saturates where it is thick to the eye.
+    vec3 Ld = normalize(vec3(toLight * 0.78, 0.62));
+    vec3 H = normalize(Ld + vec3(0.0, 0.0, 1.0));
+    float diff = dot(nrm, Ld);
+    float nh = max(dot(nrm, H), 0.0);
+    float shoulder = smoothstep(0.02, 0.6, 1.0 - nrm.z);        // how far the face has turned
+    float lightness = 0.68 + 0.5 * clamp(diff, -0.2, 1.0);
+    vec3 deep = col * col * 1.2;
+    col = mix(col, deep, (1.0 - clamp(diff + 0.35, 0.0, 1.0)) * shoulder * (0.55 - 0.15 * dark));
+    col *= lightness;
+    float L = 1.0 - dark;
+    col = mix(col, bg, 0.05 * L * (1.0 - shoulder));               // the page a little through the flat top
+    col += white * pow(nh, 60.0) * 0.95;                            // the sharp highlight
+    col += white * pow(nh, 9.0) * (0.16 + 0.1 * dark) * shoulder;   // the sheen round it
+    col += white * pow(1.0 - nrm.z, 3.0) * (0.25 + 0.2 * dark) * rimA;   // the rim, seen side-on
+    // and its own light over that: the glow, which the shading above would
+    // otherwise take away — the body of the stroke lit from within
+    col += col * glowA * (0.42 + 0.18 * dark) * (1.0 - 0.6 * shoulder) * (0.3 + 0.7 * dark);
+    // On the light page a glass letter is coloured glass against white: its
+    // colour held rich, or it pales into the page
+    float luma = dot(col, vec3(0.299, 0.587, 0.114));
+    col = mix(col, max(vec3(0.0), luma + (col - luma) * 1.45) * 0.95, L);
+  }
   // A ball is shaded: deeper towards its edge, deepest on the side away from
   // the light — which is what makes a white ball on a white page round
   float out_ = length(q) / R;
@@ -531,7 +580,15 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   const frame = () => {
     if (!alive) return
     const t0 = performance.now()
-    if (t0 > hotUntil && t0 - lastLook < 100) { requestAnimationFrame(frame); return }
+    // Looked at every frame — the bubbles float and the light drifts, and a
+    // glint moving ten times a second stepped visibly — but a surface is
+    // drawn again only when what it shows has changed (see below).
+    void hotUntil
+    // While a bubble's pop dives the page in, everything grows by several
+    // times; redrawing each surface at its new size every frame was the
+    // heaviest thing on the page, for a page about to be gone. The glass
+    // holds still instead, and its last drawing scales with the page.
+    if (document.documentElement.classList.contains('diving')) { requestAnimationFrame(frame); return }
     lastLook = t0
     if (backDirty || live) paintBackdrop()
     gl.clearColor(0, 0, 0, 0)
@@ -688,7 +745,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       // its element does not change as the element moves, so at rest, and
       // as most things scroll, nothing is drawn at all.
       const cx = r.left + r.width / 2, cy = r.top + r.height / 2
-      const ang = Math.round(Math.atan2(cy - lightNow.y, cx - lightNow.x) * 57.3)
+      const ang = Math.round(Math.atan2(cy - lightNow.y, cx - lightNow.x) * 57.3 * 4)    // quarter degrees
       const flashing = now - (s.el.__flashAt ?? -1e9) < 1450
       const silkFade = s.silkNow ? Math.min(1, (now - (s.silkAt ?? -1e9)) / FADE) : -1
       if (flashing || (silkFade >= 0 && silkFade < 1)) hotUntil = now + 120
