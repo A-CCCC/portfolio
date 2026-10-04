@@ -25,3 +25,10 @@ export const TYPE = {
   card: 'clamp(1.35rem, 4.6vw, 1.6rem)',                 // a project's name on a carousel card
   caption: '0.85rem',             // the smallest type on the site
 }
+
+// Where a page's title sits on its opening screen: its top where a one-line
+// title (line-height 1.2, see h1.glass-title) and a one-line line under it
+// (TYPE.lead at 1.7, 24px below) would put it centred together. Fixed rather
+// than centred, so a title or a line that wraps on a phone, or a page with
+// no line at all, does not move it: whatever is extra runs downward.
+export const HERO_TOP = `calc(var(--screen) / 2 - 0.6 * ${TYPE.pageTitle} - 12px - 0.85 * ${TYPE.lead})`

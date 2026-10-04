@@ -1,6 +1,6 @@
 // src/pages/solutions/accessibility/SmartKinesiologyTape.jsx
 import { Fragment } from 'react'
-import { TYPE } from '../../../styles/type'
+import { TYPE, HERO_TOP } from '../../../styles/type'
 import pagePhotos from '../../../data/pagePhotos'
 import useFadeIn from '../../../hooks/useFadeIn'
 import PhotoSection, { FeatureImage, SectionTitle, SplitRow } from '../../../components/PhotoStory'
@@ -173,9 +173,9 @@ export default function SmartKinesiologyTape() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         textAlign: 'center',
-        padding: '0 24px',
+        padding: `${HERO_TOP} 24px 0`,
       }}>
         <h1 className="glass-title" data-text="Smart Kinesiology Tape" style={{
           fontSize: TYPE.pageTitle,

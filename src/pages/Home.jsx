@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { Link } from 'react-router-dom'
 import { contact } from '../data/site-copy'
-import { TYPE } from '../styles/type'
+import { TYPE, HERO_TOP } from '../styles/type'
 import useFadeIn from '../hooks/useFadeIn'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
 import ProjectBubbles from '../components/ProjectBubbles'
@@ -22,7 +22,7 @@ export default function Home() {
   const [featuredRef, featuredOpacity] = useFadeInOnScroll(0)
   const [currentRef, currentOpacity] = useFadeInOnScroll(0)
   const titleOpacity = useFadeIn(100)
-  // Last of everything on the opening screen. The bubbles begin at 1.2s and
+  // Last of everything on the opening screen. The bubbles begin at 0.7s and
   // arrive one after another over half a second more, so this waits for the
   // screen to be finished before offering somewhere to go.
   const servicesOpacity = useFadeIn(2200)
@@ -38,7 +38,8 @@ export default function Home() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: HERO_TOP,
       }}>
         <ProjectBubbles />
         <h1 className="glass-title" data-text="Alex's Design Portfolio" style={{
@@ -70,11 +71,6 @@ export default function Home() {
             position: 'relative',
             zIndex: 1,
             marginTop: 10,
-            // The title and what is under it are centred as one: with this
-            // the group is as tall as a page's title and line (24px and a
-            // 31px line under the title), so the title sits at the same
-            // height as on every other page.
-            marginBottom: 7,
             color: 'var(--text)',
             textDecoration: 'none',
             fontSize: TYPE.small,

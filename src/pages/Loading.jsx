@@ -63,9 +63,11 @@ function Loaded({ onAgain }) {
           style={{ fontSize: TYPE.small }}
         >
           Watch it again
+          <i className="glass glass-vivid nav-lit" aria-hidden="true" />
         </button>
         <Link to="/games" className="reach-link" style={{ fontSize: TYPE.small }}>
           Play something instead
+          <i className="glass glass-vivid nav-lit" aria-hidden="true" />
         </Link>
       </div>
     </div>

@@ -61,7 +61,9 @@ export default function CategoryBand({
         opacity,
         transition: 'opacity 1.5s ease',
       }}>
-        <Link to={path} className="hub-link" style={{ color: 'inherit' }}>
+        {/* Goes where the count below goes, and moves the same way: the
+            page sweeps on (page-sweep.js), as it does for an arrow. */}
+        <Link to={path} className="hub-link" data-sweep="" style={{ color: 'inherit' }}>
           <h2 className="glass-title" data-text={label} style={{
             fontSize: TYPE.hubCategory,
             fontWeight: 300,

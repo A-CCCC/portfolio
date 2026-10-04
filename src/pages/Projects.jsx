@@ -1,6 +1,6 @@
 // src/pages/Projects.jsx
 import useFadeIn from '../hooks/useFadeIn'
-import { TYPE } from '../styles/type'
+import { TYPE, HERO_TOP } from '../styles/type'
 import CategoryBand from '../components/CategoryBand'
 import { clashRoyale, halloween, misc } from '../data/projects'
 import asset from '../lib-asset'
@@ -56,8 +56,8 @@ export default function Projects() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        padding: '0 24px',
+        justifyContent: 'flex-start',
+        padding: `${HERO_TOP} 24px 0`,
         textAlign: 'center',
       }}>
         <h1 className="glass-title" data-text={TITLE} style={{

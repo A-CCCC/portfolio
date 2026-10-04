@@ -1,7 +1,7 @@
 // src/pages/projects/Misc.jsx
 import useFadeIn from '../../hooks/useFadeIn'
 import useFadeInOnScroll from '../../hooks/useFadeInOnScroll'
-import { TYPE } from '../../styles/type'
+import { TYPE, HERO_TOP } from '../../styles/type'
 import Carousel from '../../components/Carousel'
 import { misc as projects } from '../../data/projects'
 
@@ -18,9 +18,10 @@ export default function Misc() {
       <div style={{
         height: 'var(--screen)',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        padding: '0 24px',
+        justifyContent: 'flex-start',
+        padding: `${HERO_TOP} 24px 0`,
         textAlign: 'center',
       }}>
         <h1 className="glass-title" data-text="Miscellaneous Projects" style={{

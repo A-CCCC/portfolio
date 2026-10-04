@@ -66,6 +66,7 @@ export default function SiteFooter() {
             style={{ fontSize: TYPE.small }}
           >
             LinkedIn
+            <i className="glass glass-vivid nav-lit" aria-hidden="true" />
           </a>
         </span>
       </div>

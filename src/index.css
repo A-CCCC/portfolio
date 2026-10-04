@@ -704,7 +704,7 @@
 
 /* A page title stands alone on its screen: shrunk to the words and
    centred, so the sheen crosses the title rather than the whole band. */
-h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
+h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; line-height: 1.2; }
 
 /* The band waits just off one end of the text, crosses it in a second or
    so, and waits off the other end. The waits are constant values, so for
@@ -842,8 +842,8 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
    not fade — leaving a ring of its light that swells and is gone and a
    scatter of droplets flying out; the other bubbles fall back; and from
    the burst the page dives into where the bubble was, the project in it
-   coming up to the eye as the page does, under a veil of the page's own
-   colour, so the next page arrives on plain ground. */
+   coming up to the eye as the page does, in a glow of the bubble's own
+   colour round it. */
 .bubble-swelling {
   animation: bubble-swell 0.15s cubic-bezier(0.3, 0, 0.5, 1) forwards;
   z-index: 5;
@@ -909,7 +909,11 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; }
    wrote in, and carried to the middle of the screen as it goes, so what is
    in the bubble grows in view rather than off the edge; the bar and the
    switch are fixed outside it and stay. */
-html.diving { overflow: hidden; }
+/* The page as it grows clipped to its own container, so it opens no more
+   room to scroll into — and the page's scrollbar stays where it is: hiding
+   the overflow on the whole page took the scrollbar away, which widened
+   the page by its width and shifted everything sideways. */
+html.diving #root { overflow: clip; }
 /* The sweep onward (page-sweep.js): the page goes off to the left, the
    next comes in from the right. Moved, not faded to nothing, so it reads
    as travelling; quick, so it never holds the reader up. */
@@ -985,21 +989,42 @@ html:has(.page-leave-back), html:has(.page-arrive-back) { overflow-x: hidden; }
   from { transform: translate(0, 0) scale(1); }
   to { transform: translate(var(--dive-dx), var(--dive-dy)) scale(3.4); }
 }
-.bubble-veil,
+/* The burst's colour: a soft glow of the bubble's hue just round it, there
+   at once as the bubble goes — not a wash over the whole page — and part of
+   the page, so the dive carries it in with the bubble. Behind the model. */
+.bubble-bloom {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 180%;               /* BLOOM in ProjectBubbles.jsx */
+  height: 180%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  z-index: -1;
+  background: radial-gradient(closest-side,
+    color-mix(in srgb, var(--lg-hue) 46%, transparent),
+    color-mix(in srgb, var(--lg-hue) 24%, transparent) 45%,
+    transparent);
+  animation: bubble-bloom 0.24s cubic-bezier(0.15, 0.9, 0.3, 1) both;
+  pointer-events: none;
+}
+@keyframes bubble-bloom {
+  from { opacity: 0; scale: 0.5; }
+  25% { opacity: 1; }
+  to { opacity: 1; scale: 1; }
+}
+/* and the same glow, as large as the dive has made it, over the middle of
+   the new page as it arrives, clearing */
 .bubble-veil-out {
   position: fixed;
   inset: 0;
   z-index: 40;              /* under the bar, over the page */
-  /* A wash of the bubble's colour over the page's own, not the colour
-     itself: enough to say which bubble, not enough to flood the eye */
-  background: color-mix(in srgb, var(--pop-hue) 32%, var(--bg));
+  background: radial-gradient(circle var(--bloom-r, 300px) at 50% 50%,
+    color-mix(in srgb, var(--pop-hue) 46%, transparent),
+    color-mix(in srgb, var(--pop-hue) 24%, transparent) 45%,
+    transparent);
   pointer-events: none;
-}
-.bubble-veil { animation: bubble-veil 0.3s ease 0.3s both; }
-.bubble-veil-out { animation: bubble-veil-out 0.45s ease forwards; }
-@keyframes bubble-veil {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  animation: bubble-veil-out 0.45s ease forwards;
 }
 @keyframes bubble-veil-out {
   from { opacity: 1; }
@@ -1750,7 +1775,6 @@ canvas {
 }
 .copy-email:hover,
 .copy-email:focus-visible {
-  background: var(--hover);
   color: var(--text);
 }
 
@@ -1782,9 +1806,19 @@ canvas {
 /* The pill can be round a pair rather than being the link itself, and a span
    takes no focus — so it lights for whatever inside it has the keyboard. */
 .reach-link:focus-within {
-  background: var(--hover);
   color: var(--text);
 }
+
+/* The copy buttons and the footer's links light on approach with a pill of
+   the navbar's glass (the nav-lit each carries), as the navbar's links and
+   the pills elsewhere do, rather than with a flat tint. */
+.copy-email, .reach-link { position: relative; isolation: isolate; }
+.copy-email .nav-lit, .reach-link .nav-lit { opacity: 0; }
+.copy-email:hover .nav-lit,
+.copy-email:focus-visible .nav-lit,
+.reach-link:hover > .nav-lit,
+.reach-link:focus-visible > .nav-lit,
+.reach-link:focus-within > .nav-lit { opacity: 1; }
 
 /* The address when the pill is round it and its button both: the pill carries
    the color and the padding, and this is only the words. */
@@ -2262,4 +2296,45 @@ canvas {
    here too, which keeps it in proportion to the thing it sits inside. */
 @media (max-width: 700px) {
   .slide-caption { font-size: 3.7vw !important; }
+}
+
+/* THE THEME SWITCH (ThemeToggle.jsx)
+   The menu rises out of the circle under it — uncovered from the bottom up —
+   and each choice floats up into place a beat after the one below it; left,
+   it folds back down into the circle. A new choice turns its icon in on the
+   circle. */
+.theme-menu {
+  transform-origin: 50% 100%;
+  animation: theme-menu-in 0.32s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+}
+@keyframes theme-menu-in {
+  from { clip-path: inset(100% 0 0 0 round 22px); transform: translateY(6px); }
+  to { clip-path: inset(0 0 0 0 round 22px); transform: none; }
+}
+.theme-menu-leaving {
+  animation: theme-menu-out 0.2s cubic-bezier(0.5, 0, 0.75, 0) both;
+  pointer-events: none;
+}
+@keyframes theme-menu-out {
+  from { clip-path: inset(0 0 0 0 round 22px); transform: none; opacity: 1; }
+  to { clip-path: inset(100% 0 0 0 round 22px); transform: translateY(6px); opacity: 0.4; }
+}
+.theme-option {
+  animation: theme-option-in 0.34s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+  animation-delay: calc(0.04s + var(--from-bottom, 0) * 0.05s);
+}
+@keyframes theme-option-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.85); }
+  to { opacity: 1; transform: none; }
+}
+.theme-icon {
+  display: inline-flex;
+  animation: theme-icon-in 0.5s cubic-bezier(0.34, 1.5, 0.6, 1) both;
+}
+@keyframes theme-icon-in {
+  from { opacity: 0; transform: rotate(-120deg) scale(0.4); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-menu, .theme-menu-leaving, .theme-option, .theme-icon { animation: none; }
 }

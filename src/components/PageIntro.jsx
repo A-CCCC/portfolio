@@ -6,7 +6,7 @@
 // more to come rather than a page that reads as broken.
 import useFadeIn from '../hooks/useFadeIn'
 import { isFullSite } from '../data/site-copy'
-import { TYPE } from '../styles/type'
+import { TYPE, HERO_TOP } from '../styles/type'
 
 export default function PageIntro({
   title, description, comingSoon = false, full = true, notice = '(Page Coming Soon!)',
@@ -27,11 +27,12 @@ export default function PageIntro({
       // A stub fills the screen; a page with content below it takes only the
       // room it needs, so the next section is not pushed out of sight.
       height: full ? 'var(--screen)' : 'auto',
-      padding: full ? '0 24px' : '120px 24px 40px',
+      // The title at the same height on every page (see HERO_TOP)
+      padding: full ? `${HERO_TOP} 24px 0` : '120px 24px 40px',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: full ? 'flex-start' : 'center',
       textAlign: 'center',
     }}>
       <h1 className="glass-title" data-text={title} style={{

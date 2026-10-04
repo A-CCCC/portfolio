@@ -1,6 +1,6 @@
 // src/pages/projects/ElixirCollector.jsx
 import useFadeIn from '../../hooks/useFadeIn'
-import { TYPE } from '../../styles/type'
+import { TYPE, HERO_TOP } from '../../styles/type'
 import useScrollFrames from '../../hooks/useScrollFrames'
 import useFadeInOnScroll from '../../hooks/useFadeInOnScroll'
 import ScrollHint from '../../components/ScrollHint'
@@ -34,7 +34,8 @@ export default function ElixirCollector() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: HERO_TOP,
       }}>
         <h1 className="glass-title" data-text="Elixir Collector" style={{
           fontSize: TYPE.pageTitle,

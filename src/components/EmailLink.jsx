@@ -38,6 +38,8 @@ export default function EmailLink({ email, className, style, boxClassName }) {
   return (
     <span className={boxClassName} style={{ display: 'inline-flex', alignItems: 'center' }}>
       <a href={`mailto:${email}`} className={className} style={style}>{email}</a>
+      {/* A pill round the pair lights with the navbar's glass, as its links do */}
+      {boxClassName && <i className="glass glass-vivid nav-lit" aria-hidden="true" />}
 
       <button
         type="button"
@@ -49,6 +51,7 @@ export default function EmailLink({ email, className, style, boxClassName }) {
         {copied
           ? <Check size={14} strokeWidth={2.2} aria-hidden="true" />
           : <Copy size={14} strokeWidth={2} aria-hidden="true" />}
+        <i className="glass glass-vivid nav-lit" aria-hidden="true" />
       </button>
 
       {/* Said aloud for anyone who cannot see the tick */}

@@ -10,6 +10,9 @@ const options = [
 
 const ITEM = 36   // button height
 const GAP = 4     // gap between buttons
+// How long the menu takes to fold back into the circle (.theme-menu-leaving);
+// it is kept on the page that long after the pointer has gone.
+const FOLD_MS = 200
 
 // Kept in step with the snippet in index.html, which reads the same key before
 // the page is painted.
@@ -28,6 +31,11 @@ const savedTheme = () => {
 export default function ThemeToggle() {
   const [theme, setTheme] = useState(savedTheme)
   const [open, setOpen] = useState(false)
+  // Still on the page while it folds away, after `open` has gone false
+  const [shown, setShown] = useState(false)
+  // Whether a theme has been chosen here: the icon turns in for a choice,
+  // not for every page that loads
+  const [chosen, setChosen] = useState(false)
   const [hoverIndex, setHoverIndex] = useState(null)
   const [circleHover, setCircleHover] = useState(false)
 
@@ -37,6 +45,12 @@ export default function ThemeToggle() {
       localStorage.setItem(STORE_KEY, theme)
     } catch { /* the choice simply will not survive a reload */ }
   }, [theme])
+
+  useEffect(() => {
+    if (open) { setShown(true); return undefined }
+    const timer = setTimeout(() => setShown(false), FOLD_MS)
+    return () => clearTimeout(timer)
+  }, [open])
 
   const current = options.find((o) => o.value === theme)
 
@@ -75,15 +89,20 @@ export default function ThemeToggle() {
           transition: 'background 0.2s ease',
         }}
       >
-        {current.Icon
-          ? <current.Icon size={20} strokeWidth={2} fill={current.fill} />
-          : <span style={{ fontSize: '1.1rem' }}>{current.symbol}</span>
-        }
+        {/* Keyed by the theme, so a new choice is a new icon and turns in
+            (.theme-icon) rather than simply replacing the old one */}
+        <span key={theme} className={chosen ? 'theme-icon' : undefined} style={{ display: 'inline-flex' }}>
+          {current.Icon
+            ? <current.Icon size={20} strokeWidth={2} fill={current.fill} />
+            : <span style={{ fontSize: '1.1rem' }}>{current.symbol}</span>
+          }
+        </span>
       </div>
 
-      {/* Expanded menu — appears on hover, above the circle */}
-      {open && (
-        <div className="glass glass-vivid" style={{
+      {/* Expanded menu — opens up out of the circle on hover, its choices
+          arriving from the bottom up, and folds back down when left */}
+      {shown && (
+        <div className={`glass glass-vivid theme-menu${open ? '' : ' theme-menu-leaving'}`} style={{
           position: 'relative',
           display: 'flex',
           flexDirection: 'column',
@@ -110,10 +129,12 @@ export default function ThemeToggle() {
           {options.map((option, index) => (
             <button
               key={option.value}
-              onClick={() => { setTheme(option.value); setOpen(false) }}
+              onClick={() => { if (option.value !== theme) setChosen(true); setTheme(option.value); setOpen(false) }}
               onMouseEnter={() => setHoverIndex(index)}
               aria-label={option.label}
+              className="theme-option"
               style={{
+                '--from-bottom': options.length - 1 - index,
                 position: 'relative',
                 width: ITEM,
                 height: ITEM,

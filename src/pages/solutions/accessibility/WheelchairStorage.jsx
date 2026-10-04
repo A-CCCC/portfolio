@@ -1,6 +1,6 @@
 // src/pages/solutions/accessibility/WheelchairStorage.jsx
 import { useState } from 'react'
-import { TYPE } from '../../../styles/type'
+import { TYPE, HERO_TOP } from '../../../styles/type'
 import useFadeIn from '../../../hooks/useFadeIn'
 import useScrollProgress from '../../../hooks/useScrollProgress'
 import PhotoSection, { SectionTitle } from '../../../components/PhotoStory'
@@ -136,7 +136,8 @@ export default function WheelchairStorage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: HERO_TOP,
       }}>
         <h1 className="glass-title" data-text="Wheelchair Storage" style={{
           fontSize: TYPE.pageTitle,

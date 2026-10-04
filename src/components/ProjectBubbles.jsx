@@ -1,6 +1,5 @@
 // src/components/ProjectBubbles.jsx
 import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import { Gamepad2 } from 'lucide-react'
 import useFadeIn from '../hooks/useFadeIn'
@@ -170,6 +169,11 @@ const ALWAYS_PATHS = ['/solutions/convenience/backup-camera-wiper']
 // burst the page dives into where it was, until the page is the project's.
 const SWELL_MS = 150
 const DIVE_MS = 580
+// How far the burst's glow reaches, as a share of the bubble's width, and
+// how far the dive enlarges the page — both kept in step with the CSS
+// (.bubble-bloom, @keyframes page-dive)
+const BLOOM = 1.8
+const DIVE_SCALE = 3.4
 // Where the shards of the burst fly: a handful, spread round the ring
 const SHARDS = Array.from({ length: 10 }, (_, k) => ({ a: k * 36 + (k % 2) * 11, d: 1.3 + (k % 3) * 0.25 }))
 
@@ -265,8 +269,9 @@ function initials(label) {
 }
 
 export default function ProjectBubbles() {
-  // Starts after the hero title has begun settling, so the text reads first.
-  const visible = useFadeIn(1200)
+  // Starts once the hero title is well on its way in (it begins at 0.1s), so
+  // the text still reads first — at 1.2s the screen sat empty too long.
+  const visible = useFadeIn(700)
   const phone = useIsPhone()
   const short = useIsShort()
   // Short wins: a phone held sideways is both, and it is the missing height
@@ -307,8 +312,11 @@ export default function ProjectBubbles() {
         // page, so the dark models are not lost against it
         const lift = 0.16
         // A sphere of clear glass: no frost over the model, the bend only
-        // near the rim so the model reads, a soft spot of the light
-        removers.push(glass.add(b, { circle: true, sphere: true, hue: true, lift, inset: 0.86, frost: 0, depth: 9, rim: b.offsetWidth * 0.22, tintA: 0, specA: 0.45, rimOnLight: 0.7, image: (el) => el.querySelector('img'), skip: (el) => el.classList.contains('bubble-popping') || el.classList.contains('bubble-swelling') }))
+        // near the rim so the model reads, a soft spot of the light. The
+        // bend in step with the bubble's size (9px on the desktop's): a
+        // phone's half-size bubbles bent as far drew the edge of a model —
+        // the tip of the Vader helmet — out into the rim.
+        removers.push(glass.add(b, { circle: true, sphere: true, hue: true, lift, inset: 0.86, frost: 0, depth: b.offsetWidth * 0.08, rim: b.offsetWidth * 0.22, tintA: 0, specA: 0.45, rimOnLight: 0.7, image: (el) => el.querySelector('img'), skip: (el) => el.classList.contains('bubble-popping') || el.classList.contains('bubble-swelling') }))
       }
     }).catch((err) => console.warn('liquid glass:', err))
     return () => {
@@ -361,7 +369,6 @@ export default function ProjectBubbles() {
   const navigate = useNavigate()
   const [swelling, setSwelling] = useState(null)
   const [popping, setPopping] = useState(null)
-  const [popHue, setPopHue] = useState(null)
   const pop = (e, path, hue) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -373,7 +380,7 @@ export default function ProjectBubbles() {
     // wandered off that point, which the dive's scale made a wobble.
     for (const b of document.querySelectorAll('.bubble')) b.getAnimations().forEach((a) => { if (a.effect?.getKeyframes()[0]?.transform || a.effect?.getKeyframes()[0]?.scale) a.pause() })
     setSwelling(path)
-    setPopHue(hue)
+    let bloomR = 0
     setTimeout(() => {
       setPopping(path)
       // The page dives into the bubble: the page's own root element (the
@@ -384,6 +391,8 @@ export default function ProjectBubbles() {
       const pr = page.getBoundingClientRect()
       const cx = r.left + r.width / 2
       const cy = r.top + r.height / 2
+      // .bubble-bloom: 1.8 of the swollen bubble across, then the dive's 3.4
+      bloomR = (r.width / 2) * BLOOM * DIVE_SCALE
       page.style.setProperty('--dive-x', `${cx - pr.left}px`)
       page.style.setProperty('--dive-y', `${cy - pr.top}px`)
       // and slides so the bubble ends up in the middle of the screen, so
@@ -400,6 +409,10 @@ export default function ProjectBubbles() {
       const after = document.createElement('div')
       after.className = 'bubble-veil-out'
       after.style.setProperty('--pop-hue', hue)
+      // the glow as big as the dive has made it, in the middle of the
+      // screen where the dive brought the bubble, so the new page arrives
+      // under the same spot of colour and not a wash over the whole of it
+      after.style.setProperty('--bloom-r', `${bloomR}px`)
       document.body.appendChild(after)
       setTimeout(() => after.remove(), 500)
       navigate(path)
@@ -408,7 +421,6 @@ export default function ProjectBubbles() {
 
   return (
     <>
-    {popping && createPortal(<div className="bubble-veil" aria-hidden="true" style={{ '--pop-hue': popHue }} />, document.body)}
     <div
       ref={layerRef}
       className={`bubble-layer${popping ? ' bubble-layer-popping' : ''}`}
@@ -513,6 +525,9 @@ export default function ProjectBubbles() {
                     {initials(project.label)}
                   </span>
               }
+              {/* The burst's colour: a glow of the bubble's hue just round
+                  it, there the moment it goes, and carried in with the dive */}
+              {popping === project.path && <i className="bubble-bloom" aria-hidden="true" />}
               {popping === project.path && SHARDS.map((sh, k) => (
                 <i key={k} className="bubble-shard" aria-hidden="true"
                   style={{ '--a': `${sh.a}deg`, '--r': `${spot.size / 2}px`, '--d': sh.d }} />
