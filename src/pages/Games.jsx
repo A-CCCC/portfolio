@@ -131,7 +131,7 @@ export default function Games() {
           <Link
             key={game.path}
             to={game.path}
-            className="glass shop-card"
+            className={`glass glass-vivid glass-panel panel-bright panel-hue-${game.tint} shop-card`}
             // Everything gives up a little sideways on a phone: the card's own
             // padding, and the disc, which is sized for a page with height.
             style={short ? { padding: '14px 16px 12px' } : undefined}

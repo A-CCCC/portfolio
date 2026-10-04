@@ -185,6 +185,9 @@ function silk(el, panel) {
     void el.offsetWidth                   // restart the fade
     el.classList.add('silk-turning')
   }
+  // when the cloth last changed: the WebGL glass fades to a new cloth only
+  // if it is drawing it now, not one it missed while off the screen
+  if (was !== next) el.__silkSince = performance.now()
   el.style.setProperty('--river', next)
   el.setAttribute('data-wave', '')
 }

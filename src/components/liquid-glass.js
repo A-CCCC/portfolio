@@ -704,7 +704,11 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       if (fresh && (!s.silkNow || s.silkNow.tex !== fresh.tex)) {
         s.silkWas = s.silkNow || fresh
         s.silkNow = fresh
-        s.silkAt = s.silkWas === fresh || document.documentElement.classList.contains('theme-snap') ? -1e9 : now
+        // At once rather than faded when the cloth changed a while ago — the
+        // theme turned while this was off the screen, and fading only now,
+        // as it is scrolled to, changed its colour in front of the reader
+        const missed = now - (el.__silkSince ?? now) > 400
+        s.silkAt = s.silkWas === fresh || missed || document.documentElement.classList.contains('theme-snap') ? -1e9 : now
       }
       const fromUrl = s.silkNow
       if (s.silk && !fromUrl) return false          // nothing loaded yet: the CSS glass shows
@@ -762,7 +766,13 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       const x = (r.left - pad * kx) * dpr, y = (r.top - pad * ky) * dpr
       const cw = Math.max(1, Math.round((r.width + 2 * pad * kx) * dpr)), ch = Math.max(1, Math.round((r.height + 2 * pad * ky) * dpr))
       const into = s.into
-      if (r.bottom < -pad || r.top > window.innerHeight + pad) continue
+      if (r.bottom < -pad || r.top > window.innerHeight + pad) {
+        // Off the screen, nothing is drawn — but a new cloth for it (a change
+        // of theme) is fetched now, so it is ready when it is scrolled to,
+        // rather than the old colours showing until it arrives
+        if (s.silk && s.el.__silkSince !== s.warmed) { s.warmed = s.el.__silkSince; const u = s.silk(s.el); if (u) urlTexture(u) }
+        continue
+      }
       // Drawn again only when what it shows would change: the light's
       // direction to it, its size (in steps of 2%), the theme's fade, its
       // silk's fade, a sheen crossing, its picture arriving. A lens inside

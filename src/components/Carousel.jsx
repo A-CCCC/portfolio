@@ -152,7 +152,7 @@ export default function Carousel({ items }) {
         <Link
           key={item.label}
           to={item.path}
-          className="glass carousel-card"
+          className={`glass glass-vivid glass-panel panel-bright panel-hue-${(i % TINTS.length) + 1} carousel-card`}
           style={{
             scrollSnapAlign: 'center',
             flex: '0 0 auto',

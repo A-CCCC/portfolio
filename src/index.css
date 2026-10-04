@@ -426,6 +426,30 @@
     --panel-a: #2a2a2f; --panel-b: #17171a;
   }
 }
+/* A card that is the whole of what it shows (panel-bright: a carousel's, a
+   game's, a shop listing's) wears its own colour under the glass, not the
+   page's: a cloth in richer shades of the hue it has always had — blue,
+   amber, green, rose, violet or teal — on either page. */
+:root .glass-panel.panel-hue-1 { --silk-1: #254c85; --silk-2: #1f72e0; --silk-3: #1a3765; --silk-4: #3261a5; }
+:root .glass-panel.panel-hue-2 { --silk-1: #744c19; --silk-2: #b37524; --silk-3: #5a3912; --silk-4: #946123; }
+:root .glass-panel.panel-hue-3 { --silk-1: #25663e; --silk-2: #3c945c; --silk-3: #1a4c2e; --silk-4: #317e51; }
+:root .glass-panel.panel-hue-4 { --silk-1: #782d43; --silk-2: #cc3562; --silk-3: #5c2236; --silk-4: #9b3c59; }
+:root .glass-panel.panel-hue-5 { --silk-1: #4c3581; --silk-2: #673fd7; --silk-3: #382762; --silk-4: #5b3db0; }
+:root .glass-panel.panel-hue-6 { --silk-1: #1a6666; --silk-2: #2b9894; --silk-3: #134d4d; --silk-4: #23817e; }
+:root:not([data-theme='dark']) .glass-panel.panel-hue-1 { --silk-1: #9cc4f7; --silk-2: #5d9ae8; --silk-3: #bcd8fb; --silk-4: #78acf0; --panel-a: #fbfbfd; --panel-b: #eef0f4; }
+:root:not([data-theme='dark']) .glass-panel.panel-hue-2 { --silk-1: #ffd08a; --silk-2: #ffad4d; --silk-3: #ffe0ad; --silk-4: #ffc06b; --panel-a: #fbfbfd; --panel-b: #eef0f4; }
+:root:not([data-theme='dark']) .glass-panel.panel-hue-3 { --silk-1: #a6e3b8; --silk-2: #5fc786; --silk-3: #c4efd0; --silk-4: #82d6a0; --panel-a: #fbfbfd; --panel-b: #eef0f4; }
+:root:not([data-theme='dark']) .glass-panel.panel-hue-4 { --silk-1: #ffb3c4; --silk-2: #f77a99; --silk-3: #ffd0db; --silk-4: #fb95ad; --panel-a: #fbfbfd; --panel-b: #eef0f4; }
+:root:not([data-theme='dark']) .glass-panel.panel-hue-5 { --silk-1: #cbb8f5; --silk-2: #9d7ff0; --silk-3: #ddd0fa; --silk-4: #b39af2; --panel-a: #fbfbfd; --panel-b: #eef0f4; }
+:root:not([data-theme='dark']) .glass-panel.panel-hue-6 { --silk-1: #9ee3e0; --silk-2: #45c4bf; --silk-3: #c0efed; --silk-4: #6fd4d0; --panel-a: #fbfbfd; --panel-b: #eef0f4; }
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] .glass-panel.panel-hue-1 { --silk-1: #254c85; --silk-2: #1f72e0; --silk-3: #1a3765; --silk-4: #3261a5; --panel-a: #2a2a2f; --panel-b: #17171a; }
+  :root[data-theme='auto'] .glass-panel.panel-hue-2 { --silk-1: #744c19; --silk-2: #b37524; --silk-3: #5a3912; --silk-4: #946123; --panel-a: #2a2a2f; --panel-b: #17171a; }
+  :root[data-theme='auto'] .glass-panel.panel-hue-3 { --silk-1: #25663e; --silk-2: #3c945c; --silk-3: #1a4c2e; --silk-4: #317e51; --panel-a: #2a2a2f; --panel-b: #17171a; }
+  :root[data-theme='auto'] .glass-panel.panel-hue-4 { --silk-1: #782d43; --silk-2: #cc3562; --silk-3: #5c2236; --silk-4: #9b3c59; --panel-a: #2a2a2f; --panel-b: #17171a; }
+  :root[data-theme='auto'] .glass-panel.panel-hue-5 { --silk-1: #4c3581; --silk-2: #673fd7; --silk-3: #382762; --silk-4: #5b3db0; --panel-a: #2a2a2f; --panel-b: #17171a; }
+  :root[data-theme='auto'] .glass-panel.panel-hue-6 { --silk-1: #1a6666; --silk-2: #2b9894; --silk-3: #134d4d; --silk-4: #23817e; --panel-a: #2a2a2f; --panel-b: #17171a; }
+}
 .glass-panel {
   /* The words on a coloured panel need more than the page's greys, which
      are set against white or black: the body text near the ink, the muted
@@ -441,6 +465,12 @@
      the words and the disc in it too. */
   isolation: isolate;
   --glint-size: 135% 105%;
+}
+/* and its words nearer the ink: the panel's own greys, mixed for a pale or
+   a near-black panel, went faint on a coloured one */
+.glass-panel.panel-bright {
+  --text-body: color-mix(in srgb, var(--text) 92%, var(--panel-b));
+  --text-muted: color-mix(in srgb, var(--text) 80%, var(--panel-b));
 }
 .glass-panel::before {
   content: '';

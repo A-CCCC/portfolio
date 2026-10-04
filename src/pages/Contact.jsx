@@ -71,7 +71,7 @@ export default function Contact() {
               href={item.url}
               target="_blank"
               rel="noreferrer"
-              className="glass shop-card"
+              className={`glass glass-vivid glass-panel panel-bright panel-hue-${item.tint} shop-card`}
             >
               <span
                 className="glass shop-card-disc"
