@@ -414,7 +414,7 @@ export default function ProjectBubbles() {
       // under the same spot of colour and not a wash over the whole of it
       after.style.setProperty('--bloom-r', `${bloomR}px`)
       document.body.appendChild(after)
-      setTimeout(() => after.remove(), 500)
+      setTimeout(() => after.remove(), 650)
       navigate(path)
     }, SWELL_MS + DIVE_MS)
   }
