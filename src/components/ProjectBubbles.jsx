@@ -492,13 +492,7 @@ export default function ProjectBubbles() {
               }}
             >
               {project.icon
-                ? <EggIcon
-                    className="bubble-icon"
-                    size={spot.size * 0.42}
-                    strokeWidth={1.5}
-                    style={{ opacity: 0.55 }}
-                    aria-hidden="true"
-                  />
+                ? <EggIcon className="bubble-icon" size={spot.size * 0.5} />
                 : project.image
                 ? <img
                     // The small variant: a bubble is never wider than about 140px, so the

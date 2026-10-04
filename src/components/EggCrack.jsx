@@ -9,7 +9,7 @@
 //
 // Not between the games themselves, which are already inside it, and not for
 // anyone with motion turned down: those links simply go.
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 const GAMES = '/games'
@@ -122,28 +122,27 @@ export default function EggCrack() {
   )
 }
 
-// The egg as an icon, drawn in lines as the icons elsewhere are: the shell,
-// its wavy band and its dots. The games' bubble wears it.
-export function EggIcon({ size = 24, strokeWidth = 1.5, className, style }) {
+// The egg as an icon: painted as the big one is — its colours, the wavy
+// band and the dots in white, a shine — for the games' bubble.
+export function EggIcon({ size = 24, className, style }) {
+  const id = useId()
   return (
-    <svg
-      className={className}
-      style={style}
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M12 2.5 C 16.6 2.5, 19.5 10, 19.5 14 C 19.5 18.4, 16.2 21.5, 12 21.5 C 7.8 21.5, 4.5 18.4, 4.5 14 C 4.5 10, 7.4 2.5, 12 2.5 Z" />
-      <path d="M6.2 10.2 C 8 9, 9.6 11.4, 12 10.2 S 16 9, 17.8 10.2" />
-      <circle cx="9" cy="16" r="0.6" fill="currentColor" />
-      <circle cx="12" cy="16.6" r="0.6" fill="currentColor" />
-      <circle cx="15" cy="16" r="0.6" fill="currentColor" />
+    <svg className={className} style={style} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <defs>
+        <linearGradient id={`${id}-paint`} x1="0" y1="0" x2="0.4" y2="1">
+          <stop offset="0" style={{ stopColor: 'var(--vivid-a)' }} />
+          <stop offset="1" style={{ stopColor: 'var(--vivid-b)' }} />
+        </linearGradient>
+        <clipPath id={`${id}-shell`}><path d={ICON_SHELL} /></clipPath>
+      </defs>
+      <g clipPath={`url(#${id}-shell)`}>
+        <path d={ICON_SHELL} fill={`url(#${id}-paint)`} />
+        <path d="M3 10.4 C 6 8.6, 8.6 12, 12 10.4 S 18 8.6, 21 10.4" fill="none" stroke="white" strokeOpacity="0.75" strokeWidth="1.3" />
+        {[8.2, 12, 15.8].map((x, k) => <circle key={x} cx={x} cy={k === 1 ? 16.6 : 16} r="0.95" fill="white" fillOpacity="0.75" />)}
+        <ellipse cx="9" cy="7" rx="1.6" ry="2.8" transform="rotate(-24 9 7)" fill="white" fillOpacity="0.35" />
+      </g>
     </svg>
   )
 }
+
+const ICON_SHELL = 'M12 2.5 C 16.6 2.5, 19.5 10, 19.5 14 C 19.5 18.4, 16.2 21.5, 12 21.5 C 7.8 21.5, 4.5 18.4, 4.5 14 C 4.5 10, 7.4 2.5, 12 2.5 Z'

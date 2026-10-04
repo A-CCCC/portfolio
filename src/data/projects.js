@@ -36,6 +36,8 @@ export const convenience = [
   { label: 'Sunglasses Holder', path: '/solutions/convenience/sunglasses-holder', image: asset('/thumbnails/sunglasses-holder.webp') },
   { label: 'Car Key Holder', path: '/solutions/convenience/car-key-holder', image: asset('/thumbnails/car-key-holder.webp') },
   { label: 'Ketchup Extruder', path: '/solutions/convenience/ketchup-extruder', image: asset('/thumbnails/ketchup-extruder.webp') },
+  // No thumbnail yet: the card says so until there is a render
+  { label: 'Moth Trap', path: '/solutions/convenience/moth-trap', image: undefined },
 ]
 
 export const halloween = [
@@ -51,8 +53,6 @@ export const halloween = [
 
 export const misc = [
   { label: 'RC Car Repair', path: '/projects/misc/rc-car-repair', image: asset('/thumbnails/rc-car-repair.webp') },
-  // No thumbnail yet: the card says so until there is a render
-  { label: 'Moth Trap', path: '/projects/misc/moth-trap', image: undefined },
 ]
 
 // The projects the home-page bubbles draw on by quota. Halloween and

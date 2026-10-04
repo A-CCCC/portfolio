@@ -73,6 +73,7 @@ const tabs = [
           { label: 'Sunglasses Holder', path: '/solutions/convenience/sunglasses-holder' },
           { label: 'Car Key Holder', path: '/solutions/convenience/car-key-holder' },
           { label: 'Ketchup Extruder', path: '/solutions/convenience/ketchup-extruder' },
+          { label: 'Moth Trap', path: '/solutions/convenience/moth-trap' },
         ],
       },
     ],
@@ -109,7 +110,6 @@ const tabs = [
         path: '/projects/misc',
         items: [
           { label: 'RC Car Repair', path: '/projects/misc/rc-car-repair' },
-          { label: 'Moth Trap', path: '/projects/misc/moth-trap' },
         ],
       },
     ],

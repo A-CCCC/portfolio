@@ -10,6 +10,7 @@ export const PENDING = new Set([
   '/solutions/convenience/sunglasses-holder',
   '/solutions/convenience/car-key-holder',
   '/solutions/convenience/ketchup-extruder',
+  '/solutions/convenience/moth-trap',
   '/projects/halloween/darth-vader',
   '/projects/halloween/stormtrooper',
   '/projects/halloween/scout-trooper',
@@ -17,5 +18,4 @@ export const PENDING = new Set([
   '/projects/halloween/lightsaber',
   '/projects/halloween/minecraft',
   '/projects/misc/rc-car-repair',
-  '/projects/misc/moth-trap',
 ])

@@ -20,7 +20,7 @@ import Lightsaber from './pages/projects/halloween/Lightsaber'
 import Minecraft from './pages/projects/halloween/Minecraft'
 import Misc from './pages/projects/Misc'
 import RCCarRepair from './pages/projects/misc/RCCarRepair'
-import MothTrap from './pages/projects/misc/MothTrap'
+import MothTrap from './pages/solutions/convenience/MothTrap'
 import Solutions from './pages/Solutions'
 import Accessibility from './pages/solutions/Accessibility'
 import WheelchairStorage from './pages/solutions/accessibility/WheelchairStorage'
@@ -81,7 +81,8 @@ export default function App() {
         <Route path="/projects/halloween/minecraft" element={<Minecraft />} />
         <Route path="/projects/misc" element={<Misc />} />
         <Route path="/projects/misc/rc-car-repair" element={<RCCarRepair />} />
-        <Route path="/projects/misc/moth-trap" element={<MothTrap />} />
+        {/* Moved to the convenience solutions; the old address still finds it */}
+        <Route path="/projects/misc/moth-trap" element={<Navigate to="/solutions/convenience/moth-trap" replace />} />
         {/* Where these two used to live, for anyone holding an old link */}
         <Route path="/projects/misc/halloween-helmets" element={<Navigate to="/projects/halloween/darth-vader" replace />} />
         <Route path="/projects/misc/lightsaber" element={<Navigate to="/projects/halloween/lightsaber" replace />} />
@@ -95,6 +96,7 @@ export default function App() {
         <Route path="/solutions/convenience/sunglasses-holder" element={<SunglassesHolder />} />
         <Route path="/solutions/convenience/car-key-holder" element={<CarKeyHolder />} />
         <Route path="/solutions/convenience/ketchup-extruder" element={<KetchupExtruder />} />
+        <Route path="/solutions/convenience/moth-trap" element={<MothTrap />} />
         {/* Anything unmatched — mistyped, or a page that has been removed */}
         <Route path="/games" element={<Loads><Games /></Loads>} />
         <Route path="/log" element={<Loads><LogRunner /></Loads>} />

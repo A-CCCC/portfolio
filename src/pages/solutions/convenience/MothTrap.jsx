@@ -1,4 +1,4 @@
-// src/pages/projects/misc/MothTrap.jsx
+// src/pages/solutions/convenience/MothTrap.jsx
 import pagePhotos, { stages } from '../../../data/pagePhotos'
 import useFadeInOnScroll from '../../../hooks/useFadeInOnScroll'
 import PageIntro from '../../../components/PageIntro'
