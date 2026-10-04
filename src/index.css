@@ -977,8 +977,6 @@ html.diving #root { overflow: clip; }
     inset 0 0 24px color-mix(in srgb, var(--vivid-a) 30%, transparent),
     0 18px 50px rgba(0, 0, 0, 0.35);
 }
-html:has(.page-leave), html:has(.page-arrive),
-html:has(.page-leave-back), html:has(.page-arrive-back) { overflow-x: hidden; }
 
 .page-diving {
   transform-origin: var(--dive-x) var(--dive-y);
@@ -1406,8 +1404,12 @@ body {
 }
 /* Nothing makes the page scroll sideways: a title's glow, or a caption
    before it has slid in, reaching past the edge is trimmed there. clip,
-   not hidden, so it makes no scroll box and nothing sticky stops sticking. */
-html { overflow-x: clip; }
+   not hidden, so it makes no scroll box — and on the app's own root, not
+   on html: any overflow set on html stops the body's (hidden, above) from
+   passing to the window, which left the body a scroll box of its own, and
+   every sticky panel stuck to that rather than to the window — the
+   scroll-scrubbed pictures scrolled away instead of holding still. */
+#root { overflow-x: clip; }
 
 /* A heading that wraps is split into lines of even length, rather than
    leaving one word on a line of its own */

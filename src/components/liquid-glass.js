@@ -60,6 +60,7 @@ uniform float softPx;       // the blur of 'soft', px
 uniform float specA;        // how much of the broad specular
 uniform float rimA;         // how much of the rim light
 uniform float glowA;        // letters: how much they glow — lit from within, a halo round them
+uniform float rowMix;       // letters: how far a block of lines takes its colour from patches of the cloth
 uniform float sphereA;      // a ball's shading: darker towards the edge away from the light
 uniform float sheen;        // the sheen band's place across the surface, 0..1 (<0 none)
 uniform vec2 res;           // canvas size, px
@@ -225,7 +226,24 @@ void main() {
   // the shape of every letter, still changing across the word as the cloth
   // does; a slab takes what is behind it, bent.
   vec2 at = px;
-  if (useMask > 0.5) at = vec2(px.x, imgRect.y + imgRect.w * (0.12 + 0.76 * ins));
+  // A heading of several lines: its letters take their colour from soft,
+  // uneven patches of the cloth that drift across words and lines alike —
+  // the cloth's colours mixing through the block as they do behind a card —
+  // rather than all from the one band, which left a large block of thin
+  // letters (they never reach deep into a stroke) one colour all over. Not
+  // by line: each line a colour read as stripes. Measured in the block's
+  // height, so the patches are as large on any block, and seeded by where
+  // the block is, so no two blocks share a pattern.
+  if (useMask > 0.5) {
+    float row = 0.12 + 0.76 * ins;
+    if (rowMix > 0.0) {
+      vec2 q = (px - imgRect.xy) / imgRect.w;
+      vec2 seed = imgRect.xy * 0.0137;
+      float n = 0.68 * vnoise(q * 1.25 + seed) + 0.32 * vnoise(q * 2.7 + seed.yx + 7.3);
+      row = mix(row, 0.1 + 0.72 * smoothstep(0.22, 0.78, n), rowMix);
+    }
+    at = vec2(px.x, imgRect.y + imgRect.w * row);
+  }
   vec3 col;
   col.r = frosted(at + bend * 1.06, frost).r;
   col.g = frosted(at + bend, frost).g;
@@ -417,7 +435,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   gl.enableVertexAttribArray(pLoc)
   gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0)
   const U = {}
-  for (const n of ['imageWas', 'imgMix', 'box', 'mask', 'soft', 'useMask', 'maskRect', 'softPx', 'specA', 'rimA', 'glowA', 'sphereA', 'sheen', 'image', 'useImage', 'imgRect', 'bg', 'backdrop', 'res', 'win', 'origin', 'centre', 'halfSize', 'radius', 'depth', 'rimW', 'light', 'tint', 'tintA', 'frost', 'dark', 'hueA', 'hue']) {
+  for (const n of ['imageWas', 'imgMix', 'box', 'mask', 'soft', 'useMask', 'maskRect', 'softPx', 'specA', 'rimA', 'glowA', 'rowMix', 'sphereA', 'sheen', 'image', 'useImage', 'imgRect', 'bg', 'backdrop', 'res', 'win', 'origin', 'centre', 'halfSize', 'radius', 'depth', 'rimW', 'light', 'tint', 'tintA', 'frost', 'dark', 'hueA', 'hue']) {
     U[n] = gl.getUniformLocation(prog, n)
   }
   gl.enable(gl.BLEND)
@@ -650,6 +668,12 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       gl.uniform1f(U.imgMix, 1)
       gl.uniform1f(U.specA, s.specA ?? 1)
       gl.uniform1f(U.glowA, s.glow ?? 0)
+      // lines in the block: no patches for a title on one line, most of the
+      // way to them from three lines on
+      if (s.letters) {
+        const lines = r.height / (parseFloat(getComputedStyle(el).fontSize) * 1.25 || r.height)
+        gl.uniform1f(U.rowMix, Math.max(0, Math.min(0.75, (lines - 1.2) * 0.7)))
+      } else gl.uniform1f(U.rowMix, 0)
       gl.uniform1f(U.sphereA, s.sphere ? 1 : 0)
       // on a light page white light on pale glass washes it out: less of it there
       gl.uniform1f(U.rimA, (s.rimOnLight ?? 1) + (1 - (s.rimOnLight ?? 1)) * dark)
