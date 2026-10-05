@@ -310,7 +310,7 @@ export default function ProjectBubbles() {
       for (const b of layerRef.current.querySelectorAll('.bubble')) {
         // every bubble backed in a deeper shade of its colour on the dark
         // page, so the dark models are not lost against it
-        const lift = 0.16
+        const lift = 0.32
         // A sphere of clear glass: no frost over the model, the bend only
         // near the rim so the model reads, a soft spot of the light. The
         // bend in step with the bubble's size (9px on the desktop's): a
