@@ -127,13 +127,14 @@ const linkStyle = {
   fontSize: TYPE.small,
 }
 
-// The bold comes on at once, not over a transition: a weight that
-// animates is laid out and painted afresh on every frame, the whole page
-// with it, and every other animation on the page stuttered for the 200ms
-// of it. The label reserves its bold width (see .nav-label), so nothing
-// moves when it switches.
+// The bold comes on by the letters thickening — their outline drawn wider,
+// smoothly (.nav-label, data-bold) — rather than by a change of weight: a
+// weight that animates is laid out afresh on every frame, the whole page
+// with it, and every other animation stuttered for it; a thicker outline is
+// only painted. The label reserves its bold width (see .nav-label), so
+// nothing moves.
 const hoverStyle = (isHovered) => ({
-  fontWeight: isHovered ? 600 : 400,
+  '--bold': isHovered ? 1 : 0,
   borderRadius: 8,
   position: 'relative',
   isolation: 'isolate',

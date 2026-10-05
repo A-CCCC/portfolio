@@ -93,12 +93,23 @@ const seeing = typeof IntersectionObserver === 'undefined' ? null : new Intersec
 // (--silk-1..4), so the cloth is sunlit on the light page and cool on the
 // dark, and turns over with the theme.
 const between = (lo, hi) => lo + Math.random() * (hi - lo)
-function silk(el, panel) {
-  const colours = [1, 2, 3, 4].map((k) => getComputedStyle(el).getPropertyValue(`--silk-${k}`).trim() || '#888')
+// What a cloth is drawn from, read off the page: its colours and the
+// element's proportions. Read for every element before any cloth is
+// written — a read after a write makes the browser lay the page out again,
+// and one element after another that was a layout per element, which on a
+// page of glass arriving held Safari still for a quarter of a second.
+function readSilk(el) {
+  const cs = getComputedStyle(el)
+  return {
+    colours: [1, 2, 3, 4].map((k) => cs.getPropertyValue(`--silk-${k}`).trim() || '#888'),
+    r: el.getBoundingClientRect(),
+  }
+}
+function silk(el, panel, read = readSilk(el)) {
+  const { colours, r } = read
   // The cloth is drawn in the element's own proportions — 1000 wide, as
   // tall as the element is wide-to-tall — so a blur is as soft across as
   // down, and a fold on a wide title is not squeezed sideways into blots.
-  const r = el.getBoundingClientRect()
   const H = Math.max(120, Math.min(1000, Math.round(1000 * (r.height || 1) / (r.width || 1))))
   // The folds' shapes are drawn once and kept on the element, so a redraw
   // for a change of theme recolours the same cloth rather than refolding it
@@ -165,8 +176,13 @@ function silk(el, panel) {
   // line: a share of the width, which is the long way across the cloth
   const blur = panel ? 55 : 70
   // An intrinsic size as well as the viewBox: the WebGL glass uploads this
-  // as a texture, and an image with no size of its own uploads as nothing
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='${H}' viewBox='0 0 1000 ${H}' preserveAspectRatio='none'>`
+  // as a texture, and an image with no size of its own uploads as nothing.
+  // A quarter of the drawing's own size: the cloth is blurred through and
+  // through, so nothing is lost drawing it small and letting the glass
+  // stretch it — and drawing it, blurs and all, at full size was most of
+  // the work of a page of glass arriving (its upload alone held the page a
+  // tenth of a second, in the middle of the page's transition)
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='250' height='${Math.max(30, Math.round(H / 4))}' viewBox='0 0 1000 ${H}' preserveAspectRatio='none'>`
     + `<filter id='b' x='-30%' y='-30%' width='160%' height='160%'><feGaussianBlur stdDeviation='${blur}'/></filter>`
     + `<filter id='c' x='-30%' y='-30%' width='160%' height='160%'><feGaussianBlur stdDeviation='${blur * 0.75}'/></filter>`
     + `<rect x='-200' y='${-0.2 * H}' width='1400' height='${1.4 * H}' fill='${colours[0]}'/>`
@@ -196,18 +212,20 @@ function silk(el, panel) {
 // colours (its folds kept), once the cross-fade has run.
 if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined') {
   new MutationObserver(() => {
-    for (const el of document.querySelectorAll('[data-wave]')) silk(el, el.classList.contains('glass-panel'))
+    const els = [...document.querySelectorAll('[data-wave]')]
+    const reads = els.map(readSilk)
+    els.forEach((el, i) => silk(el, el.classList.contains('glass-panel'), reads[i]))
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
 }
 
 function gather() {
   surfaces = Array.from(document.querySelectorAll('.glass, .glass-title'))
   stale = false
+  const fresh = surfaces.filter((el) => (el.classList.contains('glass-title') || el.classList.contains('glass-panel')) && !el.hasAttribute('data-wave'))
+  const reads = fresh.map(readSilk)
+  fresh.forEach((el, i) => silk(el, el.classList.contains('glass-panel'), reads[i]))
   for (const el of surfaces) {
-    const title = el.classList.contains('glass-title')
-    const panel = el.classList.contains('glass-panel')
-    if ((title || panel) && !el.hasAttribute('data-wave')) silk(el, panel)
-    if (title && seeing && !el.hasAttribute('data-lit')) seeing.observe(el)
+    if (el.classList.contains('glass-title') && seeing && !el.hasAttribute('data-lit')) seeing.observe(el)
   }
 }
 

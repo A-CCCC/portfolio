@@ -94,21 +94,31 @@ export function sweepOnward() {
   document.addEventListener('click', (e) => {
     const a = e.target.closest?.('nav a[href], a.count-link, a.carousel-card, a.shop-card')
     if (!a || a.querySelector('.count-arrow') || a.hasAttribute('data-sweep')) return
+    if (a.dataset.grown) { delete a.dataset.grown; return }   // our own second click (growWithin): let it through
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
     if (a.target && a.target !== '_self') return
     const url = new URL(a.href, location.href)
     if (url.origin !== location.origin || url.pathname === location.pathname) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const box = a.getBoundingClientRect()
+    const round = parseFloat(getComputedStyle(a).borderTopLeftRadius) || box.height / 2
+    // a lit pill — View services — keeps its shape the whole way out
+    const how = { box, round: Math.min(round, box.height / 2, box.width / 2), pill: a.matches('.count-link') }
+    // Where the browser has page transitions of its own, through those
+    // (growWithin, below); elsewhere, by hand
+    if (document.startViewTransition && !document.documentElement.classList.contains('vt-grow')) {
+      e.preventDefault()
+      e.stopPropagation()
+      growWithin(a, how)
+      return
+    }
     const page = pageOf()
     if (!page) return
     const ghost = ghostOf(page)
     ghost.classList.add('page-recede')
     ghost.style.transformOrigin = `${innerWidth / 2 - parseFloat(ghost.style.left)}px ${innerHeight / 2 - parseFloat(ghost.style.top)}px`
     ghost.style.zIndex = '0'
-    const box = a.getBoundingClientRect()
-    const round = parseFloat(getComputedStyle(a).borderTopLeftRadius) || box.height / 2
-    // a lit pill — View services — keeps its shape the whole way out
-    growFrom = { box, round: Math.min(round, box.height / 2, box.width / 2), pill: a.matches('.count-link') }
+    growFrom = how
     growGhost = ghost
     arriving = 'grow'
     setTimeout(() => { if (arriving === 'grow') { arriving = false; growGhost = null } }, 1500)
@@ -175,6 +185,90 @@ export function sweepOnward() {
   }
 }
 
+const GROW_TIMING = { duration: GROW_MS, easing: 'cubic-bezier(0.45, 0.05, 0.2, 1)' }
+
+// The shape at each step of the way, from the button's box to the screen's.
+// Its corners round as the button's do and square off as it nears the
+// screen — or, from a pill, stay a pill (half its height) until the last
+// quarter of the way, so it opens as a pill.
+function shapesFor(how, vw, vh) {
+  const from = how.box
+  const STEPS = how.pill ? 16 : 1
+  const mix = (p, q, u) => p + (q - p) * u
+  const shapes = []
+  for (let i = 0; i <= STEPS; i += 1) {
+    const u = i / STEPS
+    const box = { l: mix(from.left, 0, u), t: mix(from.top, 0, u), w: mix(from.width, vw, u), h: mix(from.height, vh, u) }
+    const square = Math.min(1, Math.max(0, (u - 0.75) / 0.25))
+    const round = how.pill ? Math.min(box.w, box.h) / 2 * (1 - square * square * (3 - 2 * square)) : mix(how.round, 0, u)
+    shapes.push({ ...box, round, u })
+  }
+  return shapes
+}
+
+// The same, through the browser's own page transitions (Safari 18 and
+// Chromium): it takes a picture of the page being left and of the page
+// arriving, and the arriving one is cut to the growing shape, the one left
+// sinking back under it. Done by hand, the cut was made on the arriving
+// page itself, and Safari does not cut what it has handed to the graphics
+// chip — the glass on the page — so the page seemed to arrive at once,
+// with no growing at all; a picture is cut like any other.
+//
+// The link is let go by clicking it again, inside the transition, so the
+// router takes it from there as it would have; the picture of the arrival
+// is taken once the new page is in and has been put back to its top. The
+// link's own colour is laid over the arriving page at first, clearing as
+// it opens — the lit link itself seeming to open.
+function growWithin(a, how) {
+  const root = document.getElementById('root')
+  const html = document.documentElement
+  // The arriving picture cut to the link's shape from its very first frame,
+  // by the stylesheet, before the script's animation takes it over: Safari
+  // showed it whole for a frame or two before the animation was attached —
+  // the page there, gone, then growing.
+  {
+    const vw = window.innerWidth, vh = window.innerHeight
+    const b = shapesFor(how, vw, vh)[0]
+    html.style.setProperty('--grow-from', `inset(${b.t}px ${vw - (b.l + b.w)}px ${vh - (b.t + b.h)}px ${b.l}px round ${b.round}px)`)
+  }
+  html.classList.add('vt-grow')
+  const tint = document.createElement('div')
+  tint.className = 'page-grow-tint'
+  let arrived
+  const there = new Promise((r) => { arrived = r })
+  const mo = new MutationObserver((changes) => {
+    if (changes.some((c) => [...c.addedNodes].some((n) => n.nodeType === 1))) { mo.disconnect(); setTimeout(arrived, 40) }
+  })
+  const turn = document.startViewTransition(() => {
+    mo.observe(root, { childList: true })
+    document.body.appendChild(tint)
+    a.dataset.grown = '1'
+    a.click()
+    // nothing came (a click its own handler stopped): the picture is taken anyway
+    return Promise.race([there, new Promise((r) => setTimeout(r, 1500))])
+  })
+  turn.ready.then(() => {
+    const vw = window.innerWidth, vh = window.innerHeight
+    const shapes = shapesFor(how, vw, vh)
+    html.animate(shapes.map((b) => ({
+      offset: b.u,
+      clipPath: `inset(${b.t}px ${vw - (b.l + b.w)}px ${vh - (b.t + b.h)}px ${b.l}px round ${b.round}px)`,
+    // held at its end (the whole screen) until the transition is over: let go,
+    // the picture fell back to the link's shape the stylesheet starts it
+    // at, and the page being left showed again for a frame
+    })), { ...GROW_TIMING, fill: 'forwards', pseudoElement: '::view-transition-new(root)' })
+    // The page left sinks back by dimming and softening, not by fading or
+    // shrinking: Safari draws the live page under the pictures, and an old
+    // picture gone see-through or pulled in from the edges let the arriving
+    // page show through it before its time
+    html.animate([
+      { filter: 'none' },
+      { filter: 'brightness(0.78) blur(3px)' },
+    ], { ...GROW_TIMING, fill: 'forwards', pseudoElement: '::view-transition-old(root)' })
+  }).catch(() => {})
+  turn.finished.finally(() => { mo.disconnect(); tint.remove(); html.classList.remove('vt-grow'); html.style.removeProperty('--grow-from'); delete a.dataset.grown })
+}
+
 // The page opening out of the link it was asked for from: clipped to the
 // link's pill (or a card's own shape) at first, the pill widening to the whole screen and its
 // corners squaring as it goes. Its edge is drawn by a rim laid over it on
@@ -193,22 +287,9 @@ function grow(el, how, ghost) {
     const vw = window.innerWidth, vh = window.innerHeight
     // the screen, in the page's own terms: nothing past it needs opening
     const T = Math.max(0, -r.top), B = Math.max(0, r.bottom - vh)
-    const R = how.round
-    const timing = { duration: GROW_MS, easing: 'cubic-bezier(0.45, 0.05, 0.2, 1)' }
-    // The shape at each step of the way, from the button's box to the
-    // screen's. Its corners round as the button's do and square off as it
-    // nears the screen — or, from a pill, stay a pill (half its height)
-    // until the last quarter of the way, so it opens as a pill.
-    const STEPS = how.pill ? 16 : 1
-    const mix = (p, q, u) => p + (q - p) * u
-    const shapes = []
-    for (let i = 0; i <= STEPS; i += 1) {
-      const u = i / STEPS
-      const box = { l: mix(from.left, 0, u), t: mix(from.top, 0, u), w: mix(from.width, vw, u), h: mix(from.height, vh, u) }
-      const square = Math.min(1, Math.max(0, (u - 0.75) / 0.25))
-      const round = how.pill ? Math.min(box.w, box.h) / 2 * (1 - square * square * (3 - 2 * square)) : mix(R, 0, u)
-      shapes.push({ ...box, round, u })
-    }
+    const timing = GROW_TIMING
+    const shapes = shapesFor(how, vw, vh)
+    const STEPS = shapes.length - 1
     // the page clipped to it, in the page's own terms (only the screen's
     // part of the page is opened: nothing past it needs to be)
     const a = el.animate(shapes.map((b) => ({

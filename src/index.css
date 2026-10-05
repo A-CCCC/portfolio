@@ -1326,6 +1326,9 @@ html.diving #root { overflow: clip; }
    long label on one line whatever the panel does. */
 .nav-label {
   white-space: nowrap;
+  /* bold by its letters' outline thickening (the component sets --bold) */
+  -webkit-text-stroke: calc(var(--bold, 0) * 0.65px) currentColor;
+  transition: -webkit-text-stroke-width 0.2s ease;
   /* The reserved bold width is wider than the label at rest, and the spare room
      would otherwise all sit on one side, so the text appears to grow rightwards
      when it bolds. Centered, it grows evenly from the middle instead. */
@@ -2557,3 +2560,32 @@ html.theme-snap *::after {
   transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
 }
 .photo-strip-dots button.is-at { width: 20px; opacity: 0.9; }
+
+/* A page growing out of a link through the browser's page transitions
+   (page-sweep.js, growWithin): the two pictures held still by the browser's
+   own fade — the script moves them — and the link's colour over the
+   arriving page, clearing as it opens. */
+html.vt-grow::view-transition-old(root),
+html.vt-grow::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+/* cut to the link's shape before the animation has it (page-sweep.js) */
+html.vt-grow::view-transition-new(root) {
+  clip-path: var(--grow-from, none);
+}
+.page-grow-tint {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(120deg,
+    color-mix(in srgb, var(--vivid-a) 85%, transparent),
+    color-mix(in srgb, var(--vivid-b) 85%, transparent));
+  /* from when the arriving page shows, through the first part of its opening */
+  animation: page-grow-tint 0.42s cubic-bezier(0.3, 0.6, 0.4, 1) 0.1s both;
+}
+@keyframes page-grow-tint {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

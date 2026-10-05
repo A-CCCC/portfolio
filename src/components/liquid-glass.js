@@ -545,8 +545,20 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       b.filter = `blur(${softPx * dpr}px)`
       b.drawImage(crisp, 0, 0)
     } else {
-      b.drawImage(crisp, 0, 0)
-      blurAlpha(b, cw, ch, softPx * dpr)
+      // By hand, on a copy shrunk until the blur is a few pixels across, then
+      // drawn back up smoothly: a blur is soft through and through, so the
+      // small copy loses nothing, and it is the difference between a frame's
+      // work and the better part of a second's — paid for every title of a
+      // page as it arrives, in the middle of the page's own transition.
+      const k = Math.max(1, (softPx * dpr) / 2.5)
+      const sw = Math.max(1, Math.round(cw / k)), sh = Math.max(1, Math.round(ch / k))
+      const small = document.createElement('canvas'); small.width = sw; small.height = sh
+      const sc = small.getContext('2d', { willReadFrequently: true })
+      sc.imageSmoothingEnabled = true; sc.imageSmoothingQuality = 'high'
+      sc.drawImage(crisp, 0, 0, sw, sh)
+      blurAlpha(sc, sw, sh, (softPx * dpr) / k)
+      b.imageSmoothingEnabled = true; b.imageSmoothingQuality = 'high'
+      b.drawImage(small, 0, 0, cw, ch)
     }
     const was = s.mask
     s.mask = { key, crisp: upload(crisp, was?.crisp), soft: upload(blurred, was?.soft), softPx, w, h }
@@ -803,6 +815,11 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       const pic = s.image ? !!(s.image(s.el)?.complete) : 0
       const key = `${ang}|${Math.round(Math.log(cw) * 50)}|${Math.round(Math.log(ch) * 50)}|${dark.toFixed(2)}|${silkFade.toFixed(2)}|${s.silkNow?.tex ? 1 : 0}|${flashing ? now : 0}|${pic}|${dpr}|${s.skip ? s.skip(s.el) : 0}`
       if (key === s.drawn) continue
+      // A surface's first drawing lays out its letters (and in Safari blurs
+      // them by hand) — a page arriving with a dozen of them did all of it
+      // in one frame, and its transition stalled. Past a few milliseconds'
+      // work in a frame, the rest wait for the next.
+      if (!s.drawn && performance.now() - t0 > 8) { hotUntil = now + 120; continue }
       // the surface is drawn at the canvas's corner, its box cleared first
       if (cw > maxSize || ch > maxSize) continue
       fit(cw, ch)
