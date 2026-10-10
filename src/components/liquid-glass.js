@@ -507,7 +507,14 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     const crisp = document.createElement('canvas'); crisp.width = cw; crisp.height = ch
     const c = crisp.getContext('2d')
     c.scale(dpr, dpr)
-    c.font = cs.font
+    // The page's font, named so a canvas finds it too: built from its parts
+    // (Safari can leave the shorthand empty), and the system font asked for
+    // by Apple's own name as well — a canvas in Safari did not know
+    // "system-ui", fell back to another face, and every letter came out a
+    // different shape from the page's, off the shadow the page's text casts
+    const family = cs.fontFamily.replace(/(^|,\s*)system-ui\b/g, '$1-apple-system, BlinkMacSystemFont, system-ui')
+    c.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${family}`
+    const spacing = parseFloat(cs.letterSpacing) || 0
     c.fillStyle = '#fff'
     c.textBaseline = 'alphabetic'
     // Letter by letter, each where the page set it. A word drawn whole was
@@ -532,7 +539,13 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
             const x = (r.left - box.left) * kx + MARGIN
             const top = (r.top - box.top) * ky
             const y = top + (r.height * ky - (asc + desc)) / 2 + asc + MARGIN
-            c.fillText(ch, x, y)
+            // and stretched to the width the page gives it, so that even in a
+            // face that is not quite the page's it covers the same ground
+            const drawn = c.measureText(ch).width
+            const wants = r.width * kx - spacing
+            const sx = drawn > 0 && wants > 0 ? Math.min(1.15, Math.max(0.87, wants / drawn)) : 1
+            if (Math.abs(sx - 1) < 0.01) c.fillText(ch, x, y)
+            else { c.save(); c.translate(x, y); c.scale(sx, 1); c.fillText(ch, 0, 0); c.restore() }
           }
         }
         i = next

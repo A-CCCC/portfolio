@@ -2518,9 +2518,12 @@ html.theme-snap *::after {
   overscroll-behavior-x: contain;
   scrollbar-width: none;
   /* room either side, so the first and last can come to the middle too
-     (the strip snaps to the first on its own, centred) */
-  padding: 6px 50vw 14px;
-  margin: 0 calc(var(--gutter) * -1);
+     (the strip snaps to the first on its own, centred) — and room under
+     the photos for the whole of their shadow: a strip that scrolls across
+     cuts off whatever reaches past it, and the shadow ended in a hard line.
+     The room is given back below, so the dots sit where they did. */
+  padding: 6px 50vw 64px;
+  margin: 0 calc(var(--gutter) * -1) -50px;
 }
 .photo-strip::-webkit-scrollbar { display: none; }
 /* its own size, over the phone's rule for a picture in a stacked row
