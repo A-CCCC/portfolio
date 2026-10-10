@@ -1152,7 +1152,10 @@ html.diving #root { overflow: clip; }
 
   /* The picture in a stacked row keeps its shape and leaves room for the words
      above it: half the screen at most, whichever way round it is shaped. */
-  .split canvas,
+  /* (not the glass's own canvases, which are sized to the words they sit
+     behind: held to the row's width at their own size, they shrank, and a
+     heading's glass letters slid off the words and their shadow) */
+  .split canvas:not(.liquid-glass-surface),
   .split video,
   .split img {
     max-width: 100% !important;
@@ -2294,7 +2297,7 @@ canvas {
 
   .split img,
   .split video,
-  .split canvas { max-height: 74vh !important; }
+  .split canvas:not(.liquid-glass-surface) { max-height: 74vh !important; }
 
   /* The stack's photographs share a box and fill it here too — the columns are
      narrow enough that `contain` would letterbox them exactly as on a phone
