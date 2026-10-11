@@ -130,8 +130,42 @@ const place = (phone) => Array.from({ length: phone ? PHONE_RING_COUNT : RING_CO
   }
 })
 
+// A phone held upright: a ring made for a wide screen, drawn in to a narrow
+// one, left a thin oval of small bubbles. Instead, two loose clusters of four
+// — one in the room between the bar and the title, one in the room between
+// the title's link and the foot of the screen — each two staggered rows, so
+// they read as a scatter rather than a grid. Worked out from the screen's
+// height, since that room is all a phone has: the bubbles as large as it
+// allows (larger than the ring's, easier to tap), and their rows kept a
+// drift's width inside it, so none floats under the bar or onto the title.
+// Across, as shares of the width: [upper row, lower row] for each cluster.
+const PORTRAIT_ACROSS = [[[0.22, 0.68], [0.43, 0.80]], [[0.20, 0.60], [0.37, 0.79]]]
+const standUp = (vh) => {
+  const titleTop = vh / 2 - 49          // HERO_TOP on a phone's type (styles/type.js)
+  const bands = [[64, titleTop - 10], [titleTop + 148, vh - 14]]
+  const room = Math.min(...bands.map(([a, b]) => b - a))
+  const size = Math.max(54, Math.min(84, Math.round(room * 0.42)))
+  const DRIFT = 0.5
+  const spots = []
+  bands.forEach(([a, b], band) => {
+    const rows = [a + size / 2 + 12, b - size / 2 - 12]
+    rows.forEach((y, row) => PORTRAIT_ACROSS[band][row].forEach((across) => {
+      const i = spots.length
+      spots.push({
+        left: `${(across * 100).toFixed(0)}%`,
+        top: `${Math.round(y)}px`,
+        size: Math.round(size * (SIZES[i % SIZES.length] / 110)),
+        drift: DRIFTS[i % DRIFTS.length].map((d) => Math.round(d * DRIFT)),
+        duration: DURATIONS[i % DURATIONS.length],
+        delay: DELAYS[i % DELAYS.length],
+        flank: false,
+      })
+    }))
+  })
+  return spots
+}
+
 const PLACEMENTS = place(false)
-const PHONE_PLACEMENTS = place(true)
 const SHORT_PLACEMENTS = lieDown()
 
 const HUES = ['var(--hue-1)', 'var(--hue-2)', 'var(--hue-3)', 'var(--hue-4)', 'var(--hue-5)', 'var(--hue-6)']
@@ -276,7 +310,9 @@ export default function ProjectBubbles() {
   const short = useIsShort()
   // Short wins: a phone held sideways is both, and it is the missing height
   // that decides what can go where.
-  const placements = short ? SHORT_PLACEMENTS : phone ? PHONE_PLACEMENTS : PLACEMENTS
+  // (a phone's from its own height, taken once: see standUp)
+  const [phoneSpots] = useState(() => standUp(typeof window === 'undefined' ? 760 : window.innerHeight))
+  const placements = short ? SHORT_PLACEMENTS : phone ? phoneSpots : PLACEMENTS
 
   // Drawn once and held in state: recomputing on render would reshuffle the
   // bubbles mid-animation every time anything on the page updated. A phone has
