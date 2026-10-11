@@ -40,7 +40,7 @@ export default function About() {
       }}>
         <Portrait size={180} />
       </div>
-      <p style={{
+      <p className="prose-phone" style={{
         color: 'var(--text-body)',
         fontSize: TYPE.body,
         lineHeight: 1.7,

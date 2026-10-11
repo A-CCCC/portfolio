@@ -1142,12 +1142,18 @@ html.diving #root { overflow: clip; }
      mean anything. A line that fills all but the last few characters of the
      screen reads as centered whether it is or not, and the headings and the
      pictures above and below it already are. */
-  .split,
+  /* The row itself centred — a picture or a button alone in it sits in
+     the middle — but its words read from the left, as prose does (see
+     THE STORY ON A PHONE, below): a paragraph centred on a phone is ragged
+     down both sides, every line starting somewhere new. */
+  .split {
+    text-align: center !important;
+  }
   .split h2,
   .split h3,
   .split p,
   .split li {
-    text-align: center !important;
+    text-align: left !important;
   }
 
   /* The picture in a stacked row keeps its shape and leaves room for the words
@@ -2287,12 +2293,18 @@ canvas {
 
   /* The columns either side of a row are as narrow here as a whole phone is in
      portrait, so the prose is centered for the same reason. */
-  .split,
+  /* The row itself centred — a picture or a button alone in it sits in
+     the middle — but its words read from the left, as prose does (see
+     THE STORY ON A PHONE, below): a paragraph centred on a phone is ragged
+     down both sides, every line starting somewhere new. */
+  .split {
+    text-align: center !important;
+  }
   .split h2,
   .split h3,
   .split p,
   .split li {
-    text-align: center !important;
+    text-align: left !important;
   }
 
   .split img,
@@ -2594,4 +2606,94 @@ html.vt-grow::view-transition-new(root) {
 @keyframes page-grow-tint {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+
+/* THE STORY ON A PHONE — the write-up sections of a project page
+   (PhotoStory.jsx, ContextNote.jsx, marked .story-band).
+   One column, read from the left like any page of prose: the words set
+   flush left (a paragraph centred on a phone is ragged down both sides,
+   every line starting somewhere new), a size up from the laptop's and a
+   shade nearer the ink; and the sections closed up to an even step
+   between them, not each held to most of a screen's height, which on a
+   phone left a heading alone in a screenful of nothing. */
+@media (max-width: 700px) {
+  :root {
+    --band-min: 0px;
+    --title-band-min: 0px;
+    --band-pad: 34px;
+  }
+  .story-band {
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    text-align: left !important;
+  }
+  .story-band h2,
+  .story-band h3,
+  .story-band p,
+  .story-band li {
+    text-align: left !important;
+  }
+  /* a heading set left, its glass with it */
+  .story-band h2.glass-title {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+  .story-band p,
+  .story-band li,
+  .split p,
+  .split li,
+  .prose-phone {
+    text-align: left !important;
+    font-size: 1.0625rem !important;
+    line-height: 1.62 !important;
+    color: color-mix(in srgb, var(--text) 80%, var(--bg)) !important;
+  }
+  /* A heading that only introduces the sections under it sits close above
+     them, with a little more room over it than under */
+  .story-band:not(.split):has(> * > h2:only-child) {
+    padding-top: 52px !important;
+    padding-bottom: 6px !important;
+  }
+}
+
+/* A chapter of the story on a phone (SectionTitle, FeatureImage): the room
+   round a chapter's heading and its picture taken down from a share of the
+   screen — a third of a phone's height above every chapter, a quarter
+   below every picture — to a step a little longer than a section's, the
+   heading set left with the prose, and a hairline over it to say a new
+   chapter begins. */
+@media (max-width: 700px) {
+  .story-chapter {
+    padding-top: 44px !important;
+    padding-bottom: 6px !important;
+    text-align: left !important;
+  }
+  .story-chapter::before {
+    content: '';
+    display: block;
+    height: 1px;
+    margin-bottom: 30px;
+    background: var(--border);
+  }
+  .story-chapter h2.glass-title {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    text-align: left !important;
+  }
+  .story-feature {
+    padding-bottom: 40px !important;
+  }
+}
+
+/* The theme switch on a phone keeps out of the reading: it slips away
+   while the page is scrolled down — over the words it was sitting on —
+   and comes back as soon as the page is scrolled up, or the top or the
+   foot of it is reached (ThemeToggle.jsx sets .theme-tucked). */
+.theme-switch {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+.theme-switch.theme-tucked {
+  transform: translateY(90px);
+  opacity: 0;
+  pointer-events: none;
 }

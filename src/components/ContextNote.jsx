@@ -94,7 +94,7 @@ export default function ContextNote({ title, images = [], alt = '', children }) 
   )
 
   return (
-    <div
+    <div className="story-band"
       ref={ref}
       className="split"
       style={{

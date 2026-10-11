@@ -52,10 +52,11 @@ export function PhotoGroup({ photos, heading, aspect = '1 / 1', columns }) {
 // so much air around the content that a section looked like the end of the page
 // — the next heading sat entirely below the fold with nothing to suggest it was
 // there. These are minimums: a section grows if its content needs the room.
-const BAND_HEIGHT = '76vh'          // a row of text beside photos
+const BAND_HEIGHT = 'var(--band-min, 76vh)'          // a row of text beside photos
 export const STATEMENT_HEIGHT = BAND_HEIGHT     // centered text on its own
-const TITLE_HEIGHT = '32vh'         // a heading introducing the sections under it
-export const BAND_PADDING = '56px var(--gutter)'
+const TITLE_HEIGHT = 'var(--title-band-min, 32vh)'         // a heading introducing the sections under it
+// (all three let go on a phone: see .story-band in the stylesheet)
+export const BAND_PADDING = 'var(--band-pad, 56px) var(--gutter)'
 
 // A rotating stack: the active photo sits front and center, its neighbours
 // scaled down, angled and tucked behind it. Clicking a neighbour — or an arrow —
@@ -358,7 +359,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
     // band, stays centered, and sits close to the next section.
     if (!body) {
       return (
-        <div
+        <div className="story-band"
           style={{
             minHeight: TITLE_HEIGHT,
             display: 'flex',
@@ -383,7 +384,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
     // of the problem — where two columns read as reference material.
     if (centered) {
       return (
-        <div
+        <div className="story-band"
           style={{
             minHeight: STATEMENT_HEIGHT,
             display: 'flex',
@@ -416,7 +417,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
     }
 
     return (
-      <div className="split"
+      <div className="split story-band"
         style={{
           minHeight: STATEMENT_HEIGHT,
           display: 'flex',
@@ -454,7 +455,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
   }
 
   return (
-    <div className="split"
+    <div className="split story-band"
       style={{
         minHeight: BAND_HEIGHT,
         display: 'flex',
@@ -515,6 +516,7 @@ export function SectionTitle({ children, tight }) {
   return (
     <div
       ref={ref}
+      className="story-chapter"
       style={{
         // Generous above, tight below: the room goes outside the heading-and-image
         // pair rather than between them, so scrolling can rest on the two alone
@@ -546,6 +548,7 @@ export function FeatureImage({ src, alt }) {
   return (
     <div
       ref={ref}
+      className="story-feature"
       style={{
         display: 'flex',
         justifyContent: 'center',
@@ -602,7 +605,7 @@ export function SplitRow({ heading, body, photo, alt, flip }) {
   // visibly different heights before.
   if (!photo) {
     return (
-      <div
+      <div className="story-band"
         ref={ref}
         style={{
           minHeight: STATEMENT_HEIGHT,
@@ -620,7 +623,7 @@ export function SplitRow({ heading, body, photo, alt, flip }) {
   }
 
   return (
-    <div className="split"
+    <div className="split story-band"
       ref={ref}
       style={{
         minHeight: BAND_HEIGHT,

@@ -47,6 +47,24 @@ export default function ThemeToggle() {
     } catch { /* the choice simply will not survive a reload */ }
   }, [theme])
 
+  // On a phone, tucked away while the page is scrolled down, back on the
+  // way up or at either end (see .theme-tucked)
+  const [tucked, setTucked] = useState(false)
+  useEffect(() => {
+    const phone = window.matchMedia('(max-width: 700px)')
+    let last = window.scrollY
+    const look = () => {
+      const y = window.scrollY
+      const end = y < 80 || y + window.innerHeight > document.documentElement.scrollHeight - 80
+      if (!phone.matches || end) setTucked(false)
+      else if (y > last + 6) setTucked(true)
+      else if (y < last - 6) setTucked(false)
+      last = y
+    }
+    window.addEventListener('scroll', look, { passive: true })
+    return () => window.removeEventListener('scroll', look)
+  }, [])
+
   useEffect(() => {
     if (open) { setShown(true); return undefined }
     const timer = setTimeout(() => setShown(false), FOLD_MS)
@@ -75,6 +93,7 @@ export default function ThemeToggle() {
 
   return (
     <div
+      className={`theme-switch${tucked && !open ? ' theme-tucked' : ''}`}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => { setOpen(false); setHoverIndex(null) }}
       style={{
