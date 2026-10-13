@@ -382,8 +382,12 @@ export default function LogRunner() {
       g.distance += g.speed * tick
 
       if (g.buffered > 0) g.buffered -= tick
+      // Gravity over the time that has passed, worked out exactly rather than
+      // in a frame's step: at 120 frames a second the steps are half as long,
+      // and stepped, a jump rose higher than at 60. This is the 60-a-second
+      // path the game was tuned on, followed at whatever rate it is drawn.
+      g.y += (g.vy + GRAVITY / 2) * tick + 0.5 * GRAVITY * tick * tick   // 0 is the ground; up is negative
       g.vy += GRAVITY * tick
-      g.y += g.vy * tick                 // 0 is the ground; up is negative
       if (g.y >= 0) {
         const landed = g.vy
         g.y = 0

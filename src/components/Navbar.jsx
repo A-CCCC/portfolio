@@ -584,8 +584,10 @@ export default function Navbar() {
         left: 0,
         right: 0,
         bottom: -32,
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
+        // Clear glass rather than frost: a little blur and the colour drawn
+        // up, so the page passing under the bar is still there to be seen
+        backdropFilter: 'blur(10px) saturate(1.8)',
+        WebkitBackdropFilter: 'blur(10px) saturate(1.8)',
         WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
         maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
         pointerEvents: 'none',

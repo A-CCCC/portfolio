@@ -171,9 +171,19 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
   const watch = new ResizeObserver(size)
   watch.observe(canvas)
 
-  const frame = () => {
+  // Timed, not counted in frames: on a screen that draws 120 times a second
+  // (or 144, or 90), a turn and a glide reckoned per frame went at twice the
+  // speed (or more) they do at 60. The idle turn is given the time that has
+  // passed, and the glide after a drag lets go by the same share per second
+  // that it does per frame at 60.
+  const DAMPING = controls.dampingFactor
+  let last = 0
+  const frame = (now = performance.now()) => {
     if (!alive) return
-    controls.update()
+    const dt = last ? Math.min(0.1, (now - last) / 1000) : 1 / 60
+    last = now
+    controls.dampingFactor = 1 - Math.pow(1 - DAMPING, dt * 60)
+    controls.update(dt)
     renderer.render(scene, camera)
     requestAnimationFrame(frame)
   }

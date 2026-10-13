@@ -803,6 +803,16 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; line
 .lg-gl .glass.bubble::after,
 .lg-gl .glass.bubble::before { display: none; }
 .lg-gl .glass.bubble:not(.bubble-popping):not(.bubble-swelling) img { visibility: hidden; }
+/* Pointed at, the lens itself swells and magnifies its model (opts.swell in
+   liquid-glass.js) — so the bubble is not brightened over the top, and its
+   hidden picture, which the lens reads its size from, holds still */
+.lg-gl .glass.bubble:hover { filter: none; }
+/* and the whole bubble swells, a little past its size and back, over the
+   others — on its outer box, since its own transform and scale are its
+   drift and its breathing */
+.bubble-spot:hover { scale: 1.14; z-index: 6; }
+@media (prefers-reduced-motion: reduce) { .bubble-spot:hover { scale: 1; } }
+.lg-gl .glass.bubble:hover img { transform: scale(1.07); }
 /* An icon in place of a model (the games' bubble) is drawn by the page, not
    the lens, so it sits over the lens's canvas rather than under it */
 .bubble-icon { position: relative; z-index: 3; }
@@ -2107,9 +2117,16 @@ canvas {
    (index.html), bending the page in at the edges. */
 .nav-menu,
 .nav-sheet {
-  -webkit-backdrop-filter: blur(7px) saturate(1.5);
-  backdrop-filter: blur(7px) saturate(1.5);
-  --lg-fill: color-mix(in srgb, var(--lg-fill) 75%, transparent);
+  -webkit-backdrop-filter: blur(3px) saturate(1.7);
+  backdrop-filter: blur(3px) saturate(1.7);
+  /* A thinner fill and a fainter wash of colour, so the menu is clear glass
+     over the page — the page bent at its edges showing through — with tint
+     enough left that its words still read over whatever is under them */
+  --lg-fill: color-mix(in srgb, var(--bg) 46%, transparent);
+  --lit-band: color-mix(in srgb, var(--vivid-a) 22%, transparent);
+  --lit-glint: color-mix(in srgb, var(--vivid-a) 22%, rgba(255, 255, 255, 0.16));
+  --lit-cast: color-mix(in srgb, var(--vivid-b) 20%, transparent);
+  --glint-size: 90% 70%;
 }
 [data-lens] .nav-lit {
   -webkit-backdrop-filter: url(#lg-lens-sm) saturate(1.6) brightness(1.05);
@@ -2117,8 +2134,8 @@ canvas {
 }
 [data-lens] .nav-menu,
 [data-lens] .nav-sheet {
-  -webkit-backdrop-filter: url(#lg-lens) saturate(1.5);
-  backdrop-filter: url(#lg-lens) saturate(1.5);
+  -webkit-backdrop-filter: url(#lg-lens) saturate(1.7) brightness(1.04);
+  backdrop-filter: url(#lg-lens) saturate(1.7) brightness(1.04);
 }
 .nav-sheet {
   /* From the top of the screen rather than from the underside of the bar, so

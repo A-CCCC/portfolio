@@ -317,13 +317,17 @@ export default function BarrelDrop() {
 
       const speed = speedFor(g.score)
 
-      g.vy = Math.min(TERMINAL, g.vy + GRAVITY * tick)
-      g.y += g.vy * tick
+      // Gravity worked out over the time passed, not stepped per frame, so
+      // the barrel's arc is the same at 60 frames a second or 120 (see the
+      // log game); held to its terminal speed as before
+      const falling = Math.min(TERMINAL, g.vy + GRAVITY * tick)
+      g.y += falling < TERMINAL ? (g.vy + GRAVITY / 2) * tick + 0.5 * GRAVITY * tick * tick : falling * tick
+      g.vy = falling
 
       // The lean follows the fall, and only ever downwards from here: nothing in
       // the loop lifts the nose, which is the flap's job alone.
       const want = TILT_DOWN * Math.min(1, Math.max(0, g.vy) / TERMINAL)
-      if (want > g.tilt) g.tilt += (want - g.tilt) * Math.min(1, TILT_RATE * tick)
+      if (want > g.tilt) g.tilt += (want - g.tilt) * (1 - Math.pow(1 - Math.min(1, TILT_RATE), tick))
 
       g.scroll += speed * tick
       g.next -= speed * tick

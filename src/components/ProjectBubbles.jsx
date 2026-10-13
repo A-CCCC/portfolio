@@ -130,39 +130,31 @@ const place = (phone) => Array.from({ length: phone ? PHONE_RING_COUNT : RING_CO
   }
 })
 
-// A phone held upright: a ring made for a wide screen, drawn in to a narrow
-// one, left a thin oval of small bubbles. Instead, two loose clusters of four
-// — one in the room between the bar and the title, one in the room between
-// the title's link and the foot of the screen — each two staggered rows, so
-// they read as a scatter rather than a grid. Worked out from the screen's
-// height, since that room is all a phone has: the bubbles as large as it
-// allows (larger than the ring's, easier to tap), and their rows kept a
-// drift's width inside it, so none floats under the bar or onto the title.
-// Across, as shares of the width: [upper row, lower row] for each cluster.
-const PORTRAIT_ACROSS = [[[0.22, 0.68], [0.43, 0.80]], [[0.20, 0.60], [0.37, 0.79]]]
+// A phone held upright: a ring round the title, as on a laptop, but stood on
+// end to fill a tall screen — an oval reaching from under the bar to the
+// foot, its sides out at the edges, the bubbles spread evenly round it. None
+// level with the title, which on a phone takes the whole width: four in an
+// arc over it and four in an arc under it. Worked out from the screen's
+// height, so the oval and the bubbles fit whatever phone it is.
+const PORTRAIT_ANGLES = [-150, -116, -64, -30, 30, 64, 116, 150]
 const standUp = (vh) => {
-  const titleTop = vh / 2 - 49          // HERO_TOP on a phone's type (styles/type.js)
-  const bands = [[64, titleTop - 10], [titleTop + 148, vh - 14]]
-  const room = Math.min(...bands.map(([a, b]) => b - a))
-  const size = Math.max(54, Math.min(84, Math.round(room * 0.42)))
-  const DRIFT = 0.5
-  const spots = []
-  bands.forEach(([a, b], band) => {
-    const rows = [a + size / 2 + 12, b - size / 2 - 12]
-    rows.forEach((y, row) => PORTRAIT_ACROSS[band][row].forEach((across) => {
-      const i = spots.length
-      spots.push({
-        left: `${(across * 100).toFixed(0)}%`,
-        top: `${Math.round(y)}px`,
-        size: Math.round(size * (SIZES[i % SIZES.length] / 110)),
-        drift: DRIFTS[i % DRIFTS.length].map((d) => Math.round(d * DRIFT)),
-        duration: DURATIONS[i % DURATIONS.length],
-        delay: DELAYS[i % DELAYS.length],
-        flank: false,
-      })
-    }))
+  const size = Math.round(Math.max(52, Math.min(72, vh * 0.09)))
+  const r = size / 2 + 12                  // a bubble's reach, with its drift
+  const cy = vh / 2 + 12                   // the middle of the title and its link
+  const steep = Math.sin((64 * Math.PI) / 180)
+  const ry = Math.min(270, (cy - 62 - r) / steep, (vh - 12 - r - cy) / steep)
+  return PORTRAIT_ANGLES.map((deg, i) => {
+    const a = (deg * Math.PI) / 180
+    return {
+      left: `calc(50% + (50% - ${r + 4}px) * ${Math.cos(a).toFixed(4)})`,
+      top: `${Math.round(cy + ry * Math.sin(a))}px`,
+      size: Math.round(size * (SIZES[i % SIZES.length] / 110)),
+      drift: DRIFTS[i % DRIFTS.length].map((d) => Math.round(d * 0.45)),
+      duration: DURATIONS[i % DURATIONS.length],
+      delay: DELAYS[i % DELAYS.length],
+      flank: false,
+    }
   })
-  return spots
 }
 
 const PLACEMENTS = place(false)
@@ -352,7 +344,7 @@ export default function ProjectBubbles() {
         // bend in step with the bubble's size (9px on the desktop's): a
         // phone's half-size bubbles bent as far drew the edge of a model —
         // the tip of the Vader helmet — out into the rim.
-        removers.push(glass.add(b, { circle: true, sphere: true, hue: true, lift, inset: 0.86, frost: 0, depth: b.offsetWidth * 0.08, rim: b.offsetWidth * 0.22, tintA: 0, specA: 0.45, rimOnLight: 0.7, image: (el) => el.querySelector('img'), skip: (el) => el.classList.contains('bubble-popping') || el.classList.contains('bubble-swelling') }))
+        removers.push(glass.add(b, { circle: true, sphere: true, hue: true, swell: true, lift, inset: 0.86, frost: 0, depth: b.offsetWidth * 0.08, rim: b.offsetWidth * 0.22, tintA: 0, specA: 0.45, rimOnLight: 0.7, image: (el) => el.querySelector('img'), skip: (el) => el.classList.contains('bubble-popping') || el.classList.contains('bubble-swelling') }))
       }
     }).catch((err) => console.warn('liquid glass:', err))
     return () => {
@@ -398,7 +390,13 @@ export default function ProjectBubbles() {
     }
     const drift = el.animate(loop, { duration: spot.duration * 1000, delay: spot.delay * 1000, iterations: Infinity, easing: 'linear' })
     const breath = el.animate(swell, { duration: spot.duration * 720, delay: (spot.delay - 2.5) * 1000, iterations: Infinity, easing: 'linear' })
-    el.addEventListener('mouseenter', () => { drift.pause(); breath.pause() })
+    el.addEventListener('mouseenter', () => {
+      drift.pause(); breath.pause()
+      // The swell (.bubble-spot:hover) grows from where the bubble has
+      // drifted to, not from its resting place, or it slid as it grew
+      const m = new DOMMatrixReadOnly(getComputedStyle(el).transform)
+      el.parentElement.style.transformOrigin = `calc(50% + ${m.e.toFixed(1)}px) calc(50% + ${m.f.toFixed(1)}px)`
+    })
     el.addEventListener('mouseleave', () => { drift.play(); breath.play() })
   }
 
@@ -480,7 +478,7 @@ export default function ProjectBubbles() {
         return (
           <div
             key={project.path}
-            className={spot.flank ? 'bubble-flank' : undefined}
+            className={`bubble-spot${spot.flank ? ' bubble-flank' : ''}`}
             style={{
               position: 'absolute',
               left: spot.left,
@@ -488,11 +486,16 @@ export default function ProjectBubbles() {
               width: spot.size,
               height: spot.size,
               // Positioning transform lives here so the float animation on the
-              // child has the transform property to itself.
-              transform: 'translate(-50%, -50%)',
+              // child has the transform property to itself. As `translate`, not
+              // a transform: the swell (scale, on hover) is drawn before a
+              // translate and after a transform, and after it the bubble grew
+              // about a point the centring had already moved — off centre.
+              translate: '-50% -50%',
               opacity: visible,
-              transition: 'opacity 1.6s ease',
-              transitionDelay: `${i * 90}ms`,
+              // The fade in, staggered bubble by bubble; and the swell when it
+              // is pointed at (.bubble-spot:hover), at once
+              transition: 'opacity 1.6s ease, scale 0.5s cubic-bezier(0.34, 1.45, 0.64, 1)',
+              transitionDelay: `${i * 90}ms, 0ms`,
             }}
           >
             <Link

@@ -695,8 +695,13 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       gl.uniform2f(U.centre, (r.left + r.width / 2) * dpr, (r.top + r.height / 2) * dpr)
       gl.uniform2f(U.halfSize, (r.width / 2) * dpr, (r.height / 2) * dpr)
       gl.uniform1f(U.radius, radius * dpr)
-      gl.uniform1f(U.depth, (s.depth ?? (circle ? 22 : 14)) * dpr)
-      gl.uniform1f(U.rimW, (s.rim ?? (circle ? radius * 0.55 : 26)) * dpr)
+      // Pointed at (s.lens, 0..1 easing): a magnifying glass — the glass
+      // bent harder and further in from its rim, its light a little
+      // brighter, and its picture drawn larger (below)
+      const lens = s.lens || 0
+      const swelling = lens * lens * (3 - 2 * lens)
+      gl.uniform1f(U.depth, (s.depth ?? (circle ? 22 : 14)) * (1 + 0.35 * swelling) * dpr)
+      gl.uniform1f(U.rimW, (s.rim ?? (circle ? radius * 0.55 : 26)) * (1 + 0.12 * swelling) * dpr)
       const tintCss = typeof s.tint === 'function' ? s.tint(el) : s.tint
       const t = tintCss ? parseColour(tintCss) : [1 - 0.9 * dark, 1 - 0.9 * dark, 1 - 0.89 * dark, 1]
       gl.uniform3f(U.tint, t[0], t[1], t[2])
@@ -708,7 +713,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       // nothing of the last surface's carries over: a silk's fade left set
       // here once blended a bubble's model with a title's silk mid-fade
       gl.uniform1f(U.imgMix, 1)
-      gl.uniform1f(U.specA, s.specA ?? 1)
+      gl.uniform1f(U.specA, (s.specA ?? 1) * (1 + 0.35 * swelling))
       gl.uniform1f(U.glowA, s.glow ?? 0)
       // lines in the block: none of the mix for a title on one line, most of
       // it from three lines on
@@ -781,7 +786,8 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         // a lens may draw its picture smaller than the page has it (s.inset),
         // so what is near the picture's edge sits clear of the rim, where the
         // glass bends it outward
-        const k = Math.max(ir.width / img.naturalWidth, ir.height / img.naturalHeight) * (s.inset ?? 1)
+        const inset = (s.inset ?? 1) * (1 + 0.16 * swelling)
+        const k = Math.max(ir.width / img.naturalWidth, ir.height / img.naturalHeight) * inset
         const iw = img.naturalWidth * k, ih = img.naturalHeight * k
         gl.activeTexture(gl.TEXTURE1)
         gl.bindTexture(gl.TEXTURE_2D, itex)
@@ -824,9 +830,17 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       const ang = Math.round(Math.atan2(cy - lightNow.y, cx - lightNow.x) * 57.3 * 4)    // quarter degrees
       const flashing = now - (s.el.__flashAt ?? -1e9) < 1450
       const silkFade = s.silkNow ? Math.min(1, (now - (s.silkAt ?? -1e9)) / FADE) : -1
+      // the lens easing in or out: most of the way in about half a second
+      if (s.lens !== s.lensTo) {
+        // by the time passed, not per frame, so it swells as fast at 120Hz as at 60
+        s.lens += (s.lensTo - s.lens) * (1 - Math.pow(0.89, Math.min(6, (now - (s.lensAt ?? now - 16.7)) / 16.7)))
+        s.lensAt = now
+        if (Math.abs(s.lensTo - s.lens) < 0.01) { s.lens = s.lensTo; s.lensAt = undefined }
+        hotUntil = now + 120
+      }
       if (flashing || (silkFade >= 0 && silkFade < 1)) hotUntil = now + 120
       const pic = s.image ? !!(s.image(s.el)?.complete) : 0
-      const key = `${ang}|${Math.round(Math.log(cw) * 50)}|${Math.round(Math.log(ch) * 50)}|${dark.toFixed(2)}|${silkFade.toFixed(2)}|${s.silkNow?.tex ? 1 : 0}|${flashing ? now : 0}|${pic}|${dpr}|${s.skip ? s.skip(s.el) : 0}`
+      const key = `${ang}|${Math.round(Math.log(cw) * 50)}|${Math.round(Math.log(ch) * 50)}|${dark.toFixed(2)}|${silkFade.toFixed(2)}|${s.silkNow?.tex ? 1 : 0}|${flashing ? now : 0}|${pic}|${dpr}|${s.skip ? s.skip(s.el) : 0}|${s.lens.toFixed(3)}`
       if (key === s.drawn) continue
       // A surface's first drawing lays out its letters (and in Safari blurs
       // them by hand) — a page arriving with a dozen of them did all of it
@@ -876,9 +890,17 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         pointerEvents: 'none', zIndex: opts.under ? 0 : 2, borderRadius: 'inherit',
       })
       if (opts.under) el.prepend(into); else el.append(into)
-      const s = { el, into, ...opts }
+      const s = { el, into, ...opts, lens: 0, lensTo: 0 }
+      // A surface that becomes a lens under the pointer (opts.swell — the
+      // bubbles): it eases towards it and back (see the frame, below)
+      const enter = () => { s.lensTo = 1; hotUntil = performance.now() + 600 }
+      const leave = () => { s.lensTo = 0; hotUntil = performance.now() + 600 }
+      if (opts.swell) { el.addEventListener('pointerenter', enter); el.addEventListener('pointerleave', leave) }
       surfaces.add(s)
-      return () => { surfaces.delete(s); into.remove() }
+      return () => {
+        surfaces.delete(s); into.remove()
+        if (opts.swell) { el.removeEventListener('pointerenter', enter); el.removeEventListener('pointerleave', leave) }
+      }
     },
     repaint() { backDirty = true },
     // where the theme's fade is, and each surface's silk fade, for checking
