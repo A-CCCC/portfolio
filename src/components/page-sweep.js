@@ -237,7 +237,16 @@ function growWithin(a, how) {
   let arrived
   const there = new Promise((r) => { arrived = r })
   const mo = new MutationObserver((changes) => {
-    if (changes.some((c) => [...c.addedNodes].some((n) => n.nodeType === 1))) { mo.disconnect(); setTimeout(arrived, 40) }
+    // The picture of the arrival is taken once the new page is in and back at
+    // its top. The screen is held still until then, so not a moment longer:
+    // a set 40ms here was a stall at the start of every page's opening. Most
+    // often the page is at the top already; otherwise it is, a moment later.
+    if (changes.some((c) => [...c.addedNodes].some((n) => n.nodeType === 1))) {
+      mo.disconnect()
+      const since = performance.now()
+      const ready = () => (window.scrollY < 1 || performance.now() - since > 40 ? arrived() : setTimeout(ready, 4))
+      setTimeout(ready, 0)
+    }
   })
   const turn = document.startViewTransition(() => {
     mo.observe(root, { childList: true })

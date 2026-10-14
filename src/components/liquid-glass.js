@@ -52,6 +52,10 @@ uniform float imgMix;       // how far the new picture has come in, 0..1
 uniform float useImage;     // 1: sample 'image' in imgRect over 'bg'; 0: the shared backdrop
 uniform vec4 imgRect;       // x, y, w, h of the image on the canvas, px
 uniform vec3 bg;            // the page's colour round the image
+uniform vec3 pageBg;        // the page's own colour (bg is it, lifted for a dark model)
+uniform sampler2D wall;     // the page's wallpaper, where it has one (the home page)
+uniform vec4 wallRect;      // x, y, w, h of the wallpaper on the canvas, px
+uniform float useWall;      // 1: what is round the image is the wallpaper, not a colour
 uniform sampler2D mask;     // letters: their shapes, crisp (alpha)
 uniform sampler2D soft;     // letters: the same, blurred, for the slope of the glass
 uniform float useMask;      // 1: the glass is the letters in 'mask'
@@ -99,13 +103,22 @@ float sdBox(vec2 q, vec2 h, float r) {
   return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - r;
 }
 
+// What is behind a lens round its picture: the page's colour — or, on a
+// page with a wallpaper, the wallpaper at that point (with any lift a dark
+// model asks for laid over it the same)
+vec3 ground(vec2 px) {
+  if (useWall < 0.5) return bg;
+  vec2 t = clamp((px - wallRect.xy) / wallRect.zw, 0.0, 1.0);
+  return clamp(texture2D(wall, t).rgb + (bg - pageBg), 0.0, 1.0);
+}
+
 vec3 sampleBackdrop(vec2 px) {
   if (useImage > 0.5) {
     vec2 t = (px - imgRect.xy) / imgRect.zw;
-    if (t.x < 0.0 || t.y < 0.0 || t.x > 1.0 || t.y > 1.0) return bg;
+    if (t.x < 0.0 || t.y < 0.0 || t.x > 1.0 || t.y > 1.0) return ground(px);
     vec4 c = texture2D(image, t);
     if (imgMix < 0.999) c = mix(texture2D(imageWas, t), c, imgMix);
-    return mix(bg, c.rgb, c.a);
+    return mix(ground(px), c.rgb, c.a);
   }
   // A canvas is uploaded top row first, so the texture's v runs down the
   // page as px.y does: no flip
@@ -432,7 +445,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   gl.enableVertexAttribArray(pLoc)
   gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0)
   const U = {}
-  for (const n of ['imageWas', 'imgMix', 'box', 'mask', 'soft', 'useMask', 'maskRect', 'softPx', 'specA', 'rimA', 'glowA', 'rowMix', 'sphereA', 'sheen', 'image', 'useImage', 'imgRect', 'bg', 'backdrop', 'res', 'win', 'origin', 'centre', 'halfSize', 'radius', 'depth', 'rimW', 'light', 'tint', 'tintA', 'frost', 'dark', 'hueA', 'hue']) {
+  for (const n of ['imageWas', 'imgMix', 'box', 'mask', 'soft', 'useMask', 'maskRect', 'softPx', 'specA', 'rimA', 'glowA', 'rowMix', 'sphereA', 'pageBg', 'wall', 'wallRect', 'useWall', 'sheen', 'image', 'useImage', 'imgRect', 'bg', 'backdrop', 'res', 'win', 'origin', 'centre', 'halfSize', 'radius', 'depth', 'rimW', 'light', 'tint', 'tintA', 'frost', 'dark', 'hueA', 'hue']) {
     U[n] = gl.getUniformLocation(prog, n)
   }
   gl.enable(gl.BLEND)
@@ -672,6 +685,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     gl.uniform1f(U.imgMix, 1)
     gl.uniform1i(U.mask, 2)
     gl.uniform1i(U.soft, 3)
+    gl.uniform1i(U.wall, 5)
     const pageBg = parseColour(css('--bg') || '#ffffff')
     gl.uniform3f(U.bg, pageBg[0], pageBg[1], pageBg[2])
     gl.uniform2f(U.win, back.width, back.height)
@@ -778,6 +792,25 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         const k = s.lift * dark
         gl.uniform3f(U.bg, pageBg[0] + (hue[0] * 0.45 - pageBg[0]) * k, pageBg[1] + (hue[1] * 0.45 - pageBg[1]) * k, pageBg[2] + (hue[2] * 0.45 - pageBg[2]) * k)
       } else gl.uniform3f(U.bg, pageBg[0], pageBg[1], pageBg[2])
+      gl.uniform3f(U.pageBg, pageBg[0], pageBg[1], pageBg[2])
+      // On a page with a wallpaper (s.wall: the home page's bubbles), the
+      // lens sees the wallpaper behind it, cropped as the page crops it
+      // (background-size: cover, centred). Nothing is drawn until it has
+      // loaded, rather than a disc of plain colour on the wallpaper.
+      gl.uniform1f(U.useWall, 0)
+      const wallOf = s.wall && s.wall(el)
+      if (wallOf) {
+        const wt = urlTexture(wallOf.url)
+        if (!wt) return false
+        const hr = wallOf.host.getBoundingClientRect()
+        const iw = wt.img.naturalWidth || 1, ih = wt.img.naturalHeight || 1
+        const sc = Math.max(hr.width / iw, hr.height / ih)
+        const dw = iw * sc, dh = ih * sc
+        gl.activeTexture(gl.TEXTURE5); gl.bindTexture(gl.TEXTURE_2D, wt.tex)
+        gl.activeTexture(gl.TEXTURE0)
+        gl.uniform4f(U.wallRect, (hr.left + (hr.width - dw) / 2) * dpr, (hr.top + (hr.height - dh) / 2) * dpr, dw * dpr, dh * dpr)
+        gl.uniform1f(U.useWall, 1)
+      }
       const img = s.image && s.image(el)
       const itex = img && imageTexture(img)
       if (itex) {
@@ -819,6 +852,8 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         // of theme) is fetched now, so it is ready when it is scrolled to,
         // rather than the old colours showing until it arrives
         if (s.silk && s.el.__silkSince !== s.warmed) { s.warmed = s.el.__silkSince; const u = s.silk(s.el); if (u) urlTexture(u) }
+        // and its wallpaper, likewise, so it is ready when it comes into view
+        if (s.wall) { const w = s.wall(s.el); if (w) urlTexture(w.url) }
         continue
       }
       // Drawn again only when what it shows would change: the light's

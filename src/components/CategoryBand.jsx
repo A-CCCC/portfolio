@@ -6,6 +6,7 @@
 // page it leads to answers "which one do I open". Listing the projects in both
 // places made the two pages near-identical and left the category pages with
 // nothing to do.
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { TYPE } from '../styles/type'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
@@ -14,6 +15,32 @@ export default function CategoryBand({
   label, path, blurb, cover, count, noun, flip, alt, secret, secretBox,
 }) {
   const [ref, opacity] = useFadeInOnScroll(0)
+
+  // An inverted band on a wallpapered page carries the other theme's
+  // wallpaper (.home-backdrop [data-inverted]) — laid exactly where the
+  // page's own wallpaper lies, the same size and the same place, so its
+  // shapes carry on across the band's edges in the other colours rather
+  // than starting again at its top. The page's is cropped to it as
+  // `cover`, centred, from a tall drawing (400 by 800).
+  const band = useRef(null)
+  useEffect(() => {
+    const el = band.current
+    const host = alt && el?.closest('.home-backdrop')
+    if (!host) return undefined
+    const place = () => {
+      const hw = host.offsetWidth, hh = host.offsetHeight
+      const k = Math.max(hw / 400, hh / 800)
+      const dw = 400 * k, dh = 800 * k
+      const top = el.getBoundingClientRect().top - host.getBoundingClientRect().top
+      const left = el.getBoundingClientRect().left - host.getBoundingClientRect().left
+      el.style.setProperty('--wall-size', `${dw}px ${dh}px`)
+      el.style.setProperty('--wall-at', `${(hw - dw) / 2 - left}px ${(hh - dh) / 2 - top}px`)
+    }
+    place()
+    const watch = new ResizeObserver(place)
+    watch.observe(host)
+    return () => watch.disconnect()
+  }, [alt])
 
   const image = (
     <img
@@ -26,6 +53,7 @@ export default function CategoryBand({
 
   return (
     <section className="split"
+      ref={band}
       // Painted the inverse of the page, which the navbar watches for so it can
       // turn over as it crosses one.
       data-inverted={alt ? '' : undefined}
@@ -45,7 +73,8 @@ export default function CategoryBand({
         // Every other band is the inverse of the page — black on a white page,
         // white on a dark one — so the categories read as separate panels
         // rather than one long scroll.
-        background: alt ? 'var(--band-bg)' : 'var(--bg)',
+        // (the page's own bands let the wallpaper through: .home-backdrop)
+        background: alt ? 'var(--band-bg)' : 'transparent',
         color: alt ? 'var(--band-ink)' : 'var(--text)',
       }}
     >

@@ -31,6 +31,9 @@ export default function Home() {
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
 
+      {/* The whole page on its wallpaper (.home-backdrop) — the bubbles too */}
+      <div className="home-backdrop">
+
       {/* ---- Hero: fades in on page load ---- */}
       <div style={{
         position: 'relative',
@@ -198,7 +201,7 @@ export default function Home() {
           transition: 'opacity 1.5s ease',
         }}
       >
-        <Link to={featured.path} className="glass glass-vivid glass-panel shop-card feature-card">
+        <Link to={featured.path} className="glass glass-vivid nav-glass shop-card feature-card">
           <span
             className="glass shop-card-disc"
             style={{ '--lg-hue': `var(--hue-${featured.tint})` }}
@@ -289,7 +292,7 @@ export default function Home() {
             maxWidth: 720,
           }}>
             {current.map((item) => (
-              <Link key={item.path} to={item.path} className="glass glass-vivid glass-panel shop-card current-card">
+              <Link key={item.path} to={item.path} className="glass glass-vivid nav-glass shop-card current-card">
                 <span
                   className="glass shop-card-disc"
                   style={{ '--lg-hue': `var(--hue-${item.tint})` }}
@@ -317,6 +320,7 @@ export default function Home() {
         </div>
       )}
 
+      </div>
     </div>
   )
 }

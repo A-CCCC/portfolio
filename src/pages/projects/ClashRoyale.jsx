@@ -10,7 +10,8 @@ export default function ClashRoyale() {
   const [carouselRef, carouselOpacity] = useFadeInOnScroll(0)
 
   return (
-    <div style={{ fontFamily: 'system-ui' }}>
+    // on the site's wallpaper, as the home page is (.home-backdrop)
+    <div className="home-backdrop" style={{ fontFamily: 'system-ui' }}>
 
       {/* The title gets a screen to itself, centered, the way every other
           page on the site opens — the hubs above these and the project

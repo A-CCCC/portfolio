@@ -201,7 +201,57 @@ const DIVE_MS = 580
 const BLOOM = 1.8
 const DIVE_SCALE = 3.4
 // Where the shards of the burst fly: a handful, spread round the ring
-const SHARDS = Array.from({ length: 10 }, (_, k) => ({ a: k * 36 + (k % 2) * 11, d: 1.3 + (k % 3) * 0.25 }))
+// The burst, seen from inside the dive: the bubble's shell breaks into
+// curved shards of glass that rush out towards the eye and past it, the
+// near ones growing until they sweep off the edges of the screen, as if the
+// camera were flying through the broken bubble. Laid over the page (the dive
+// scales the page, not them), in perspective about the bubble, and carried
+// to the middle of the screen with it as the dive brings it there.
+const SHARD_COUNT = 14
+function flyThrough(cx, cy, radius, hue) {
+  const vw = window.innerWidth, vh = window.innerHeight
+  const box = document.createElement('div')
+  box.className = 'pop-shards'
+  box.style.perspectiveOrigin = `${cx}px ${cy}px`
+  document.body.appendChild(box)
+  const reach = Math.hypot(vw, vh) * 0.75
+  const timing = { duration: DIVE_MS + 80, easing: 'cubic-bezier(0.55, 0, 0.8, 0.45)', fill: 'forwards' }
+  for (let k = 0; k < SHARD_COUNT; k += 1) {
+    const a = (k / SHARD_COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.4
+    const size = radius * (0.8 + Math.random() * 0.6)
+    const near = 0.55 + Math.random() * 0.45         // how close it comes: the nearest pass the eye
+    const shard = document.createElement('i')
+    shard.className = 'pop-shard'
+    // an irregular, slightly curved piece: four or five points round a centre
+    const n = 4 + (k % 2)
+    const pts = Array.from({ length: n }, (_, j) => {
+      const t = (j / n) * Math.PI * 2 + (Math.random() - 0.5) * 0.7
+      const rr = 30 + Math.random() * 20
+      return `${(50 + Math.cos(t) * rr).toFixed(0)}% ${(50 + Math.sin(t) * rr).toFixed(0)}%`
+    }).join(', ')
+    Object.assign(shard.style, {
+      left: `${cx}px`, top: `${cy}px`, width: `${size}px`, height: `${size}px`,
+      margin: `${-size / 2}px 0 0 ${-size / 2}px`,
+      clipPath: `polygon(${pts})`,
+    })
+    shard.style.setProperty('--shard-hue', hue)
+    box.appendChild(shard)
+    const spin = (Math.random() - 0.5) * 300
+    const tiltX = (Math.random() - 0.5) * 140, tiltY = (Math.random() - 0.5) * 140
+    const out = reach * (0.35 + 0.3 * near)
+    shard.animate([
+      { transform: `translate3d(${(Math.cos(a) * radius * 0.6).toFixed(1)}px, ${(Math.sin(a) * radius * 0.6).toFixed(1)}px, 0) rotate(${(a * 57.3).toFixed(0)}deg)`, opacity: 0.95 },
+      { opacity: 0.9, offset: 0.86 },
+      { transform: `translate3d(${(Math.cos(a) * out).toFixed(1)}px, ${(Math.sin(a) * out).toFixed(1)}px, ${(565 * near).toFixed(0)}px) rotate(${(a * 57.3 + spin).toFixed(0)}deg) rotateX(${tiltX.toFixed(0)}deg) rotateY(${tiltY.toFixed(0)}deg)`, opacity: 0 },
+    ], timing)
+  }
+  // all of it carried to the middle of the screen with the dive
+  box.animate([
+    { transform: 'none' },
+    { transform: `translate(${(vw / 2 - cx).toFixed(1)}px, ${(vh / 2 - cy).toFixed(1)}px)` },
+  ], { duration: DIVE_MS, easing: 'cubic-bezier(0.55, 0, 0.8, 0.4)', fill: 'forwards' })
+  setTimeout(() => box.remove(), DIVE_MS + 200)
+}
 
 const ALWAYS = bubbleProjects.filter((project) => ALWAYS_PATHS.includes(project.path))
 
@@ -344,7 +394,13 @@ export default function ProjectBubbles() {
         // bend in step with the bubble's size (9px on the desktop's): a
         // phone's half-size bubbles bent as far drew the edge of a model —
         // the tip of the Vader helmet — out into the rim.
-        removers.push(glass.add(b, { circle: true, sphere: true, hue: true, swell: true, lift, inset: 0.86, frost: 0, depth: b.offsetWidth * 0.08, rim: b.offsetWidth * 0.22, tintA: 0, specA: 0.45, rimOnLight: 0.7, image: (el) => el.querySelector('img'), skip: (el) => el.classList.contains('bubble-popping') || el.classList.contains('bubble-swelling') }))
+        // the page's wallpaper behind them (.home-backdrop), seen through them
+        const wall = () => {
+          const host = b.closest('.home-backdrop')
+          const m = host && getComputedStyle(host).getPropertyValue('--home-wall').trim().match(/^url\("(.*)"\)$/)
+          return m ? { url: m[1], host } : null
+        }
+        removers.push(glass.add(b, { circle: true, sphere: true, hue: true, swell: true, wall, lift, inset: 0.86, frost: 0, depth: b.offsetWidth * 0.08, rim: b.offsetWidth * 0.22, tintA: 0, specA: 0.45, rimOnLight: 0.7, image: (el) => el.querySelector('img'), skip: (el) => el.classList.contains('bubble-popping') || el.classList.contains('bubble-swelling') }))
       }
     }).catch((err) => console.warn('liquid glass:', err))
     return () => {
@@ -435,6 +491,7 @@ export default function ProjectBubbles() {
       page.style.setProperty('--dive-dy', `${window.innerHeight / 2 - cy}px`)
       page.classList.add('page-diving')
       document.documentElement.classList.add('diving')
+      flyThrough(cx, cy, r.width / 2, hue)
     }, SWELL_MS)
     setTimeout(() => {
       document.documentElement.classList.remove('diving')
@@ -562,10 +619,6 @@ export default function ProjectBubbles() {
               {/* The burst's colour: a glow of the bubble's hue just round
                   it, there the moment it goes, and carried in with the dive */}
               {popping === project.path && <i className="bubble-bloom" aria-hidden="true" />}
-              {popping === project.path && SHARDS.map((sh, k) => (
-                <i key={k} className="bubble-shard" aria-hidden="true"
-                  style={{ '--a': `${sh.a}deg`, '--r': `${spot.size / 2}px`, '--d': sh.d }} />
-              ))}
             </Link>
           </div>
         )

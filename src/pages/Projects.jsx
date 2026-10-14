@@ -49,7 +49,8 @@ export default function Projects() {
   const introOpacity = useFadeIn(600)
 
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    // on the site's wallpaper, as the home page is (.home-backdrop)
+    <div className="home-backdrop" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
 
       <div style={{
         height: 'var(--screen)',
