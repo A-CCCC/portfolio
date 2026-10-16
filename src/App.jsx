@@ -1,6 +1,6 @@
 // src/App.jsx
 import { Suspense, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { page, preloadPages } from './lib-page'
 import Home from './pages/Home'
 import Navbar from './components/Navbar'
@@ -49,6 +49,15 @@ const BarrelDrop = page(() => import('./components/BarrelDrop'))
 const SnakeGame = page(() => import('./components/SnakeGame'))
 const Loading = page(() => import('./pages/Loading'))
 
+// The router's navigate, for the page transitions (page-sweep.js), which
+// live outside React and once moved the page by clicking a link again —
+// a link that may no longer be on the page by then
+function ShareNavigate() {
+  const navigate = useNavigate()
+  useEffect(() => { window.__siteNavigate = navigate }, [navigate])
+  return null
+}
+
 export default function App() {
   useEffect(() => { preloadPages() }, [])
   // Under a subfolder, /solutions is really /Portfolio/solutions. Vite puts the
@@ -60,6 +69,7 @@ export default function App() {
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Navbar />
       <ScrollToTop />
+      <ShareNavigate />
       <ThemeToggle />
       {/* the way into the games, cracked open (see the component) */}
       <EggCrack />

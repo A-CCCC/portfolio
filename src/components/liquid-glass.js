@@ -56,8 +56,12 @@ uniform vec3 pageBg;        // the page's own colour (bg is it, lifted for a dar
 uniform sampler2D wall;     // the page's wallpaper, where it has one (the home page)
 uniform vec4 wallRect;      // x, y, w, h of the wallpaper on the canvas, px
 uniform float useWall;      // 1: what is round the image is the wallpaper, not a colour
+uniform float seeThrough;   // letters: 1 = the page's wallpaper straight through them, bent, not a cloth read by depth
+uniform vec4 silkRect;      // letters seeing through: where their own cloth (the glass's colour, in imageWas) lies
 uniform sampler2D mask;     // letters: their shapes, crisp (alpha)
 uniform sampler2D soft;     // letters: the same, blurred, for the slope of the glass
+uniform sampler2D wide;     // clear glass letters: blurred wider, for how the glass bends what is behind
+uniform float widePx;       // its blur, px
 uniform float useMask;      // 1: the glass is the letters in 'mask'
 uniform vec4 maskRect;      // x, y, w, h of the mask on the canvas, px
 uniform float softPx;       // the blur of 'soft', px
@@ -133,8 +137,9 @@ vec3 frosted(vec2 px, float amount) {
   for (int i = 0; i < 8; i++) {
     float a = float(i) * 0.785398;
     s += sampleBackdrop(px + vec2(cos(a), sin(a)) * amount);
+    s += sampleBackdrop(px + vec2(cos(a + 0.39), sin(a + 0.39)) * amount * 0.5) * 1.5;
   }
-  return s / 10.0;
+  return s / 22.0;
 }
 
 void main() {
@@ -145,6 +150,11 @@ void main() {
   float tilt;       // how far the face tilts here, 0 flat .. 1 edge-on
   float ramp = -1.0; // letters: 1 at the outline falling evenly to 0 inside
   float ins = 0.0;   // letters: how far in from the outline, 0..1
+  float faceAmt = 1.0;   // clear glass letters: 1 on the face, 0 in the band round the edge
+  float crispBand = 0.0;   // clear glass letters: 1 within a few pixels of the true outline, 0 further in
+  vec2 outW = vec2(0.0);   // clear glass letters: outward across their rounded band
+  float tiltW = 0.0;       // clear glass letters: how far their rim curves away, 0 inside, 1 at the outline
+  vec2 tubeN = vec2(0.0);  // clear glass letters: the tilt of the stroke as a rounded tube, from the wide field
   float cap = 0.0;   // letters: how sharply the lines at a set depth turn here — a stroke's end
   vec2 grad;        // outward direction at the edge
   float gw = 1.0;   // how much that direction means: letters, near nothing down a stroke's middle
@@ -156,6 +166,10 @@ void main() {
     vec2 t = (px - maskRect.xy) / maskRect.zw;
     if (t.x < 0.0 || t.y < 0.0 || t.x > 1.0 || t.y > 1.0) discard;
     edge = texture2D(mask, t).a;
+    // clear glass letters take no part of a pixel the letters barely touch:
+    // the canvas left a breath of coverage across each letter's box, and
+    // through glass that showed as a faint rectangle round every letter
+    if (seeThrough > 0.5) edge = smoothstep(0.04, 0.5, edge);
     if (edge <= 0.003) {
       // Outside a letter: its glow, if it has one — the light it gives off,
       // spilling past its edge in its own colour and falling away
@@ -233,6 +247,45 @@ void main() {
   // more the steeper the tilt; red, green and blue by slightly different
   // amounts, so the rim shows a faint fringe of colour
   vec2 bend = -grad * tilt * depth * gw;
+  // Clear glass letters bend what is behind them by their whole thickness,
+  // as a solid of glass does: the light drawn in from further inside the
+  // closer it comes to the edge, read from the letters blurred wide — while
+  // their light keeps to the narrow bevel of the crisp shape. So the
+  // outline stays sharp and the background still bends through the letter.
+  if (useMask > 0.5 && seeThrough > 0.5) {
+    vec2 tw = (px - maskRect.xy) / maskRect.zw;
+    vec2 sw = vec2(widePx * 0.6) / maskRect.zw;
+    float aw = texture2D(wide, tw).a;
+    vec2 gW = vec2(texture2D(wide, tw + vec2(sw.x, 0.0)).a - texture2D(wide, tw - vec2(sw.x, 0.0)).a,
+                   texture2D(wide, tw + vec2(0.0, sw.y)).a - texture2D(wide, tw - vec2(0.0, sw.y)).a);
+    // Bent as the panels and the bubbles are: a rim round the letter where
+    // the glass curves away in a circular profile — flat inside it, falling
+    // away steeply at the outline — and what is behind drawn in by the
+    // tilt of that curve, so it is magnified at the edge and clear across
+    // the flat of the face.
+    float insW = clamp((aw - 0.5) * 2.0, 0.0, 1.0);
+    // the bevel: a narrow strip at the outline, curving away
+    tiltW = 1.0 - smoothstep(0.0, 0.28, insW);
+    faceAmt = 1.0 - tiltW;
+    outW = -normalize(gW + 1e-5);
+    tubeN = -gW * 3.0;
+    // the bend from each letter's own edge (the wide shape merged letters
+    // and drew wiggles down the middle of strokes): in, a little, at the
+    // outline, fading out over the bevel, none down the middle of a stroke
+    // The edge band from the crisp shape itself — the least of it a few
+    // pixels away in eight directions — so it follows the true outline,
+    // square corners and thin crossbars too (a band from the blurred shape
+    // rounded them off into knobs)
+    vec2 tc = (px - maskRect.xy) / maskRect.zw;
+    float m8 = 1.0;
+    for (int k = 0; k < 8; k++) {
+      float a = float(k) * 0.785398;
+      vec2 o = vec2(cos(a), sin(a)) * 3.0 / maskRect.zw;
+      m8 = min(m8, texture2D(mask, tc + o).a);
+    }
+    crispBand = 1.0 - smoothstep(0.15, 0.85, m8);
+    bend = -grad * crispBand * depth * 0.6 * gw;
+  }
   // Letters take their colour from how far in from their own outline a
   // point is — the cloth read along a line down the word, as the O's bands
   // of colour follow its ring — so the colour runs in bands that follow
@@ -246,22 +299,27 @@ void main() {
   // colours mix as they do across the cloth behind a card.
   // On a diagonal, from the block's top left to its bottom right, so the
   // bands cross the lines at a slant rather than each line being one.
-  if (useMask > 0.5) {
+  if (useMask > 0.5 && seeThrough < 0.5) {
     vec2 tb = clamp((px - imgRect.xy) / imgRect.zw, 0.0, 1.0);
     float slant = clamp(0.75 * tb.y + 0.65 * tb.x - 0.05, 0.0, 1.0);
     at = vec2(px.x, mix(imgRect.y + imgRect.w * (0.12 + 0.76 * ins), imgRect.y + imgRect.w * slant, rowMix));
   }
   vec3 col;
-  col.r = frosted(at + bend * 1.06, frost).r;
-  col.g = frosted(at + bend, frost).g;
-  col.b = frosted(at + bend * 0.94, frost).b;
+  // the colours parted a little at the edge — less in clear glass letters,
+  // where a wide split showed as fringes along every edge seen through them
+  float split = seeThrough > 0.5 ? 0.012 : 0.06;
+  // (the frost on the face of clear glass letters, not in their edge band)
+  float fr = frost;
+  col.r = frosted(at + bend * (1.0 + split), fr).r;
+  col.g = frosted(at + bend, fr).g;
+  col.b = frosted(at + bend * (1.0 - split), fr).b;
 
   // Streaks in the letters: what the glass bends is drawn out along the
   // stroke, not left in soft blobs — long along the letter's edge, narrow
   // across it, mostly deeper and a few lighter, in the body of the stroke
   // and fading out towards its rim. Measured in the letters' own blur, so
-  // they are the same at any resolution.
-  if (useMask > 0.5) {
+  // they are the same at any resolution. (Not in letters of clear glass.)
+  if (useMask > 0.5 && seeThrough < 0.5) {
     // Across a streak: the distance in from the outline, which follows the
     // letter's shape everywhere without a turn or a seam. Along it: the
     // page's x, slowly, so a streak runs long and unbroken down a stroke
@@ -319,7 +377,7 @@ void main() {
   // wrong way round, and lit the rim on the side away from the light.
   float lit = 0.5 + 0.5 * dot(grad, toLight) * gw;
   vec3 white = vec3(1.0);
-  float slab = 1.0 - useMask;       // the tricks below are a slab's; letters are lit as solids
+  float slab = 1.0 - useMask;       // the tricks below are a slab's; letters are lit by their own
   // the edge-on brightening too: all round on the dark page, only towards
   // the light on the light page
   col += slab * white * fres * (0.18 * mix(smoothstep(0.3, 0.9, lit), 1.0, dark) + 0.42 * lit) * (0.8 + 0.5 * dark) * rimA;
@@ -331,13 +389,50 @@ void main() {
   col += slab * white * line * (0.45 + 0.3 * dark) * rimA;
   // The shade on the far side's inner edge, where the slab's thickness darkens the view
   float shade = fres * (1.0 - lit) * 0.22 * (1.0 + 0.6 * dark);
-  col -= slab * shade;
+  // (not on clear glass letters: subtracted from a pale tint it read as grey)
+  col -= slab * shade * (1.0 - seeThrough);
   // On the light page a letter reads as glass by what glass does on white:
   // a little of the page seen through the middle of the stroke, its edge
   // deepened and saturated where the glass is thickest to the eye — most on
   // the side away from the light — and a crisp line of light along the side
   // facing it. On the dark page the glow and the rim light do this.
-  if (useMask > 0.5) {
+  if (useMask > 0.5 && seeThrough > 0.5) {
+    // Clear glass, read off the lock screen's clock part by part:
+    //  - the face: what is behind, frosted (blurred, its shapes still there),
+    //    lighter in its own hue — pale blue on blue, pale on cream — flat,
+    //    not bent and not shaded;
+    //  - the bevel: a narrow strip at the outline where the glass curves
+    //    away — what is behind slightly bent there, brighter on the side of
+    //    the letter turned to the light, a shade deeper (in its own colour,
+    //    never grey) on the side turned away;
+    //  - the rim: a fine bright line at the very outline, strongest towards
+    //    the light, faint all round;
+    //  - nothing outside the letter: no glow, no shadow, no outline.
+    float thinEdge = smoothstep(0.0, 0.04, ins);
+    vec3 behind = col;
+    float faceL = dot(outW, toLight);
+    // the face
+    vec3 own = col / max(max(col.r, max(col.g, col.b)), 0.02);
+    col = mix(col, own * 0.9, 0.34);
+    col = mix(col, white, 0.2 - 0.08 * dark);
+    // and on the light page a hazy white over that — milkier glass, so the
+    // letters stand out from the pale ground
+    col = mix(col, vec3(1.0, 0.995, 0.985), 0.55 * (1.0 - dark));
+    // The light on it, from the top left, as on clear glass: a highlight on
+    // the edges turned to the light, and — the light passing through the
+    // glass and catching the inside of the far edge — a fainter one on the
+    // edges turned away. Nothing is darkened: a dark band along the far
+    // edges read as a shadowed copy of the words behind the glass. Worked
+    // out from each letter's own edge, close to its outline.
+    // (soft: no line drawn at the outline — a line all round, on both
+    // sides, traced every letter like a pen; only the edges turned to the
+    // light catch it, as a glow rising gently just inside the edge)
+    float edgeFace = dot(grad, toLight) * gw;                  // +1 facing the light, -1 away
+    float litSide = smoothstep(0.1, 0.9, edgeFace);
+    float glowIn = crispBand * smoothstep(0.0, 0.5, 1.0 - crispBand + 0.15);
+    col = mix(col, white, glowIn * litSide * (0.26 + 0.08 * dark));
+    col = mix(behind, col, thinEdge);
+  } else if (useMask > 0.5) {
     // The letter lit as a solid by the light above and to one side: faces
     // turned to it brighter, faces turned away in shade, a sharp highlight
     // where the curve of the shoulder reflects it to the eye and a broad
@@ -397,6 +492,24 @@ void main() {
   col += (tint - 0.5) * 0.06;
 
   // premultiplied, as the page composites it
+  // Clear glass letters fade to nothing at their very outline, so the page
+  // itself shows there: the glass's own copy of the wallpaper is a shade off
+  // the page's, and met at a hard edge it drew a faint frame round every
+  // letter — boxes round the square-ended strokes
+  // — taken from the crisp shape, so it is the same thinness all round,
+  // corners and fine strokes too (read from the blurred shape it ate into
+  // them, and the crossbars and arms came out as blobs)
+  // — from the crisp shape and its nearest neighbours only, so the
+  // outermost ring of pixels is softened and nothing more: square corners
+  // and thin crossbars keep their true shape (a fade read from the blurred
+  // shape ate into them unevenly, and left lumps and bulbs at their ends)
+  if (useMask > 0.5 && seeThrough > 0.5) {
+    vec2 tm = (px - maskRect.xy) / maskRect.zw;
+    vec2 dx = vec2(1.2 / maskRect.z, 0.0), dy = vec2(0.0, 1.2 / maskRect.w);
+    float nb = min(min(texture2D(mask, tm + dx).a, texture2D(mask, tm - dx).a),
+                   min(texture2D(mask, tm + dy).a, texture2D(mask, tm - dy).a));
+    edge = smoothstep(0.3, 1.0, edge) * mix(0.45, 1.0, smoothstep(0.2, 0.95, nb));
+  }
   gl_FragColor = vec4(clamp(col, 0.0, 1.0) * edge, edge);
 }
 `
@@ -445,7 +558,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   gl.enableVertexAttribArray(pLoc)
   gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0)
   const U = {}
-  for (const n of ['imageWas', 'imgMix', 'box', 'mask', 'soft', 'useMask', 'maskRect', 'softPx', 'specA', 'rimA', 'glowA', 'rowMix', 'sphereA', 'pageBg', 'wall', 'wallRect', 'useWall', 'sheen', 'image', 'useImage', 'imgRect', 'bg', 'backdrop', 'res', 'win', 'origin', 'centre', 'halfSize', 'radius', 'depth', 'rimW', 'light', 'tint', 'tintA', 'frost', 'dark', 'hueA', 'hue']) {
+  for (const n of ['imageWas', 'imgMix', 'box', 'mask', 'soft', 'useMask', 'maskRect', 'softPx', 'specA', 'rimA', 'glowA', 'rowMix', 'sphereA', 'pageBg', 'wall', 'wallRect', 'useWall', 'seeThrough', 'silkRect', 'wide', 'widePx', 'sheen', 'image', 'useImage', 'imgRect', 'bg', 'backdrop', 'res', 'win', 'origin', 'centre', 'halfSize', 'radius', 'depth', 'rimW', 'light', 'tint', 'tintA', 'frost', 'dark', 'hueA', 'hue']) {
     U[n] = gl.getUniformLocation(prog, n)
   }
   gl.enable(gl.BLEND)
@@ -486,6 +599,42 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     }
     return e.tex ? { img: e.img, tex: e.tex } : null
   }
+  // The page's wallpaper as the lenses see it: not the drawing itself, which
+  // is a few hundred pixels across and was stretched many times over inside
+  // a bubble — blocky — but its top (where the bubbles are: a screen and a
+  // half of it) drawn out afresh at the screen's own resolution, sharp.
+  // Drawn again only when the wallpaper, the page's width or the screen's
+  // density changes.
+  const walls = new Map()
+  const wallTexture = (url, host) => {
+    const w = host.offsetWidth, hh = host.offsetHeight
+    const h = Math.min(hh, Math.round(window.innerHeight * 1.5))
+    // keyed on the whole drawing (a hash of it): the light and the dark
+    // wallpapers are the same length and end alike, and keyed on those the
+    // bubbles went on showing the light one after the theme turned
+    let hash = 0
+    for (let i = 0; i < url.length; i += 7) hash = (hash * 31 + url.charCodeAt(i)) | 0
+    const key = `${url.length}|${hash}|${w}|${hh}|${h}|${dpr}`
+    let e = walls.get(host)
+    if (!e || e.key !== key) {
+      const prev = e
+      e = { key, tex: null, h, img: new Image() }
+      walls.set(host, e)
+      e.img.onload = () => {
+        const k = Math.min(dpr, 4096 / Math.max(w, h))
+        const cv = document.createElement('canvas')
+        cv.width = Math.max(1, Math.round(w * k)); cv.height = Math.max(1, Math.round(h * k))
+        // the whole drawing scaled to the page, of which only the top is kept
+        cv.getContext('2d').drawImage(e.img, 0, 0, cv.width, Math.round(hh * k))
+        e.tex = upload(cv, prev?.tex || undefined)
+        hotUntil = performance.now() + 200
+      }
+      e.img.src = url
+      // until it is drawn, the last one does
+      if (prev?.tex) return { tex: prev.tex, h: prev.h }
+    }
+    return e.tex ? e : null
+  }
   function upload(source, t = gl.createTexture()) {
     gl.bindTexture(gl.TEXTURE_2D, t)
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false)
@@ -511,8 +660,13 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     const el = s.el
     const cs = getComputedStyle(el)
     const w = el.offsetWidth, h = el.offsetHeight
-    const key = `${el.textContent}|${cs.font}|${cs.letterSpacing}|${w}x${h}|${dpr}`
-    if (s.mask && s.mask.key === key) return s.mask
+    // Letters of clear glass (on a wallpaper) are bevelled thin: their shape
+    // read from a tighter blur, so each stroke has its own narrow edge — at
+    // the cloth's width the blur ran neighbouring strokes and letters
+    // together, and what was seen through them bent in blobs
+    const thin = s.wallBehind && s.wallBehind(el) ? 1 : 0
+    const key = `${el.textContent}|${cs.font}|${cs.fontStretch}|${cs.letterSpacing}|${w}x${h}|${dpr}|${thin}`
+    if (s.mask && s.mask.key === key) return s.mask.pending ? s.mask.was : s.mask
     const box = el.getBoundingClientRect()
     // the element may be scaled (a hover): the layout is read in its own size
     const kx = w / (box.width || 1), ky = h / (box.height || 1)
@@ -526,8 +680,16 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     // "system-ui", fell back to another face, and every letter came out a
     // different shape from the page's, off the shadow the page's text casts
     const family = cs.fontFamily.replace(/(^|,\s*)system-ui\b/g, '$1-apple-system, BlinkMacSystemFont, system-ui')
-    c.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${family}`
+    const STRETCH = { 50: 'ultra-condensed', 62.5: 'extra-condensed', 75: 'condensed', 87.5: 'semi-condensed', 100: 'normal', 112.5: 'semi-expanded', 125: 'expanded' }
+    const st = cs.fontStretch.endsWith('%') ? (STRETCH[parseFloat(cs.fontStretch)] || 'normal') : cs.fontStretch
+    c.font = `${cs.fontStyle} ${cs.fontWeight} ${st} ${cs.fontSize} ${family}`
+    if ('fontStretch' in c) { try { c.fontStretch = st } catch { /* the shorthand did it */ } }
     const spacing = parseFloat(cs.letterSpacing) || 0
+    // A canvas that cannot set the page's width (Safari's, with a compressed
+    // face) draws the letters too wide; there they are drawn through an SVG
+    // image instead, which sets the face as the page does
+    const stretched = st !== 'normal' && !('fontStretch' in c)
+    const glyphs = []
     c.fillStyle = '#fff'
     c.textBaseline = 'alphabetic'
     // Letter by letter, each where the page set it. A word drawn whole was
@@ -557,14 +719,19 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
             const drawn = c.measureText(ch).width
             const wants = r.width * kx - spacing
             const sx = drawn > 0 && wants > 0 ? Math.min(1.15, Math.max(0.87, wants / drawn)) : 1
-            if (Math.abs(sx - 1) < 0.01) c.fillText(ch, x, y)
+            // (only for a real difference: a glyph drawn scaled is drawn from a
+            // cached picture of it, and left a faint film across its whole
+            // box — through clear glass, a box round every letter)
+            if (stretched) glyphs.push([ch, x, y])
+            else if (Math.abs(sx - 1) < 0.05) c.fillText(ch, x, y)
             else { c.save(); c.translate(x, y); c.scale(sx, 1); c.fillText(ch, 0, 0); c.restore() }
           }
         }
         i = next
       }
     }
-    const softPx = Math.max(2.5, parseFloat(cs.fontSize) * 0.07)
+    const softPx = Math.max(thin ? 2.0 : 2.5, parseFloat(cs.fontSize) * (thin ? 0.03 : 0.07))
+    const finish = () => {
     const blurred = document.createElement('canvas'); blurred.width = cw; blurred.height = ch
     const b = blurred.getContext('2d')
     if (canvasBlurs()) {
@@ -586,9 +753,53 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       b.imageSmoothingEnabled = true; b.imageSmoothingQuality = 'high'
       b.drawImage(small, 0, 0, cw, ch)
     }
-    const was = s.mask
-    s.mask = { key, crisp: upload(crisp, was?.crisp), soft: upload(blurred, was?.soft), softPx, w, h }
+    // and, for clear glass letters, the same blurred wide, for their bend
+    let wideCanvas = null
+    const widePx = parseFloat(cs.fontSize) * 0.075
+    if (thin) {
+      wideCanvas = document.createElement('canvas'); wideCanvas.width = cw; wideCanvas.height = ch
+      const wb = wideCanvas.getContext('2d')
+      if (canvasBlurs()) { wb.filter = `blur(${widePx * dpr}px)`; wb.drawImage(crisp, 0, 0) }
+      else {
+        const k = Math.max(1, (widePx * dpr) / 2.5)
+        const sw = Math.max(1, Math.round(cw / k)), sh = Math.max(1, Math.round(ch / k))
+        const small = document.createElement('canvas'); small.width = sw; small.height = sh
+        const sc = small.getContext('2d', { willReadFrequently: true })
+        sc.imageSmoothingEnabled = true; sc.drawImage(crisp, 0, 0, sw, sh)
+        blurAlpha(sc, sw, sh, (widePx * dpr) / k)
+        wb.imageSmoothingEnabled = true; wb.drawImage(small, 0, 0, cw, ch)
+      }
+    }
+    const was = s.mask?.pending ? s.mask.was : s.mask
+    s.mask = { key, crisp: upload(crisp, was?.crisp), soft: upload(blurred, was?.soft), softPx, w, h,
+      wide: wideCanvas ? upload(wideCanvas, was?.wide) : null, widePx }
     return s.mask
+    }
+    if (!stretched) return finish()
+    // the SVG way: the same letters at the same places, the face set as the
+    // page sets it; drawn when the image has loaded, the last mask (or none)
+    // meanwhile
+    const esc = (x) => x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    const fam = family.replace(/"/g, "'")
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${cw}' height='${ch}' viewBox='0 0 ${cw / dpr} ${ch / dpr}'>`
+      + `<g fill='#fff' style="font-style:${cs.fontStyle};font-weight:${cs.fontWeight};font-size:${cs.fontSize};font-family:${esc(fam)};font-stretch:${cs.fontStretch}">`
+      + glyphs.map(([g, x, y]) => `<text x='${x.toFixed(2)}' y='${y.toFixed(2)}'>${esc(g)}</text>`).join('')
+      + `</g></svg>`
+    const prior = s.mask?.pending ? s.mask.was : s.mask
+    s.mask = { key, pending: true, was: prior }
+    const img = new Image()
+    img.onload = () => {
+      if (s.mask?.key !== key) return
+      c.setTransform(1, 0, 0, 1, 0, 0)
+      c.drawImage(img, 0, 0, cw, ch)
+      s.mask = { key: '', pending: true, was: prior }
+      const done = finish()
+      done.key = key
+      s.mask = done
+      hotUntil = performance.now() + 200
+    }
+    img.src = `data:image/svg+xml,${encodeURIComponent(svg)}`
+    return prior
   }
 
   const surfaces = new Set()
@@ -685,6 +896,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     gl.uniform1f(U.imgMix, 1)
     gl.uniform1i(U.mask, 2)
     gl.uniform1i(U.soft, 3)
+    gl.uniform1i(U.wide, 6)
     gl.uniform1i(U.wall, 5)
     const pageBg = parseColour(css('--bg') || '#ffffff')
     gl.uniform3f(U.bg, pageBg[0], pageBg[1], pageBg[2])
@@ -742,9 +954,12 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       gl.uniform1f(U.sheen, -1)
       if (s.letters) {
         const mk = letters(s)
+        if (!mk) return false              // its letters still being drawn
         const kx = r.width / mk.w, ky = r.height / mk.h
         gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, mk.crisp)
         gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, mk.soft)
+        gl.activeTexture(gl.TEXTURE6); gl.bindTexture(gl.TEXTURE_2D, mk.wide || mk.soft)
+        gl.uniform1f(U.widePx, (mk.widePx || mk.softPx) * dpr)
         gl.activeTexture(gl.TEXTURE0)
         gl.uniform1f(U.useMask, 1)
         gl.uniform4f(U.maskRect, (r.left - MARGIN * kx) * dpr, (r.top - MARGIN * ky) * dpr, (r.width + MARGIN * 2 * kx) * dpr, (r.height + MARGIN * 2 * ky) * dpr)
@@ -773,6 +988,59 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       }
       const fromUrl = s.silkNow
       if (s.silk && !fromUrl) return false          // nothing loaded yet: the CSS glass shows
+      gl.uniform1f(U.seeThrough, 0)
+      // Letters on a page with a wallpaper: the wallpaper behind them, seen
+      // through them — a sharp drawing of the part of it behind the title
+      // (wallRegion), bent at the edges of every stroke as the glass bends
+      // it — rather than a cloth of their own. Until it is drawn, the cloth.
+      const behind = s.wallBehind && s.wallBehind(el)
+      if (behind) {
+        const hr = behind.host.getBoundingClientRect()
+        const M = 40                                   // a margin round it, for the bend to reach into
+        // from the title's own size, not its drawn one: a heading that swells
+        // under the pointer (about its left edge) keeps the same drawing,
+        // rather than asking for a new one with every hover
+        const ow = el.offsetWidth, oh = el.offsetHeight
+        const box = { x: r.left - hr.left - M, y: r.top + r.height / 2 - oh / 2 - hr.top - M, w: ow + 2 * M, h: oh + 2 * M }
+        const key = `${behind.host.__wallKey}|${Math.round(box.x / 8)}|${Math.round(box.y / 8)}|${Math.round(box.w / 8)}|${Math.round(box.h / 8)}|${behind.dark ? 1 : 0}|${dpr}`
+        if (s.behindKey !== key) {
+          const url = behind.region(box.x, box.y, box.w, box.h, box.w * dpr, box.h * dpr, behind.dark)
+          if (url) {
+            // the drawing on screen kept until the new one has loaded (a zoom,
+            // a resize, the theme): without it the cloth showed in between,
+            // a flicker of the old colours
+            if (s.behindUrl && urlTexture(s.behindUrl)) s.behindPrev = { url: s.behindUrl, box: s.behindBox }
+            s.behindKey = key; s.behindUrl = url; s.behindBox = box
+          }
+        }
+        let bt = s.behindUrl && urlTexture(s.behindUrl)
+        let bx = s.behindBox
+        if (!bt && s.behindPrev) { bt = urlTexture(s.behindPrev.url); bx = s.behindPrev.box }
+        else if (bt) s.behindPrev = null
+        // nothing yet at all (a title just arrived): drawn a moment later,
+        // not in the cloth's colours meanwhile
+        if (!bt) return false
+        if (bt && fromUrl) {
+          gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, bt.tex)
+          // and the glass's own colour, its cloth, to tint what comes through
+          gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, (fromUrl || bt).tex)
+          gl.uniform4f(U.silkRect, r.left * dpr, r.top * dpr, r.width * dpr, r.height * dpr)
+          gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex)
+          gl.uniform1f(U.imgMix, 1)
+          gl.uniform1f(U.useImage, 1)
+          gl.uniform1f(U.seeThrough, 1)
+          // bent a little more than the cloth's letters were, and no more: bent
+          // hard, an edge behind a stroke broke up into patches inside it
+          gl.uniform1f(U.depth, (s.depth ?? 14) * 0.3 * dpr)
+          gl.uniform1f(U.glowA, 0)
+          // what is seen through the face softened a little, as the clock's is
+          gl.uniform1f(U.frost, 5.0 * dpr)
+          if (!el.classList.contains('lg-clear')) el.classList.add('lg-clear')
+          gl.uniform4f(U.imgRect, (hr.left + bx.x) * dpr, (hr.top + bx.y) * dpr, bx.w * dpr, bx.h * dpr)
+          gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+          return true
+        }
+      }
       if (fromUrl) {
         const m = Math.min(1, (now - (s.silkAt ?? -1e9)) / FADE)
         gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, fromUrl.tex)
@@ -794,21 +1062,19 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       } else gl.uniform3f(U.bg, pageBg[0], pageBg[1], pageBg[2])
       gl.uniform3f(U.pageBg, pageBg[0], pageBg[1], pageBg[2])
       // On a page with a wallpaper (s.wall: the home page's bubbles), the
-      // lens sees the wallpaper behind it, cropped as the page crops it
-      // (background-size: cover, centred). Nothing is drawn until it has
+      // lens sees the wallpaper behind it, where the page lays it. Nothing is
+      // drawn until it has
       // loaded, rather than a disc of plain colour on the wallpaper.
       gl.uniform1f(U.useWall, 0)
       const wallOf = s.wall && s.wall(el)
       if (wallOf) {
-        const wt = urlTexture(wallOf.url)
-        if (!wt) return false
         const hr = wallOf.host.getBoundingClientRect()
-        const iw = wt.img.naturalWidth || 1, ih = wt.img.naturalHeight || 1
-        const sc = Math.max(hr.width / iw, hr.height / ih)
-        const dw = iw * sc, dh = ih * sc
+        const wt = wallTexture(wallOf.url, wallOf.host)
+        if (!wt) return false
+        // the top of the page's wallpaper, sharp, laid where the page lays it
         gl.activeTexture(gl.TEXTURE5); gl.bindTexture(gl.TEXTURE_2D, wt.tex)
         gl.activeTexture(gl.TEXTURE0)
-        gl.uniform4f(U.wallRect, (hr.left + (hr.width - dw) / 2) * dpr, (hr.top + (hr.height - dh) / 2) * dpr, dw * dpr, dh * dpr)
+        gl.uniform4f(U.wallRect, hr.left * dpr, hr.top * dpr, hr.width * dpr, wt.h * dpr)
         gl.uniform1f(U.useWall, 1)
       }
       const img = s.image && s.image(el)
@@ -853,7 +1119,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         // rather than the old colours showing until it arrives
         if (s.silk && s.el.__silkSince !== s.warmed) { s.warmed = s.el.__silkSince; const u = s.silk(s.el); if (u) urlTexture(u) }
         // and its wallpaper, likewise, so it is ready when it comes into view
-        if (s.wall) { const w = s.wall(s.el); if (w) urlTexture(w.url) }
+        if (s.wall) { const w = s.wall(s.el); if (w) wallTexture(w.url, w.host) }
         continue
       }
       // Drawn again only when what it shows would change: the light's
@@ -875,7 +1141,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       }
       if (flashing || (silkFade >= 0 && silkFade < 1)) hotUntil = now + 120
       const pic = s.image ? !!(s.image(s.el)?.complete) : 0
-      const key = `${ang}|${Math.round(Math.log(cw) * 50)}|${Math.round(Math.log(ch) * 50)}|${dark.toFixed(2)}|${silkFade.toFixed(2)}|${s.silkNow?.tex ? 1 : 0}|${flashing ? now : 0}|${pic}|${dpr}|${s.skip ? s.skip(s.el) : 0}|${s.lens.toFixed(3)}`
+      const key = `${ang}|${Math.round(Math.log(cw) * 50)}|${Math.round(Math.log(ch) * 50)}|${dark.toFixed(2)}|${silkFade.toFixed(2)}|${s.silkNow?.tex ? 1 : 0}|${flashing ? now : 0}|${pic}|${dpr}|${s.skip ? s.skip(s.el) : 0}|${s.lens.toFixed(3)}|${s.wall ? `${Math.round(r.left * dpr)},${Math.round(r.top * dpr)}` : ''}|${s.behindKey || ''}|${s.behindUrl && urlTexture(s.behindUrl) ? 1 : 0}`
       if (key === s.drawn) continue
       // A surface's first drawing lays out its letters (and in Safari blurs
       // them by hand) — a page arriving with a dozen of them did all of it

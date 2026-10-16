@@ -67,8 +67,9 @@ function flash(el) {
   el.setAttribute('data-flash', '')
   el.__flashAt = performance.now()    // for the WebGL letters, which draw their own sheen
 }
+const FLASHES = true
 function keepFlashing(el) {
-  if (el.__flashing) return
+  if (!FLASHES || el.__flashing) return
   el.__flashing = true
   el.addEventListener('animationend', (e) => { if (e.animationName === 'glass-sheen') el.removeAttribute('data-flash') })
   setTimeout(() => flash(el), 500)

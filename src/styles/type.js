@@ -31,4 +31,5 @@ export const TYPE = {
 // (TYPE.lead at 1.7, 24px below) would put it centred together. Fixed rather
 // than centred, so a title or a line that wraps on a phone, or a page with
 // no line at all, does not move it: whatever is extra runs downward.
-export const HERO_TOP = `calc(var(--screen) / 2 - 0.6 * ${TYPE.pageTitle} - 12px - 0.85 * ${TYPE.lead})`
+// (a page may set its titles larger: --page-title, below; see .home-backdrop)
+export const HERO_TOP = `calc(var(--screen) / 2 - 0.6 * var(--page-title, ${TYPE.pageTitle}) - 12px - 0.85 * ${TYPE.lead})`

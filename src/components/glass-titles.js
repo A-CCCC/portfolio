@@ -9,6 +9,7 @@
 // stands down (.lg-gl-text) once the lens is drawing it; until then, and
 // wherever there is no WebGL, the CSS glass is what shows.
 import { glassLayer } from './liquid-glass'
+import { wallRegion } from './wallpaper'
 
 const silkOf = (el) => {
   const v = el.style.getPropertyValue('--river')
@@ -27,6 +28,21 @@ export function startGlassTitles() {
       seen.add(el)
       layer.add(el, {
         letters: true,
+        // on a page with a wallpaper, the wallpaper through the letters — in
+        // the other theme's colours inside a band painted the page's inverse
+        wallBehind: (el) => {
+          const host = el.closest('.home-backdrop')
+          if (!host || !host.__pattern) return null
+          // (not on a panel of glass: what is behind it there is the panel,
+          // and clear letters showing the wallpaper through it vanished into
+          // it — the About me heading — so they keep their coloured glass)
+          if (el.closest('.about-panel, .text-panel, .glass-panel')) return null
+          const root = document.documentElement
+          const pageDark = root.dataset.theme === 'dark' || ((root.dataset.theme === 'auto' || !root.dataset.theme) && matchMedia('(prefers-color-scheme: dark)').matches)
+          const inverted = !!el.closest('[data-inverted]')
+          const dark = inverted ? true : pageDark
+          return { host, dark, region: (...a) => wallRegion(host, ...a) }
+        },
         glow: 0.6,                // lit from within, with a halo
         pad: 14,                  // the letters' glow reaches past their box
         silk: silkOf,

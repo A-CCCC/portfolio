@@ -15,7 +15,8 @@ export default function About() {
   const resumeOpacity = useFadeIn(1000)
 
   return (
-    <div style={{
+    // on the site's wallpaper, as the home page is (.home-backdrop)
+    <div className="home-backdrop" style={{
       minHeight: 'var(--screen)',
       fontFamily: 'system-ui',
       padding: '120px 24px 80px',
@@ -40,11 +41,11 @@ export default function About() {
       }}>
         <Portrait size={180} />
       </div>
-      <p className="prose-phone" style={{
+      <p className="prose-phone glass glass-vivid nav-glass text-panel" style={{
         color: 'var(--text-body)',
         fontSize: TYPE.body,
         lineHeight: 1.7,
-        maxWidth: 560,
+        maxWidth: 620,
         opacity: bodyOpacity,
         transition: 'opacity 1.5s ease',
       }}>
@@ -61,12 +62,10 @@ export default function About() {
           dates. Left-aligned by the component itself — a résumé read down a
           centered column is a poster rather than a document. */}
       {resume && (
-        <div style={{
+        <div className="glass glass-vivid nav-glass text-panel" style={{
           width: '100%',
-          maxWidth: 760,
-          margin: '72px 0 0',
-          paddingTop: 56,
-          borderTop: '1px solid var(--border)',
+          maxWidth: 820,
+          margin: '56px 0 0',
           opacity: resumeOpacity,
           transition: 'opacity 1.5s ease',
         }}>

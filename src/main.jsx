@@ -20,6 +20,8 @@ warmFramesWhenIdle()
 lightTheGlass()
 // The bar between the address and LinkedIn hidden when LinkedIn wraps below
 import('./components/reach-wrap').then((m) => m.watchReachWraps()).catch(() => {})
+// The wallpaper under the home page and the hubs, drawn afresh each visit
+import('./components/wallpaper').then((m) => m.watchWallpapers()).catch(() => {})
 // Links that point onward (→) sweep the page left and bring the next in from
 // the right. See components/page-sweep.js.
 import('./components/page-sweep').then((m) => m.sweepOnward()).catch(() => {})

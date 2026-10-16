@@ -18,9 +18,9 @@ export default function Contact() {
   const shopOpacity = useFadeIn(800)
 
   return (
-    <div style={{
+    // on the site's wallpaper, as the home page is (.home-backdrop)
+    <div className="home-backdrop" style={{
       minHeight: 'var(--screen)',
-      background: 'var(--bg)',
       color: 'var(--text)',
       fontFamily: 'system-ui',
       padding: '120px var(--gutter) 96px',
@@ -40,7 +40,7 @@ export default function Contact() {
         Services
       </h1>
 
-      <p className="page-intro-line" style={{
+      <p className="page-intro-line text-chip" style={{
         fontSize: TYPE.lead,
         lineHeight: 1.7,
         color: 'var(--text-body)',

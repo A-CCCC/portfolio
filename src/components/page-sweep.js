@@ -251,8 +251,20 @@ function growWithin(a, how) {
   const turn = document.startViewTransition(() => {
     mo.observe(root, { childList: true })
     document.body.appendChild(tint)
-    a.dataset.grown = '1'
-    a.click()
+    // Through the router directly, not by clicking the link again: by now a
+    // link in a dropdown has gone with its menu (the transition's layer over
+    // the page takes the pointer, and the menu closes), and a click on a
+    // link no longer in the page is a full load of the next page — no
+    // transition, and the site started over.
+    const go = window.__siteNavigate
+    if (go) {
+      const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '')
+      const url = new URL(a.href, location.href)
+      go(url.pathname.slice(base.length) + url.search + url.hash || '/')
+    } else {
+      a.dataset.grown = '1'
+      a.click()
+    }
     // nothing came (a click its own handler stopped): the picture is taken anyway
     return Promise.race([there, new Promise((r) => setTimeout(r, 1500))])
   })

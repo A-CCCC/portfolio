@@ -20,21 +20,19 @@ export default function CategoryBand({
   // wallpaper (.home-backdrop [data-inverted]) — laid exactly where the
   // page's own wallpaper lies, the same size and the same place, so its
   // shapes carry on across the band's edges in the other colours rather
-  // than starting again at its top. The page's is cropped to it as
-  // `cover`, centred, from a tall drawing (400 by 800).
+  // than starting again at its top.
   const band = useRef(null)
   useEffect(() => {
     const el = band.current
     const host = alt && el?.closest('.home-backdrop')
     if (!host) return undefined
     const place = () => {
-      const hw = host.offsetWidth, hh = host.offsetHeight
-      const k = Math.max(hw / 400, hh / 800)
-      const dw = 400 * k, dh = 800 * k
-      const top = el.getBoundingClientRect().top - host.getBoundingClientRect().top
-      const left = el.getBoundingClientRect().left - host.getBoundingClientRect().left
-      el.style.setProperty('--wall-size', `${dw}px ${dh}px`)
-      el.style.setProperty('--wall-at', `${(hw - dw) / 2 - left}px ${(hh - dh) / 2 - top}px`)
+      // the page's wallpaper is drawn to the page's own shape and laid over
+      // it whole (wallpaper.js), so the band's copy is the page's size, set
+      // back by the band's own place in it
+      const hr = host.getBoundingClientRect(), er = el.getBoundingClientRect()
+      el.style.setProperty('--wall-size', `${host.offsetWidth}px ${host.offsetHeight}px`)
+      el.style.setProperty('--wall-at', `${hr.left - er.left}px ${hr.top - er.top}px`)
     }
     place()
     const watch = new ResizeObserver(place)
@@ -84,9 +82,11 @@ export default function CategoryBand({
           still a sliver at the bottom of the window, and be done before it had
           arrived. Its contents sit at the middle of it, and reach that line when
           the band is most of the way on screen. */}
-      <div ref={ref} style={{
+      {/* on a panel of the navbar's glass, so the words read clear of the
+          wallpaper (.text-panel) */}
+      <div ref={ref} className="glass glass-vivid nav-glass text-panel" style={{
         flex: '1 1 340px',
-        maxWidth: 460,
+        maxWidth: 520,
         opacity,
         transition: 'opacity 1.5s ease',
       }}>

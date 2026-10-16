@@ -101,13 +101,15 @@ export default function Home() {
           transition: 'opacity 1.5s ease',
         }}
       >
-        <div style={{
+        {/* On a panel of the navbar's glass, so the words read clear of the
+            wallpaper behind them (.about-panel) */}
+        <div className="glass glass-vivid nav-glass about-panel" style={{
           display: 'flex',
           flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 40,
-          maxWidth: 800,
+          maxWidth: 860,
           margin: '0 auto',
         }}>
           <Portrait />
