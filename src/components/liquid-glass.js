@@ -512,6 +512,20 @@ void main() {
     float nb = min(min(texture2D(mask, tm + dx).a, texture2D(mask, tm - dx).a),
                    min(texture2D(mask, tm + dy).a, texture2D(mask, tm - dy).a));
     edge = smoothstep(0.3, 1.0, edge) * mix(0.45, 1.0, smoothstep(0.2, 0.95, nb));
+    // and every outer corner rounded off cleanly: the face's corners are
+    // square (the t's crossbar ends square), the fade above took most of
+    // each but left a breath of its tip, a faint square corner seen close
+    // to. How much of a small circle round the point is letter: about half
+    // along a straight edge, a quarter at a square corner — so this takes
+    // the corners and nothing else. From the crisp shape: the blurred one
+    // is wider than a crossbar's stub, and filled its corners in from the
+    // stem beside it.
+    float ring = 0.0;
+    for (int k = 0; k < 16; k++) {
+      float a = float(k) * 0.392699;
+      ring += texture2D(mask, tm + vec2(cos(a), sin(a)) * softPx * 0.9 / maskRect.zw).a;
+    }
+    edge *= smoothstep(0.3, 0.46, ring / 16.0);
   }
   gl_FragColor = vec4(clamp(col, 0.0, 1.0) * edge, edge);
 }

@@ -68,8 +68,10 @@
 :root,
 :root[data-theme='light'] {
   color-scheme: light;
-  /* a breath of the sunlit wallpaper's warmth, not bare white */
-  --bg: #fffaf2;
+  /* the ground of the wallpaper the main pages wear (wallpaper.js, which
+     has it too), so a page without the wallpaper's shapes is on the same
+     colour as the pages with them */
+  --bg: #ffeed8;
   --panel-a: #ebebee;
   --panel-b: #dfdfe4;
   --text: #000000;
@@ -152,7 +154,7 @@
   /* The alternate band on the light page is the dark page itself — its
      own warm near-black, not a cold pure black — with the dark page's
      text and glass on it. */
-  --band-bg: #12151d;
+  --band-bg: #0c162a;
   --band-ink: #f2f2f2;
   --band-body: #b0b0b0;
   --band-hover: rgba(255, 255, 255, 0.16);
@@ -184,7 +186,7 @@
 /* DARK — the shared dark values, used by both forced-dark and auto-dark */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #12151d;
+  --bg: #0c162a;
   --panel-a: #2a2a2f;
   --panel-b: #17171a;
   --text: #f2f2f2;
@@ -288,7 +290,7 @@
   :root[data-theme='auto'],
   :root:not([data-theme]) {
     color-scheme: dark;
-    --bg: #12151d;
+    --bg: #0c162a;
     --panel-a: #2a2a2f;
     --panel-b: #17171a;
     --text: #f2f2f2;
@@ -979,45 +981,22 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; line
    the overflow on the whole page took the scrollbar away, which widened
    the page by its width and shifted everything sideways. */
 html.diving #root { overflow: clip; }
-/* The sweep onward (page-sweep.js): the page goes off to the left, the
-   next comes in from the right. Moved, not faded to nothing, so it reads
-   as travelling; quick, so it never holds the reader up. */
-.page-leave {
-  animation: page-leave 0.24s cubic-bezier(0.55, 0, 0.9, 0.4) forwards;
-  pointer-events: none;
-}
-@keyframes page-leave {
-  to { transform: translateX(-14%); opacity: 0; }
-}
-.page-arrive {
-  animation: page-arrive 0.36s cubic-bezier(0.15, 0.7, 0.3, 1) both;
-}
-@keyframes page-arrive {
-  from { transform: translateX(14%); opacity: 0; }
-  to { transform: none; opacity: 1; }
-}
-/* and back again (the browser's back button): the page leaves to the
+/* A page pushed off by the next (page-sweep.js): the two side by side, edge
+   to edge, on one timing, so the seam between them — where the wallpaper of
+   one runs on into the other's — holds together the whole way across */
+.page-push-in { animation: page-push-in 0.6s cubic-bezier(0.45, 0.05, 0.2, 1) both; }
+.page-push-out { animation: page-push-out 0.6s cubic-bezier(0.45, 0.05, 0.2, 1) forwards; }
+/* (a pixel short of the whole way, both of them, so the two overlap by
+   that pixel: edge to edge exactly, a hairline of the page behind showed
+   between them where each edge fell part way across a pixel) */
+@keyframes page-push-in { from { transform: translateX(calc(100% - 1px)); } to { transform: none; } }
+@keyframes page-push-out { to { transform: translateX(calc(-100% + 1px)); } }
+/* and back again (the browser's back button): the page goes off to the
    right and the one before comes in from the left */
-.page-leave-back {
-  animation: page-leave-back 0.26s cubic-bezier(0.55, 0, 0.9, 0.4) forwards;
-}
-/* A picture of the page left behind by the back button (page-sweep.js)
-   moves off at once: the next page is being drawn under it in those first
-   frames, and an easing that starts slowly barely moved it before it went */
-.page-ghost.page-leave,
-.page-ghost.page-leave-back {
-  animation-timing-function: cubic-bezier(0.25, 0.6, 0.5, 1);
-}
-@keyframes page-leave-back {
-  to { transform: translateX(14%); opacity: 0; }
-}
-.page-arrive-back {
-  animation: page-arrive-back 0.36s cubic-bezier(0.15, 0.7, 0.3, 1) both;
-}
-@keyframes page-arrive-back {
-  from { transform: translateX(-14%); opacity: 0; }
-  to { transform: none; opacity: 1; }
-}
+.page-push-in-back { animation: page-push-in-back 0.6s cubic-bezier(0.45, 0.05, 0.2, 1) both; }
+.page-push-out-back { animation: page-push-out-back 0.6s cubic-bezier(0.45, 0.05, 0.2, 1) forwards; }
+@keyframes page-push-in-back { from { transform: translateX(calc(-100% + 1px)); } to { transform: none; } }
+@keyframes page-push-out-back { to { transform: translateX(calc(100% - 1px)); } }
 /* The page left by a navbar link (page-sweep.js), sinking back while the
    next one grows out of the link over it */
 .page-recede {
@@ -2878,6 +2857,30 @@ html.vt-grow::view-transition-new(root) {
    second copy of them behind the glass) */
 .glass-title.lg-clear {
   text-shadow: none;
+}
+/* — but the glass itself casts one, so the letters stand off the wallpaper
+   where there is nothing behind them to set them off (no band): taken from
+   the glass's own shape, so it lies exactly under it, hidden by the letters
+   and showing only round them; soft, away from the light (top left), as
+   the bubbles' shadows fall; and a faint close one at the very edge, for
+   the outline */
+.glass-title.lg-clear > canvas.liquid-glass-surface {
+  filter:
+    drop-shadow(0 0.01em 0.02em rgba(140, 70, 10, 0.22))
+    drop-shadow(0.025em 0.05em 0.12em rgba(150, 80, 20, 0.3));
+}
+:root[data-theme='dark'] .glass-title.lg-clear > canvas.liquid-glass-surface {
+  filter:
+    drop-shadow(0 0.01em 0.02em rgba(0, 4, 16, 0.5))
+    drop-shadow(0.025em 0.05em 0.12em rgba(0, 4, 16, 0.6));
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] .glass-title.lg-clear > canvas.liquid-glass-surface,
+  :root:not([data-theme]) .glass-title.lg-clear > canvas.liquid-glass-surface {
+    filter:
+      drop-shadow(0 0.01em 0.02em rgba(0, 4, 16, 0.5))
+      drop-shadow(0.025em 0.05em 0.12em rgba(0, 4, 16, 0.6));
+  }
 }
 :root[data-theme='dark'] .glass-title.lg-clear { text-shadow: none; }
 @media (prefers-color-scheme: dark) {

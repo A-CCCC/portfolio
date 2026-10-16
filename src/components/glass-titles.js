@@ -26,6 +26,11 @@ export function startGlassTitles() {
     for (const el of document.querySelectorAll('.glass-title')) {
       if (seen.has(el)) continue
       seen.add(el)
+      // (not the titles of a picture of a page going (page-sweep.js): it
+      // carries their glass as it was drawn; taken up afresh, with no
+      // wallpaper of its own to see through, they were drawn in the cloth's
+      // yellow as the page went)
+      if (el.closest('.page-ghost')) continue
       layer.add(el, {
         letters: true,
         // on a page with a wallpaper, the wallpaper through the letters — in
@@ -57,6 +62,7 @@ export function startGlassTitles() {
     for (const el of document.querySelectorAll('.glass-panel')) {
       if (seen.has(el)) continue
       seen.add(el)
+      if (el.closest('.page-ghost')) continue
       // A card that is the whole of what it shows — a carousel's, a game's,
       // a shop listing's — rather than a panel of words: more of the cloth's
       // colour through it, and deeper glass at its edge

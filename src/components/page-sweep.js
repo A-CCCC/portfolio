@@ -2,20 +2,22 @@
 //
 // A link that points onward — one with a → after it, or one marked
 // data-sweep that goes where such a link does — moves the reader on
-// the way it says: the page sweeps away to the left and the next comes in
-// from the right, as a step forward does. The bar and the theme switch, which
-// are not part of the page, stay where they are. Only for links within the
-// site, clicked plainly (a new tab is a new tab), and not at all for anyone
-// with motion turned down.
+// the way it says: the page is pushed away to the left by the next coming
+// in beside it from the right, as a step forward does, the two edge to edge
+// the whole way, and the wallpaper running on across the seam between them
+// (wallpaper.js, handWallOn). The bar and the theme switch, which are not
+// part of the page, stay where they are. Only for links within the site,
+// clicked plainly (a new tab is a new tab), and not at all for anyone with
+// motion turned down.
 //
-// The page is the element under #root that holds the link. The link is let
-// go once the page has gone, by clicking it again, so React Router takes it
-// from there exactly as it would have; the page that arrives is the one
-// added under #root while the sweep is under way, and it comes in from the
-// right.
+// The page is the element under #root that holds the link. A picture of it
+// is laid over where it is, and the link let go at once, by clicking it
+// again, so React Router takes it from there exactly as it would have; the
+// page that arrives is the one added under #root while the push is under
+// way, and it and the picture move off together.
 
-const OUT_MS = 240
-const OUT_BACK_MS = 260
+import { handWallOn } from './wallpaper'
+
 const GROW_MS = 560
 
 // Where in the history we are: React Router keeps an index in each entry's
@@ -29,6 +31,7 @@ export function sweepOnward() {
   let arriving = false            // 'onward' | 'back' | 'grow' | false
   let growFrom = null             // the navbar link's box, for 'grow'
   let growGhost = null            // and the picture of the page it left
+  let pushGhost = null            // the picture of the page being pushed away
   let lastIdx = at()
   // Kept up with every move through the history, however it was made — a
   // navbar link, a bubble, an arrow — not only the arrows': a back from a
@@ -44,12 +47,21 @@ export function sweepOnward() {
     if (!arriving) return
     for (const c of changes) {
       for (const el of c.addedNodes) {
-        if (el.nodeType !== 1 || el.classList.contains('page-leave')) continue
+        if (el.nodeType !== 1 || el.classList.contains('page-ghost')) continue
         if (arriving === 'grow') { arriving = false; if (growGhost) document.body.appendChild(growGhost); grow(el, growFrom, growGhost); growGhost = null; return }
-        const cls = arriving === 'back' ? 'page-arrive-back' : 'page-arrive'
+        const back = arriving === 'back'
         arriving = false
+        const cls = back ? 'page-push-in-back' : 'page-push-in'
         el.classList.add(cls)
         el.addEventListener('animationend', () => el.classList.remove(cls), { once: true })
+        // the page left behind goes off the other side in step with it
+        const ghost = pushGhost
+        pushGhost = null
+        if (ghost) {
+          ghost.classList.add(back ? 'page-push-out-back' : 'page-push-out')
+          ghost.addEventListener('animationend', () => ghost.remove(), { once: true })
+          setTimeout(() => ghost.remove(), 1200)
+        }
         lastIdx = at()
         return
       }
@@ -69,16 +81,31 @@ export function sweepOnward() {
     if (!page) return
     e.preventDefault()
     e.stopPropagation()
-    page.classList.add('page-leave')
-    setTimeout(() => {
-      arriving = 'onward'
-      a.dataset.sweptOnce = '1'
-      a.click()
-      setTimeout(() => { lastIdx = at() }, 0)
-      // nothing arrived (the same page): put this one back
-      setTimeout(() => { if (page.isConnected) page.classList.remove('page-leave'); arriving = false }, 400)
-    }, OUT_MS)
+    push(page, 'onward')
+    a.dataset.sweptOnce = '1'
+    a.click()
+    setTimeout(() => { lastIdx = at() }, 0)
   }, true)
+
+  // The page about to go, as a picture laid over it, ready to be pushed off
+  // as the next arrives; the next told where to take the wallpaper up. If
+  // nothing arrives (the same page, or one slow to come), the picture is
+  // simply taken away, the page itself still there beneath it.
+  function push(page, way) {
+    pushGhost?.remove()
+    handWallOn(page, way === 'back' ? -1 : 1)
+    const ghost = ghostOf(page)
+    document.body.appendChild(ghost)
+    pushGhost = ghost
+    arriving = way
+    setTimeout(() => {
+      if (pushGhost !== ghost) return
+      pushGhost = null
+      ghost.remove()
+      if (arriving === way) arriving = false
+      window.__wallNext = null
+    }, 2500)
+  }
 
   // A link in the navbar, or a button like one — a pill lit the way the
   // navbar's are, or a project's card — with no arrow (an arrow sweeps,
@@ -114,6 +141,7 @@ export function sweepOnward() {
     }
     const page = pageOf()
     if (!page) return
+    handWallOn(page, 0)
     const ghost = ghostOf(page)
     ghost.classList.add('page-recede')
     ghost.style.transformOrigin = `${innerWidth / 2 - parseFloat(ghost.style.left)}px ${innerHeight / 2 - parseFloat(ghost.style.top)}px`
@@ -127,9 +155,9 @@ export function sweepOnward() {
   // The browser's back and forward buttons. By the time the browser says it
   // has gone, the page it has left is still on screen for a moment (the
   // router has only been told), so a picture of it — its canvases copied
-  // across, which a copy leaves blank — is laid over where it was and sent
-  // off to the right, and the page that comes in arrives from the left:
-  // the onward sweep in reverse. Forward again sweeps onward.
+  // across, which a copy leaves blank — is laid over where it was and pushed
+  // off to the right by the page that comes in from the left: the onward
+  // push in reverse. Forward again pushes onward.
   window.addEventListener('popstate', () => {
     const idx = at()
     const back = lastIdx !== null && idx !== null ? idx < lastIdx : true
@@ -137,12 +165,7 @@ export function sweepOnward() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const page = pageOf()
     if (!page) return
-    const ghost = ghostOf(page)
-    ghost.classList.add(back ? 'page-leave-back' : 'page-leave')
-    document.body.appendChild(ghost)
-    setTimeout(() => ghost.remove(), back ? OUT_BACK_MS + 40 : OUT_MS + 40)
-    arriving = back ? 'back' : 'onward'
-    setTimeout(() => { arriving = false }, 600)
+    push(page, back ? 'back' : 'onward')
   })
 
   // the page: the tallest block under #root that is not fixed in place
@@ -222,6 +245,9 @@ function shapesFor(how, vw, vh) {
 function growWithin(a, how) {
   const root = document.getElementById('root')
   const html = document.documentElement
+  // the page that grows takes the wallpaper up where this one shows it, so
+  // what is round the growing shape and what is in it are the one pattern
+  handWallOn(root.querySelector('.home-backdrop'), 0)
   // The arriving picture cut to the link's shape from its very first frame,
   // by the stylesheet, before the script's animation takes it over: Safari
   // showed it whole for a frame or two before the animation was attached —
