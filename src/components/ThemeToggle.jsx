@@ -89,6 +89,18 @@ export default function ThemeToggle() {
     turn.finished.finally(() => root.classList.remove('theme-snap'))
   }
 
+  // A click on the circle itself turns to whichever of light and dark is
+  // not showing — from Auto, the opposite of what Auto is showing — with a
+  // swell of the circle and a ring of light let go from it (.theme-flip)
+  const [flips, setFlips] = useState(0)
+  const flip = () => {
+    const showingDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    setChosen(true)
+    setFlips((n) => n + 1)
+    setOpen(false)
+    choose(showingDark ? 'light' : 'dark')
+  }
+
   const current = options.find((o) => o.value === theme)
 
   return (
@@ -110,7 +122,13 @@ export default function ThemeToggle() {
 
       {/* Collapsed circle — always visible */}
       <div
-        className="glass glass-vivid nav-glass"
+        key={`orb-${flips}`}
+        className={`glass glass-vivid nav-glass theme-orb${flips ? ' theme-flip' : ''}`}
+        role="button"
+        tabIndex={0}
+        aria-label={`Switch to ${(theme === 'dark' || (theme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)) ? 'light' : 'dark'} mode`}
+        onClick={flip}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip() } }}
         onMouseEnter={() => setCircleHover(true)}
         onMouseLeave={() => setCircleHover(false)}
         style={{

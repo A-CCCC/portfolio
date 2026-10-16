@@ -88,6 +88,7 @@
   --lg-tint-share: 55%;
   --lg-hue-share: 44%;
   --vivid-a: #ffd23f;
+  --flip-ring: #e39b00;
   --vivid-b: #ff8c5a;
   --band-vivid-a: #4f94ff;
   --band-vivid-b: #3ccf78;
@@ -198,6 +199,7 @@
   --lg-hue-share: 60%;
   --vivid-a: #4f94ff;
   --vivid-b: #3ccf78;
+  --flip-ring: #9cc2ff;
   --band-vivid-a: #4f94ff;
   --band-vivid-b: #3ccf78;
   --lg-band: rgba(141, 169, 229, 0.12);
@@ -301,6 +303,7 @@
   --lg-hue-share: 60%;
   --vivid-a: #4f94ff;
   --vivid-b: #3ccf78;
+  --flip-ring: #9cc2ff;
   --band-vivid-a: #4f94ff;
   --band-vivid-b: #3ccf78;
     --lg-band: rgba(141, 169, 229, 0.12);
@@ -2892,3 +2895,43 @@ html.vt-grow::view-transition-new(root) {
   -webkit-backdrop-filter: blur(8px) saturate(1.5);
   backdrop-filter: blur(8px) saturate(1.5);
 }
+
+/* The theme switch's circle clicked (ThemeToggle.jsx, flip): it swells and
+   settles back, and a ring of light goes out from it and is gone */
+.theme-flip {
+  animation: theme-press 0.55s ease-in-out;
+}
+/* the circle swells, then settles back to its size */
+@keyframes theme-press {
+  0% { scale: 1; }
+  40% { scale: 1.22; }
+  100% { scale: 1; }
+}
+.theme-flip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2.5px solid var(--flip-ring);
+  pointer-events: none;
+  animation: theme-ring 0.65s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+@keyframes theme-ring {
+  from { scale: 1; opacity: 0.9; }
+  to { scale: 2.1; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-flip, .theme-flip::before { animation: none; }
+}
+/* Held out of the page's cross-fade while the theme turns: in it, the old
+   circle faded out over the new one and hid its swell. The new circle shows
+   at once, in its new colours, and swells in plain sight. */
+html.theme-snap .theme-orb { view-transition-name: theme-orb; }
+/* drawn on its own there, its glass has nothing behind it to bend, and its
+   lens showed only a square of its box (over [data-lens] .glass.nav-glass) */
+html.theme-snap .glass.nav-glass.theme-orb {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+::view-transition-old(theme-orb) { display: none; }
+::view-transition-new(theme-orb) { animation: none; }

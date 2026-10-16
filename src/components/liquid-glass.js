@@ -418,6 +418,9 @@ void main() {
     // and on the light page a hazy white over that — milkier glass, so the
     // letters stand out from the pale ground
     col = mix(col, vec3(1.0, 0.995, 0.985), 0.55 * (1.0 - dark));
+    // and on the dark page a pale, cool haze, so the letters stand clear of a
+    // dark ground as the lock screen's numbers do
+    col = mix(col, vec3(0.86, 0.9, 1.0), 0.42 * dark);
     // The light on it, from the top left, as on clear glass: a highlight on
     // the edges turned to the light, and — the light passing through the
     // glass and catching the inside of the far edge — a fainter one on the
