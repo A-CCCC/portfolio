@@ -26,10 +26,15 @@ export const TYPE = {
   caption: '0.85rem',             // the smallest type on the site
 }
 
-// Where a page's title sits on its opening screen: its top where a one-line
-// title (line-height 1.2, see h1.glass-title) and a one-line line under it
-// (TYPE.lead at 1.7, 24px below) would put it centred together. Fixed rather
-// than centred, so a title or a line that wraps on a phone, or a page with
-// no line at all, does not move it: whatever is extra runs downward.
-// (a page may set its titles larger: --page-title, below; see .home-backdrop)
-export const HERO_TOP = `calc(var(--screen) / 2 - 0.6 * var(--page-title, ${TYPE.pageTitle}) - 12px - 0.85 * ${TYPE.lead})`
+// Where a page's title sits on its opening screen, the same on every page so
+// the titles — and the pills under them — line up from one page to the next:
+// its top where a one-line title, the gap under it and a pill (View
+// services, the glass line under a hub's title) would sit centred together
+// on the screen. Fixed rather than centred on each page's own contents, so a
+// page with no pill, or a title or a line that wraps on a phone, does not
+// move it: whatever is extra runs downward.
+// (a page may set its titles larger, and closer set: --page-title and
+// --title-lh, see .home-backdrop)
+export const TITLE_GAP = 16       // px, between a title and what is under it
+export const PILL_H = 44          // px, the height of a pill under a title
+export const HERO_TOP = `calc(var(--screen) / 2 - (var(--title-lh, 1.2) * var(--page-title, ${TYPE.pageTitle}) + ${TITLE_GAP + PILL_H}px) / 2)`

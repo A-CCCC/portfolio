@@ -6,7 +6,7 @@
 // more to come rather than a page that reads as broken.
 import useFadeIn from '../hooks/useFadeIn'
 import { isFullSite } from '../data/site-copy'
-import { TYPE, HERO_TOP } from '../styles/type'
+import { TYPE, HERO_TOP, TITLE_GAP } from '../styles/type'
 
 export default function PageIntro({
   title, description, comingSoon = false, full = true, notice = '(Page Coming Soon!)',
@@ -39,7 +39,7 @@ export default function PageIntro({
         fontSize: TYPE.pageTitle,
         fontWeight: 'bold',
         letterSpacing: '0.01em',
-        marginBottom: 24,
+        marginBottom: TITLE_GAP,
         opacity: titleOpacity,
         transition: 'opacity 1.5s ease',
       }}>

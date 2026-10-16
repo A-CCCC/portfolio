@@ -1,6 +1,6 @@
 // src/pages/Projects.jsx
 import useFadeIn from '../hooks/useFadeIn'
-import { TYPE, HERO_TOP } from '../styles/type'
+import { TYPE, HERO_TOP, TITLE_GAP } from '../styles/type'
 import CategoryBand from '../components/CategoryBand'
 import { clashRoyale, halloween, misc } from '../data/projects'
 import asset from '../lib-asset'
@@ -68,16 +68,16 @@ export default function Projects() {
           fontSize: TYPE.pageTitle,
           fontWeight: 'bold',
           letterSpacing: '-0.02em',
-          marginBottom: 24,
+          marginBottom: TITLE_GAP,
           opacity: titleOpacity,
           transition: 'opacity 1.5s ease',
         }}>
           {TITLE}
         </h1>
-        <p className="page-intro-line" style={{
+        {/* on a pill of glass, as Services' line is (.text-chip) */}
+        <p className="page-intro-line text-chip" style={{
           fontSize: TYPE.lead,
-          lineHeight: 1.7,
-          color: 'var(--text-body)',
+          lineHeight: 1.6,
           opacity: introOpacity,
           transition: 'opacity 1.5s ease',
         }}>

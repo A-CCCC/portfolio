@@ -1,7 +1,7 @@
 // src/components/model-scene.js
 //
 // The 3D part of the model viewer: a scene, a light, a camera that fits
-// whatever it is handed, and a drag that turns it. Everything that touches
+// whatever it is handed, a drag that turns it and another that moves it. Everything that touches
 // three.js lives here, and the component that owns the canvas only imports
 // this once the section is close to the screen — so three is a chunk of its
 // own that nobody downloads for a page they never reach the foot of.
@@ -54,7 +54,12 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
 
   const camera = new PerspectiveCamera(32, 1, 0.01, 100)
   const controls = new OrbitControls(camera, canvas)
-  controls.enablePan = false
+  // Moved about as well as turned, to bring a part of it to the middle and
+  // look round that: the right button, or the left with Shift, ⌘ or Ctrl
+  // held, or two fingers together — the controls' own ways. Across the
+  // screen, not along the floor, so it goes the way the hand does.
+  controls.enablePan = true
+  controls.screenSpacePanning = true
   // Zoom, but not by a plain scroll: a wheel over the stage should scroll the
   // page past it, as it would over a picture. Pinching, a wheel held with ⌘
   // or Ctrl (which is also how a trackpad reports a pinch), and the buttons
@@ -130,7 +135,7 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
   )
   const fit = () => {
     const half = Math.tan((camera.fov * Math.PI) / 360)
-    const forward = camera.position.clone().normalize()
+    const forward = camera.position.clone().sub(controls.target).normalize()
     const right = new Vector3().crossVectors(new Vector3(0, 1, 0), forward).normalize()
     const up = new Vector3().crossVectors(forward, right)
     let needed = 0
@@ -140,7 +145,7 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
         depth + Math.abs(c.dot(up)) / half / FILL,
         depth + Math.abs(c.dot(right)) / (half * camera.aspect) / FILL)
     }
-    camera.position.setLength(needed)
+    camera.position.copy(controls.target).addScaledVector(forward, needed)
     camera.near = needed / 50
     camera.far = needed * 50
     camera.updateProjectionMatrix()
@@ -148,12 +153,29 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
     controls.minDistance = needed * 0.45
     controls.maxDistance = needed * 2.2
   }
-  // A step of zoom from the buttons: the same limits as the wheel.
+  // A step of zoom from the buttons: the same limits as the wheel, measured
+  // from the point it turns about, wherever it has been moved to.
   const zoomBy = (factor) => {
-    const d = Math.min(controls.maxDistance, Math.max(controls.minDistance, camera.position.length() * factor))
-    camera.position.setLength(d)
+    const off = camera.position.clone().sub(controls.target)
+    off.setLength(Math.min(controls.maxDistance, Math.max(controls.minDistance, off.length() * factor)))
+    camera.position.copy(controls.target).add(off)
     controls.update()
     takeHold()          // zooming is taking hold as much as turning is
+  }
+  // Moved, it stays near: the point it turns about kept within the model's
+  // own reach of its middle, the camera carried with it, so it can be looked
+  // round but never lost off the stage.
+  const room = reach * 0.6
+  const keepNear = () => {
+    const t = controls.target
+    const k = t.clone().clampScalar(-room, room)
+    if (!k.equals(t)) { camera.position.add(k.clone().sub(t)); t.copy(k) }
+  }
+  // And brought back to the middle, gliding, from the button beside the stage
+  let home = null
+  const recentre = () => {
+    home = { from: controls.target.clone(), at: performance.now() }
+    takeHold()
   }
   camera.position.copy(towards)
   controls.target.set(0, 0, 0)
@@ -183,7 +205,17 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 1 / 60
     last = now
     controls.dampingFactor = 1 - Math.pow(1 - DAMPING, dt * 60)
+    if (home) {
+      // eased back over 0.45s, the camera moving with the point
+      const u = Math.min(1, (now - home.at) / 450)
+      const e = 1 - Math.pow(1 - u, 3)
+      const next = home.from.clone().multiplyScalar(1 - e)
+      camera.position.add(next.clone().sub(controls.target))
+      controls.target.copy(next)
+      if (u >= 1) home = null
+    }
     controls.update(dt)
+    keepNear()
     renderer.render(scene, camera)
     requestAnimationFrame(frame)
   }
@@ -206,5 +238,5 @@ export async function mount(canvas, url, { still = false, turn = [0, 0, 0], onHo
     renderer.dispose()
   }
 
-  return { stop, zoomBy }
+  return { stop, zoomBy, recentre }
 }

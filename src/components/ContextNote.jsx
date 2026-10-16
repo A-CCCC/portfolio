@@ -71,10 +71,12 @@ export default function ContextNote({ title, images = [], alt = '', children }) 
     <div style={picture ? { flex: '1 1 360px', maxWidth: WORDS_MAX } : { maxWidth: 720 }}>
       {title && (
         <h2 className="glass-title" data-text={title} style={{
-          fontSize: TYPE.sub,
+          // the size of every other section's heading on the page, so this
+          // one does not read as lesser than those either side of it
+          fontSize: TYPE.section,
           fontWeight: 300,
           letterSpacing: '-0.01em',
-          margin: '0 0 20px',
+          margin: '0 0 24px',
           textAlign: picture ? 'left' : 'center',
         }}>
           {title}

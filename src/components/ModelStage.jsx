@@ -9,7 +9,7 @@
 // is a chunk of its own, fetched when the section is a screen away — see
 // model-scene.js — so a page costs nothing extra until its foot is near.
 import { useEffect, useRef, useState } from 'react'
-import { Minus, Plus, Rotate3d } from 'lucide-react'
+import { Crosshair, Minus, Plus, Rotate3d } from 'lucide-react'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
 import { TYPE } from '../styles/type'
 
@@ -21,6 +21,8 @@ export default function ModelStage({ model, label }) {
   const sceneRef = useRef(null)          // what the scene hands back once mounted
   const [state, setState] = useState('waiting')   // waiting | loading | ready | failed
   const [held, setHeld] = useState(false)          // has anyone taken hold of it yet
+  // told in a finger's terms on a touch screen, a mouse's elsewhere
+  const [touch] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -124,11 +126,14 @@ export default function ModelStage({ model, label }) {
           style={{ opacity: state === 'ready' && !held ? 1 : 0 }}
         >
           <Rotate3d size={16} strokeWidth={1.8} aria-hidden="true" />
-          Drag to turn · pinch to zoom
+          {touch
+            ? 'Drag to turn · two fingers to move'
+            : 'Drag to turn · right-drag to move · pinch to zoom'}
         </div>
 
         {/* Closer and further, for anyone without a wheel or a second
-            finger — and a way to know it zooms at all. */}
+            finger — and a way to know it zooms at all; and back to the
+            middle, after moving it about. */}
         {state === 'ready' && (
           <div className="model-zoom">
             <button type="button" className="glass" aria-label="Zoom in" onClick={() => sceneRef.current?.zoomBy(0.8)}>
@@ -136,6 +141,10 @@ export default function ModelStage({ model, label }) {
             </button>
             <button type="button" className="glass" aria-label="Zoom out" onClick={() => sceneRef.current?.zoomBy(1.25)}>
               <Minus size={16} strokeWidth={2} aria-hidden="true" />
+            </button>
+            {/* back to the middle, after moving it about */}
+            <button type="button" className="glass" aria-label="Centre the model" onClick={() => sceneRef.current?.recentre()}>
+              <Crosshair size={16} strokeWidth={2} aria-hidden="true" />
             </button>
           </div>
         )}

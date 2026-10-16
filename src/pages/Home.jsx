@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { Link } from 'react-router-dom'
 import { contact } from '../data/site-copy'
-import { TYPE, HERO_TOP } from '../styles/type'
+import { TYPE, HERO_TOP, TITLE_GAP } from '../styles/type'
 import useFadeIn from '../hooks/useFadeIn'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
 import ProjectBubbles from '../components/ProjectBubbles'
@@ -42,6 +42,7 @@ export default function Home() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'flex-start',
+        // the title where every page has it (HERO_TOP)
         paddingTop: HERO_TOP,
       }}>
         <ProjectBubbles />
@@ -73,7 +74,7 @@ export default function Home() {
           style={{
             position: 'relative',
             zIndex: 1,
-            marginTop: 10,
+            marginTop: TITLE_GAP,
             color: 'var(--text)',
             textDecoration: 'none',
             fontSize: TYPE.small,

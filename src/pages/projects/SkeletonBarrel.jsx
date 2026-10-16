@@ -1,6 +1,6 @@
 // src/pages/projects/SkeletonBarrel.jsx
 import { useEffect, useRef, useState } from 'react'
-import { TYPE, HERO_TOP } from '../../styles/type'
+import { TYPE, HERO_TOP, TITLE_GAP } from '../../styles/type'
 import useFadeIn from '../../hooks/useFadeIn'
 import useFadeInOnScroll from '../../hooks/useFadeInOnScroll'
 import useScrollFrames from '../../hooks/useScrollFrames'
@@ -137,13 +137,13 @@ export default function SkeletonBarrel() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        paddingTop: HERO_TOP,
+        padding: `${HERO_TOP} 24px 0`,
       }}>
         <h1 className="glass-title" data-text="Skeleton Barrel" style={{
           fontSize: TYPE.pageTitle,
           fontWeight: 'bold',
           letterSpacing: '0.01em',
-          marginBottom: 24,
+          marginBottom: TITLE_GAP,
           opacity: titleOpacity,
           transition: 'opacity 1.5s ease',
         }}>

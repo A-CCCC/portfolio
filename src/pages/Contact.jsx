@@ -9,7 +9,7 @@
 // The résumé used to sit under these. It reads as who I am rather than what is
 // for sale, so it lives on About Me now.
 import useFadeIn from '../hooks/useFadeIn'
-import { TYPE } from '../styles/type'
+import { TYPE, HERO_TOP, TITLE_GAP } from '../styles/type'
 import { SHOP } from '../data/shop'
 
 export default function Contact() {
@@ -23,7 +23,8 @@ export default function Contact() {
       minHeight: 'var(--screen)',
       color: 'var(--text)',
       fontFamily: 'system-ui',
-      padding: '120px var(--gutter) 96px',
+      // the title where every page has it (HERO_TOP)
+      padding: `${HERO_TOP} var(--gutter) 96px`,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -42,9 +43,8 @@ export default function Contact() {
 
       <p className="page-intro-line text-chip" style={{
         fontSize: TYPE.lead,
-        lineHeight: 1.7,
-        color: 'var(--text-body)',
-        margin: '16px 0 0',
+        lineHeight: 1.6,
+        margin: `${TITLE_GAP}px 0 0`,
         opacity: leadOpacity,
         transition: 'opacity 1.5s ease',
       }}>

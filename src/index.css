@@ -1320,7 +1320,87 @@ html.diving #root { overflow: clip; }
    of the fade it arrives on: written inline, a `transition` would replace the
    whole property and the shading would have none at all. */
 .hero-link {
-  transition: opacity 1.5s ease;
+  transition: opacity 1.5s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.25s ease, box-shadow 0.25s ease;
+}
+/* and at rest, a pill of clear glass of its own, as the title above it is
+   glass: the wallpaper frosted through it, a bright line where the light
+   from the top left catches its rim, and the title's soft shadow under it.
+   The navbar's lit glass still comes up over it when it is pointed at, and
+   it lifts a little. The line under a title on the wallpaper (.text-chip:
+   the hubs', Services') is on the same glass. */
+.hero-link {
+  /* the height every pill under a title has (PILL_H, styles/type.js) */
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0 22px;
+  /* (none of the other pills' pull below: it would set the pair 10px off
+     the middle of the screen) */
+  margin-bottom: 0;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+.hero-link,
+.home-backdrop .text-chip {
+  background: color-mix(in srgb, var(--bg) 38%, transparent);
+  -webkit-backdrop-filter: blur(10px) saturate(1.5);
+  backdrop-filter: blur(10px) saturate(1.5);
+  box-shadow:
+    inset 0.6px 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+    0.1em 0.25em 0.8em rgba(110, 88, 68, 0.2);
+}
+/* Pointed at, its own glass brightens and it lifts, the shadow under it
+   deepening — not the navbar's lit glass laid over it: a second glass on
+   the first doubled its rims, and blurred only the first, went flat */
+.hero-link .nav-lit { display: none; }
+.hero-link:hover,
+.hero-link:focus-visible {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  box-shadow:
+    inset 0.6px 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.45),
+    0.15em 0.4em 1.1em rgba(110, 88, 68, 0.26);
+}
+:root[data-theme='dark'] .hero-link:hover,
+:root[data-theme='dark'] .hero-link:focus-visible {
+  background: color-mix(in srgb, var(--bg) 30%, rgba(255, 255, 255, 0.1));
+  box-shadow:
+    inset 0.6px 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    0.15em 0.4em 1.1em rgba(0, 4, 16, 0.6);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] .hero-link:hover,
+  :root[data-theme='auto'] .hero-link:focus-visible,
+  :root:not([data-theme]) .hero-link:hover,
+  :root:not([data-theme]) .hero-link:focus-visible {
+    background: color-mix(in srgb, var(--bg) 30%, rgba(255, 255, 255, 0.1));
+    box-shadow:
+      inset 0.6px 1px 0 rgba(255, 255, 255, 0.4),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+      0.15em 0.4em 1.1em rgba(0, 4, 16, 0.6);
+  }
+}
+:root[data-theme='dark'] .hero-link,
+:root[data-theme='dark'] .home-backdrop .text-chip {
+  background: color-mix(in srgb, var(--bg) 42%, transparent);
+  box-shadow:
+    inset 0.6px 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    0.1em 0.25em 0.8em rgba(0, 4, 16, 0.5);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] .hero-link,
+  :root:not([data-theme]) .hero-link,
+  :root[data-theme='auto'] .home-backdrop .text-chip,
+  :root:not([data-theme]) .home-backdrop .text-chip {
+    background: color-mix(in srgb, var(--bg) 42%, transparent);
+    box-shadow:
+      inset 0.6px 1px 0 rgba(255, 255, 255, 0.28),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+      0.1em 0.25em 0.8em rgba(0, 4, 16, 0.5);
+  }
 }
 
 /* On the arrow itself rather than on the links it happens to sit in: scoped to
@@ -2845,6 +2925,7 @@ html.vt-grow::view-transition-new(root) {
    none on the dark page: the glass is drawn by its rim, not by a shadow. */
 .home-backdrop {
   --page-title: clamp(3.4rem, 15vw, 6rem);
+  --title-lh: 1.1;
 }
 .home-backdrop h1.glass-title {
   font-size: var(--page-title) !important;
@@ -2866,8 +2947,8 @@ html.vt-grow::view-transition-new(root) {
    the outline */
 .glass-title.lg-clear > canvas.liquid-glass-surface {
   filter:
-    drop-shadow(0 0.01em 0.02em rgba(140, 70, 10, 0.22))
-    drop-shadow(0.025em 0.05em 0.12em rgba(150, 80, 20, 0.3));
+    drop-shadow(0 0.01em 0.02em rgba(105, 82, 62, 0.22))
+    drop-shadow(0.025em 0.05em 0.12em rgba(110, 88, 68, 0.28));
 }
 :root[data-theme='dark'] .glass-title.lg-clear > canvas.liquid-glass-surface {
   filter:
@@ -2888,15 +2969,27 @@ html.vt-grow::view-transition-new(root) {
   :root:not([data-theme]) .glass-title.lg-clear { text-shadow: none; }
 }
 
-/* A single line on the wallpaper (Services' line under its title): a small
-   pill of the same glass behind it, so it reads clear of the shapes */
+/* A single line on the wallpaper (the line under a title: the hubs',
+   Services'): on a pill of glass, the same as View services (.hero-link,
+   above), so it reads clear of the shapes; its corners stay round should it
+   wrap on a phone, rather than closing to a capsule two lines deep */
 .home-backdrop .text-chip {
-  display: inline-block;
-  padding: 4px 16px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--bg) 62%, transparent);
-  -webkit-backdrop-filter: blur(8px) saturate(1.5);
-  backdrop-filter: blur(8px) saturate(1.5);
+  /* the height every pill under a title has (PILL_H, styles/type.js), the
+     line in its middle */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 6px 22px;
+  border-radius: 1.4em;
+  color: var(--text);
+  letter-spacing: 0.01em;
+  /* wrapped on a phone, two even lines rather than a word left over */
+  text-wrap: balance;
+}
+@media (max-width: 480px) {
+  .home-backdrop .text-chip { padding: 6px 16px; }
 }
 
 /* The theme switch's circle clicked (ThemeToggle.jsx, flip): it swells and

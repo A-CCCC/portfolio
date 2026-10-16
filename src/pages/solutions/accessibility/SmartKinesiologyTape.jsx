@@ -1,6 +1,6 @@
 // src/pages/solutions/accessibility/SmartKinesiologyTape.jsx
 import { Fragment } from 'react'
-import { TYPE, HERO_TOP } from '../../../styles/type'
+import { TYPE, HERO_TOP, TITLE_GAP } from '../../../styles/type'
 import pagePhotos from '../../../data/pagePhotos'
 import useFadeIn from '../../../hooks/useFadeIn'
 import PhotoSection, { FeatureImage, SectionTitle, SplitRow } from '../../../components/PhotoStory'
@@ -181,7 +181,7 @@ export default function SmartKinesiologyTape() {
           fontSize: TYPE.pageTitle,
           fontWeight: 'bold',
           letterSpacing: '0.01em',
-          marginBottom: 24,
+          marginBottom: TITLE_GAP,
           opacity: titleOpacity,
           transition: 'opacity 1.5s ease',
         }}>
