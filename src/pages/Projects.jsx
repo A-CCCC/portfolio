@@ -6,7 +6,7 @@ import { clashRoyale, halloween, misc } from '../data/projects'
 import asset from '../lib-asset'
 
 const TITLE = 'Projects'
-const SUBTITLE = 'Models and builds made for their own sake.'
+const SUBTITLE = 'Models, repairs, and everything else.'
 const NOUN = 'project'
 
 const SECTIONS = [
@@ -14,9 +14,7 @@ const SECTIONS = [
     label: 'Clash Royale',
     path: '/projects/clash-royale',
     items: clashRoyale,
-    // Draft copy — a line on what the category covers.
-    blurb: 'Models rebuilt from the game using reference images, where I push my '
-      + 'modeling and animation the furthest.',
+    blurb: 'Highly detailed models I built using reference images from the video game Clash Royale.',
     cover: asset('/thumbnails/skeleton-barrel.webp'),
     // Clicking the barrel is the only way to the games page. The box is where
     // the barrel actually sits in its render — left, top, width, height, as
@@ -29,17 +27,14 @@ const SECTIONS = [
     label: 'Halloween',
     path: '/projects/halloween',
     items: halloween,
-    // Draft copy — a line on what the category covers.
-    blurb: 'Costumes and props built from scratch for Halloween — helmets, a '
-      + 'lightsaber, and whatever else the year calls for.',
+    blurb: 'Helmets and props built almost every year, made out of cardboard and whatever else we had lying around.',
     cover: asset('/thumbnails/darth-vader.webp'),
   },
   {
     label: 'Miscellaneous',
     path: '/projects/misc',
     items: misc,
-    blurb: 'One-off builds and repairs that belong to no category — replacement '
-      + 'parts, whatever needed making.',
+    blurb: "Right now it's just a repair for an old RC car, but hopefully more stuff will be here.",
     cover: asset('/thumbnails/rc-car-repair.webp'),
   },
 ]

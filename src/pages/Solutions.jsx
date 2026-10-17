@@ -6,7 +6,7 @@ import { accessibility, convenience } from '../data/projects'
 import asset from '../lib-asset'
 
 const TITLE = 'Solutions'
-const SUBTITLE = 'Problems worth solving, in two kinds.'
+const SUBTITLE = 'Fixes for issues that stuck out to me.'
 const NOUN = 'solution'
 
 const SECTIONS = [
@@ -14,17 +14,14 @@ const SECTIONS = [
     label: 'Accessibility',
     path: '/solutions/accessibility',
     items: accessibility,
-    // Draft copy — a line on what the category covers.
-    blurb: 'Designs for people whose daily routines are made harder by injury or '
-      + 'disability, built around how the person actually moves.',
+    blurb: "Designs, prototypes, and products to solve problems most people don't have to live with.",
     cover: asset('/thumbnails/wheelchair-storage.webp'),
   },
   {
     label: 'Convenience',
     path: '/solutions/convenience',
     items: convenience,
-    blurb: 'Small fixes for the everyday annoyances most people simply put up with — '
-      + 'a wiper, a holder, a container that finally fits.',
+    blurb: 'Projects that remedy daily issues and make a big impact.',
     cover: asset('/thumbnails/backup-camera-wiper.webp'),
   },
 ]
