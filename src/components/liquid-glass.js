@@ -626,16 +626,15 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   const wallTexture = (url, host) => {
     const w = host.offsetWidth, hh = host.offsetHeight
     const h = Math.min(hh, Math.round(window.innerHeight * 1.5))
-    // keyed on the whole drawing (a hash of it): the light and the dark
-    // wallpapers are the same length and end alike, and keyed on those the
-    // bubbles went on showing the light one after the theme turned
-    let hash = 0
-    for (let i = 0; i < url.length; i += 7) hash = (hash * 31 + url.charCodeAt(i)) | 0
-    const key = `${url.length}|${hash}|${w}|${hh}|${h}|${dpr}`
+    // keyed on the whole drawing itself: the light and the dark wallpapers
+    // are the same length and differ only in their colours, and keyed on a
+    // sample of them (every seventh letter) the bubbles went on showing the
+    // light one after the theme turned
+    const key = `${w}|${hh}|${h}|${dpr}`
     let e = walls.get(host)
-    if (!e || e.key !== key) {
+    if (!e || e.key !== key || e.url !== url) {
       const prev = e
-      e = { key, tex: null, h, img: new Image() }
+      e = { key, url, tex: null, h, img: new Image() }
       walls.set(host, e)
       e.img.onload = () => {
         const k = Math.min(dpr, 4096 / Math.max(w, h))

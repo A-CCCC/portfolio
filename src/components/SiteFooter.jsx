@@ -22,7 +22,7 @@ export default function SiteFooter() {
   if (!contact || PLAYFIELDS.includes(pathname)) return null
 
   return (
-    <footer style={{
+    <footer className="site-footer" style={{
       borderTop: '1px solid var(--border)',
       background: 'var(--bg)',
       padding: '24px var(--gutter) 28px',

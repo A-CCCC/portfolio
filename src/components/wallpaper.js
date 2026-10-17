@@ -97,22 +97,22 @@ const THIRD = [
 
 // Each pattern: its shapes, turned about (the second and fourth are the
 // first and third in a mirror, the middle of the page staying where it is),
-// what each colour becomes in it, and the band behind the title — where its
-// upper edge crosses the middle of the pattern (y), which way it leans
-// (tilt, +1 rising to the right), and which side of that edge it lies and
-// where on the title the edge falls (at, from the title's top to its foot).
+// what each colour becomes in it, and the band behind the title — which way
+// it leans (tilt, +1 rising to the right), and which side of its edge it lies
+// and where on the title the edge falls (at, from the title's top to its
+// foot).
 const SAME = (c) => c
 const PATTERNS = [
   { shapes: FIRST, mirror: false, colour: SAME,
-    hero: { y: 150, tilt: -1, at: 0.18, side: 'below' } },
+    hero: { tilt: -1, at: 0.18, side: 'below' } },
   { shapes: FIRST, mirror: true,
     colour: (c) => ({ gold: 'amber', cream: 'honey', coral: 'peach', peach: 'coral', apricot: 'gold', amber: 'cream', honey: 'apricot' })[c],
-    hero: { y: 150, tilt: 1, at: 0.2, side: 'below' } },
+    hero: { tilt: 1, at: 0.2, side: 'below' } },
   { shapes: THIRD, mirror: false, colour: SAME,
-    hero: { y: 200, tilt: 1, at: 0.84, side: 'above' } },
+    hero: { tilt: 1, at: 0.84, side: 'above' } },
   { shapes: THIRD, mirror: true,
     colour: (c) => ({ cream: 'amber', gold: 'coral', coral: 'honey', peach: 'gold', amber: 'peach', honey: 'cream', apricot: 'apricot' })[c],
-    hero: { y: 170, tilt: -1, at: 0.16, side: 'below' } },
+    hero: { tilt: -1, at: 0.16, side: 'below' } },
 ]
 
 // halfway between two colours (#rrggbb)
@@ -281,15 +281,11 @@ function paper(host) {
     if (!host.__banded) {
       host.__banded = true
       if (host.__offY === undefined) {
-        // A page opened afresh: the middle third, from the row that puts
-        // the pattern's band across its title where the pattern asks; and
-        // the band laid there
-        host.__phase = 0
-        host.__offY = 0
-        if (h1) {
-          const hr = host.getBoundingClientRect(), r = h1.getBoundingClientRect()
-          host.__offY = host.__pattern.hero.y - (r.top - hr.top + r.height * host.__pattern.hero.at) * unit
-        }
+        // A page opened afresh: anywhere on the pattern — any of its three
+        // thirds, from any row of it — so it is not the same place each
+        // time; and the band laid across its title there
+        host.__phase = Math.floor(Math.random() * 3) - 1
+        host.__offY = Math.random() * DEEP
         const b = ownBand(host)
         bands = b ? [b] : []
       }

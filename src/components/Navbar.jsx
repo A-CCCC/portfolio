@@ -162,6 +162,19 @@ function Star() {
 // is the same length, so the element is removed as it finishes.
 const SHEET_OUT = 220
 
+// A menu opened over an inverted panel: that panel's colours and its glass,
+// as the bar's inverted copy wears them (below), and its ground too, which
+// the menu's fill is mixed from
+const PANEL_INK = {
+  '--text': 'var(--band-ink)',
+  '--text-body': 'var(--band-body)',
+  '--text-muted': 'var(--band-body)',
+  '--border': 'var(--band-body)',
+  '--hover': 'var(--band-hover)',
+  '--bg': 'var(--band-bg)',
+}
+const PANEL_GLASS = { 'data-glass-inverted': '' }
+
 const dropdownStyle = {
   position: 'absolute',
   borderRadius: 12,
@@ -231,6 +244,12 @@ export default function Navbar() {
   // shows as the blur sliding out of step while scrolling.
   const navRef = useRef(null)
   const ghostRef = useRef(null)
+  // Whether the bar is (mostly) over a panel painted the inverse of the page:
+  // its menus then open in that panel's glass, as the bar has turned to, and
+  // not the page's
+  const [overPanel, setOverPanel] = useState(false)
+  const overRef = useRef(false)
+  const setOver = (v) => { if (overRef.current !== v) { overRef.current = v; setOverPanel(v) } }
   const ghostTintRef = useRef(null)
   const lightRef = useRef(null)
   const darkRef = useRef(null)
@@ -360,7 +379,8 @@ export default function Navbar() {
                 <div
                   className="glass glass-vivid nav-menu"
                   ref={(el) => { if (el) el.parentElement.style.setProperty('--menu-w', `${el.offsetWidth - 1}px`) }}
-                  style={{ ...dropdownStyle, top: '100%', left: 0, minWidth: 140 }}
+                  {...(overPanel ? PANEL_GLASS : {})}
+                  style={{ ...dropdownStyle, ...(overPanel ? PANEL_INK : {}), top: '100%', left: 0, minWidth: 140 }}
                 >
                   {tab.categories.map((category, row) => (
                     <div
@@ -411,8 +431,10 @@ export default function Navbar() {
                     className="glass glass-vivid nav-menu nav-submenu"
                     onMouseEnter={() => holdCategory(category.label)}
                     onMouseLeave={dropCategory}
+                    {...(overPanel ? PANEL_GLASS : {})}
                     style={{
                       ...dropdownStyle,
+                      ...(overPanel ? PANEL_INK : {}),
                       top: `calc(100% + ${row} * var(--nav-row))`,
                       left: 'var(--menu-w, 140px)',
                       minWidth: 150,
@@ -519,6 +541,7 @@ export default function Navbar() {
         // two are behind it at once.
         if (!best || bottom - top > best.bottom - best.top) best = { top, bottom }
       }
+      setOver(!!best && best.bottom - best.top > bar.height / 2)
       if (!best) {
         ghostRef.current.style.clipPath = HIDDEN
         ghostTintRef.current.style.clipPath = HIDDEN

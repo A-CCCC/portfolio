@@ -9,25 +9,27 @@
   /* A screenful, as the screen actually is. On a phone `100vh` is the height
      the window would have with the address bar hidden, whether or not it is —
      so a panel meant to fill the screen hangs below it and loses its bottom
-     until the bar rolls away. `dvh` is the height there is right now, and
-     follows the bar as it comes and goes. One name for it, so if the following
-     ever reads as restless mid-scroll, `svh` here settles the whole site. */
+     until the bar rolls away. `svh` is the height there is with the bar
+     showing, and stays put as the bar comes and goes: `dvh`, which followed
+     the bar, resized every screen-tall section on the way past — the page
+     under the finger jumping as the bar rolled away, and the wallpaper and
+     its glass drawn afresh each time. */
   --screen: 100vh;
   --nav-gradient-light: linear-gradient(to bottom,
-    rgba(255,250,242,0.7) 0%,
-    rgba(255,250,242,0.65) 20%,
-    rgba(255,250,242,0.5) 40%,
-    rgba(255,250,242,0.3) 60%,
-    rgba(255,250,242,0.12) 80%,
-    rgba(255,250,242,0) 100%
+    rgba(255,238,216,0.7) 0%,
+    rgba(255,238,216,0.65) 20%,
+    rgba(255,238,216,0.5) 40%,
+    rgba(255,238,216,0.3) 60%,
+    rgba(255,238,216,0.12) 80%,
+    rgba(255,238,216,0) 100%
   );
   --nav-gradient-dark: linear-gradient(to bottom,
-    rgba(18,21,29,0.7) 0%,
-    rgba(18,21,29,0.65) 20%,
-    rgba(18,21,29,0.5) 40%,
-    rgba(18,21,29,0.3) 60%,
-    rgba(18,21,29,0.12) 80%,
-    rgba(18,21,29,0) 100%
+    rgba(12,22,42,0.7) 0%,
+    rgba(12,22,42,0.65) 20%,
+    rgba(12,22,42,0.5) 40%,
+    rgba(12,22,42,0.3) 60%,
+    rgba(12,22,42,0.12) 80%,
+    rgba(12,22,42,0) 100%
   );
 }
 
@@ -61,8 +63,8 @@
 
 
 /* LIGHT — the default, and explicitly when data-theme="light" */
-@supports (height: 100dvh) {
-  :root { --screen: 100dvh; }
+@supports (height: 100svh) {
+  :root { --screen: 100svh; }
 }
 
 :root,
@@ -2681,6 +2683,32 @@ html.theme-snap *::after {
 }
 .photo-strip-dots button.is-at { width: 20px; opacity: 0.9; }
 
+/* ON A PHONE: a finger is broader than a pointer. The small things to press —
+   the dots under a strip of photos, the contact links, the copy button —
+   each answer to a reach round them about the size of a fingertip, laid
+   invisibly over the space round them, so nothing moves to make room. */
+@media (pointer: coarse) {
+  .photo-strip-dots button,
+  .under-link,
+  .reach-address,
+  .copy-email { position: relative; }
+  .photo-strip-dots button::after,
+  .under-link::after,
+  .reach-address::after,
+  .copy-email::after {
+    content: '';
+    position: absolute;
+    inset: -12px -6px;
+  }
+  .photo-strip-dots button::after { inset: -18px -4px; }
+  .copy-email::after { inset: -8px; }
+}
+/* and the foot of the page leaves room for the theme switch, which stays
+   in the corner: at the very bottom it lay over the address */
+@media (max-width: 700px) {
+  .site-footer { padding-bottom: 88px !important; }
+}
+
 /* A page growing out of a link through the browser's page transitions
    (page-sweep.js, growWithin): the two pictures held still by the browser's
    own fade — the script moves them — and the link's colour over the
@@ -2749,6 +2777,12 @@ html.vt-grow::view-transition-new(root) {
     font-size: 1.0625rem !important;
     line-height: 1.62 !important;
     color: color-mix(in srgb, var(--text) 80%, var(--bg)) !important;
+  }
+  /* (but in a band painted the inverse of the page, its own words' colour:
+     the page's, there, was dark on the hubs' dark panels) */
+  .split[data-inverted] p,
+  .split[data-inverted] li {
+    color: var(--band-body) !important;
   }
   /* A heading that only introduces the sections under it sits close above
      them, with a little more room over it than under */
