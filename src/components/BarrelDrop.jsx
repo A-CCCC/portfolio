@@ -58,10 +58,22 @@ const SPEED_START = 3.2
 const SPEED_MAX = 5.4
 const SPEED_GAIN = 0.07          // per pair passed
 
-// Boxes are shrunk before they are compared, so a near miss reads as a near
-// miss. The balloons count: they are what the barrel is hanging from, and a
-// barrel that sails through a column its balloons clipped looks broken.
-const FORGIVENESS = 0.12
+// What can be hit: the shapes of the sprite itself, as circles in its own
+// pixels (87 by 160) — the two balloons in front, and the barrel — turned with
+// it as it swings, rather than one box round the whole picture, which counted
+// the empty corners beside the balloons and the space either side of the
+// strings, and stood upright while the barrel leaned. The strings are left
+// out: a line a few pixels wide that ended a run would only ever feel unfair.
+// The balloons count: they are what the barrel is hanging from, and a barrel
+// that sails through a column its balloons clipped looks broken.
+const SHAPES = [
+  [21, 24, 21],       // the left balloon: x, y, radius
+  [61, 28, 25],       // the right
+  [42, 126, 32],      // the barrel
+]
+// Each drawn in a little before it is compared, so a near miss reads as a
+// near miss
+const FORGIVENESS = 0.1
 
 // The hit does not end the run on its own: the barrel blinks where it stands,
 // the way an arcade game marks a life lost, and only then drops out of the sky.
@@ -341,21 +353,29 @@ export default function BarrelDrop() {
         return
       }
 
-      // Swinging from a point above its middle carries the barrel sideways, so
-      // the box follows it round rather than staying under the balloons.
+      // The shapes where the sprite is drawn: from the point it hangs from,
+      // turned by its lean, as draw() turns the picture
       const arm = h * (0.5 - PIVOT_ROW)
-      const cx = BARREL_X - Math.sin(g.tilt) * arm
-      const cy = g.y - arm + Math.cos(g.tilt) * arm
-
-      const box = {
-        x: cx - w / 2 + w * FORGIVENESS,
-        y: cy - h / 2 + h * FORGIVENESS,
-        w: w * (1 - FORGIVENESS * 2),
-        h: h * (1 - FORGIVENESS * 2),
-      }
+      const px = BARREL_X + w * PIVOT_X, py = g.y - arm
+      const k = w / 87, cos = Math.cos(g.tilt), sin = Math.sin(g.tilt)
+      const circles = SHAPES.map(([sx, sy, r]) => {
+        const lx = -w / 2 - w * PIVOT_X + sx * k, ly = -h * PIVOT_ROW + sy * k
+        return [px + lx * cos - ly * sin, py + lx * sin + ly * cos, r * k * (1 - FORGIVENESS)]
+      })
+      // a circle against a rectangle: the nearest point of the one to the
+      // middle of the other
+      const meets = (x, y, bw, bh) => circles.some(([cx, cy, r]) => {
+        const dx = cx - Math.max(x, Math.min(cx, x + bw)), dy = cy - Math.max(y, Math.min(cy, y + bh))
+        return dx * dx + dy * dy < r * r
+      })
       for (const c of g.columns) {
-        const within = box.x < c.x + COLUMN_W && box.x + box.w > c.x
-        if (within && (box.y < c.top || box.y + box.h > c.top + c.gap)) {
+        const low = c.top + c.gap
+        // each half of the pair: its shaft, and the lip at its mouth, which
+        // stands out past the shaft either side
+        if (meets(c.x, -100, COLUMN_W, c.top + 100)
+          || meets(c.x - CAP_OUT, c.top - CAP_H, COLUMN_W + CAP_OUT * 2, CAP_H)
+          || meets(c.x, low, COLUMN_W, FLOOR - low)
+          || meets(c.x - CAP_OUT, low, COLUMN_W + CAP_OUT * 2, CAP_H)) {
           die()
           return
         }

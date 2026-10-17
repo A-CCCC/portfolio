@@ -604,12 +604,23 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   }
 
   // An image by its URL (a title's silk), loaded once and uploaded once
+  // — and drawn out to a bitmap first, away from the frame. Most of these are
+  // drawings (SVG: the wallpaper behind a title or a row of cards), and
+  // handed to the graphics chip as they were, each was drawn out there and
+  // then, inside a frame: the first time a page opened, a tenth of a second
+  // and more, which stalled the page growing out of the navbar mid-way.
   const byUrl = new Map()
   const urlTexture = (url) => {
     let e = byUrl.get(url)
     if (!e) {
       e = { img: new Image(), tex: null }
-      e.img.onload = () => { e.tex = imageTexture(e.img) }
+      e.img.onload = async () => {
+        let src = e.img
+        try { if (window.createImageBitmap) src = await createImageBitmap(e.img) } catch { /* the image itself, then */ }
+        e.tex = upload(src)
+        if (src !== e.img) src.close?.()
+        hotUntil = performance.now() + 200
+      }
       e.img.src = url
       byUrl.set(url, e)
       if (byUrl.size > 80) byUrl.delete(byUrl.keys().next().value)

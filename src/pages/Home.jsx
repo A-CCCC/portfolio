@@ -20,7 +20,9 @@ const FEATURED_LINE = describe(featured.page)
 
 export default function Home() {
   const [featuredRef, featuredOpacity] = useFadeInOnScroll(0)
-  const [currentRef, currentOpacity] = useFadeInOnScroll(0)
+  // (the current projects start as soon as they are on the screen at all,
+  // not once they are well up it: they sit low, under the featured one)
+  const [currentRef, currentOpacity] = useFadeInOnScroll(0, 0.04)
   const titleOpacity = useFadeIn(100)
   // Last of everything on the opening screen. The bubbles begin at 0.7s and
   // arrive one after another over half a second more, so this waits for the

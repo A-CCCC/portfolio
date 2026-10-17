@@ -19,7 +19,10 @@ import { useEffect, useRef, useState } from 'react'
 // this way rather than as a share of the element.
 const LATE = 0.26
 
-export default function useFadeInOnScroll(delay = 500) {
+// `late` the share of the window's lower edge that does not count, for a
+// section that should start sooner than the rest (0: as soon as its top is
+// on the screen at all).
+export default function useFadeInOnScroll(delay = 500, late = LATE) {
   const ref = useRef(null)
   const [opacity, setOpacity] = useState(0)
 
@@ -47,7 +50,7 @@ export default function useFadeInOnScroll(delay = 500) {
       // Nothing but the margin decides this. Asking for a share of the element
       // as well would mean a section taller than the window it is watched in
       // could never show enough of itself, and would sit invisible for good.
-      { threshold: 0, rootMargin: `0px 0px -${Math.round(LATE * 100)}% 0px` },
+      { threshold: 0, rootMargin: `0px 0px -${Math.round(late * 100)}% 0px` },
     )
 
     // Anything sitting in that ignored strip at the very bottom of the page can
@@ -73,7 +76,7 @@ export default function useFadeInOnScroll(delay = 500) {
       safety.disconnect()
       clearTimeout(timer)
     }
-  }, [delay])
+  }, [delay, late])
 
   return [ref, opacity]
 }
