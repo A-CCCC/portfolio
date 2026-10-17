@@ -19,7 +19,8 @@ const REACH = contact
 const FEATURED_LINE = describe(featured.page)
 
 export default function Home() {
-  const [featuredRef, featuredOpacity] = useFadeInOnScroll(0)
+  // (as the current projects below it: as soon as it is on the screen at all)
+  const [featuredRef, featuredOpacity] = useFadeInOnScroll(0, 0.04)
   // (the current projects start as soon as they are on the screen at all,
   // not once they are well up it: they sit low, under the featured one)
   const [currentRef, currentOpacity] = useFadeInOnScroll(0, 0.04)
