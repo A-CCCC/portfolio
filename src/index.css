@@ -1358,6 +1358,30 @@ html.diving #root { overflow: clip; }
    deepening — not the navbar's lit glass laid over it: a second glass on
    the first doubled its rims, and blurred only the first, went flat */
 .hero-link .nav-lit { display: none; }
+/* (a pill of an address, in a row of them: none of the other pills' pull
+   outward, which ran the row's pills together) */
+.reach-pill { margin: 0 !important; }
+/* Services' offer of something made to order: the line and the addresses
+   under it, on one panel of the chips' glass */
+.home-backdrop .text-chip.contact-panel {
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 24px 12px;
+  border-radius: 24px;
+}
+.contact-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 6px;
+}
+.contact-links .count-link { padding: 8px 14px; color: var(--text); }
+/* one under the other on a phone, with no bar left hanging at a line's end */
+@media (max-width: 480px) {
+  .contact-links { flex-direction: column; gap: 0; }
+  .contact-links .reach-sep { display: none; }
+}
 .hero-link:hover,
 .hero-link:focus-visible {
   transform: translateY(-2px);

@@ -130,7 +130,7 @@ export default function Home() {
               Fusion, adding electronics where they're needed. I also recreate models from
               games like Clash Royale, which is where I push my modeling and animation
               abilities the furthest. I'm a junior in high school with interests in
-              engineering and science, and outside of school I row. I hid some fun easter
+              engineering and science, and outside of school I row. I hid some fun Easter
               eggs across this website, so look everywhere!
             </p>
 

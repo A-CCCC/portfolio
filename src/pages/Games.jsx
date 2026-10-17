@@ -18,8 +18,7 @@ const GAMES = [
   {
     title: 'The Log Game',
     path: '/log',
-    blurb: 'The Log rolls, everything else comes at it. Jump what is on the '
-      + 'ground, duck the barrels overhead.',
+    blurb: 'The Google dinosaur game, but you play as the log and the obstacles are my Clash Royale models!',
     image: asset('/thumbnails/the-log.webp'),
     // Warm, like the wood
     tint: 2,
@@ -29,8 +28,7 @@ const GAMES = [
   {
     title: 'Flappy Barrel',
     path: '/barrel',
-    blurb: 'Keep the Skeleton Barrel in the air and thread the columns. '
-      + 'Gravity never lets up.',
+    blurb: 'Guide the Skeleton Barrel through increasingly narrow pipes (this gets quite hard).',
     image: asset('/game/skeleton-barrel.png'),
     // Blue, like its balloons
     tint: 1,
@@ -40,8 +38,7 @@ const GAMES = [
   {
     title: 'Model Snake',
     path: '/snake',
-    blurb: 'Snake, fed on everything else in this portfolio. Each model eaten '
-      + 'adds a block of its own color.',
+    blurb: 'Snake game, but you eat various models from this website.',
     image: asset('/thumbnails/smart-kinesiology-tape.webp'),
     // Green, like the board it is played on
     tint: 3,
@@ -78,9 +75,9 @@ export default function Games() {
   const short = useIsShort()
 
   return (
-    <div style={{
+    // on the site's wallpaper, as the home page and the hubs are (.home-backdrop)
+    <div className="home-backdrop" style={{
       minHeight: 'var(--screen)',
-      background: 'var(--bg)',
       color: 'var(--text)',
       fontFamily: 'system-ui',
       display: 'flex',
@@ -103,15 +100,15 @@ export default function Games() {
         Games
       </h1>
 
-      <p className="page-intro-line" style={{
+      {/* on a pill of glass, as Services' line is (.text-chip) */}
+      <p className="page-intro-line text-chip" style={{
         fontSize: TYPE.body,
-        lineHeight: 1.7,
-        color: 'var(--text-muted)',
+        lineHeight: 1.6,
         marginBottom: short ? 18 : 48,
         opacity: introOpacity,
         transition: 'opacity 1.5s ease',
       }}>
-        You found an easter egg! Try out these games made with my models.
+        You found an Easter egg! Try out these games made with my models.
       </p>
 
       {/* Three across where there is room, one under another where there is

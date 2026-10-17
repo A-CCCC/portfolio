@@ -3,19 +3,28 @@
 // The Services page, at /services (and still at /contact, which is what the
 // public build's navbar used to call it).
 //
-// What can be bought: the models listed on Etsy, each on a card that is
-// nothing but the way through to its listing.
+// What can be had: something made to order, and the ways to ask for it; then
+// the models listed on Etsy, each on a card that is nothing but the way
+// through to its listing.
 //
 // The résumé used to sit under these. It reads as who I am rather than what is
 // for sale, so it lives on About Me now.
 import useFadeIn from '../hooks/useFadeIn'
 import { TYPE, HERO_TOP, TITLE_GAP } from '../styles/type'
 import { SHOP } from '../data/shop'
+import { contact } from '../data/site-copy'
+import EmailLink from '../components/EmailLink'
+
+// The address and the profile the footer and About me give, from the one
+// place; absent in a build that does not publish them, where the links are
+// not built at all
+const REACH = contact
 
 export default function Contact() {
   const titleOpacity = useFadeIn(100)
-  const leadOpacity = useFadeIn(500)
-  const shopOpacity = useFadeIn(800)
+  const customOpacity = useFadeIn(500)
+  const leadOpacity = useFadeIn(900)
+  const shopOpacity = useFadeIn(1100)
 
   return (
     // on the site's wallpaper, as the home page is (.home-backdrop)
@@ -41,14 +50,52 @@ export default function Contact() {
         Services
       </h1>
 
+      {/* First, something made to order: the offer and the ways to ask, on
+          one panel of the same glass as the lines under the titles */}
+      <div className="page-intro-line text-chip contact-panel" style={{
+        margin: `${TITLE_GAP}px 0 0`,
+        opacity: customOpacity,
+        transition: 'opacity 1.5s ease',
+      }}>
+        <p style={{ fontSize: TYPE.lead, lineHeight: 1.6 }}>
+          If you want something custom-built, message me at the addresses below!
+        </p>
+
+        {/* The addresses, lit with the navbar's glass when pointed at, as
+            the links in About me are */}
+        {REACH && (
+          <div className="contact-links">
+            <EmailLink
+              email={REACH.email}
+              boxClassName="count-link reach-pill"
+              className="reach-address"
+              style={{ fontSize: TYPE.small }}
+            />
+            <span className="reach-sep" aria-hidden="true">|</span>
+            <a
+              href={REACH.linkedin}
+              target="_blank"
+              rel="noreferrer"
+              className="count-link reach-pill"
+              style={{ color: 'var(--text)', textDecoration: 'none', fontSize: TYPE.small }}
+            >
+              LinkedIn
+              <span className="count-arrow" aria-hidden="true">→</span>
+              <i className="glass glass-vivid nav-lit" aria-hidden="true" />
+            </a>
+          </div>
+        )}
+      </div>
+
+      {/* Then what is for sale */}
       <p className="page-intro-line text-chip" style={{
         fontSize: TYPE.lead,
         lineHeight: 1.6,
-        margin: `${TITLE_GAP}px 0 0`,
+        margin: '56px 0 0',
         opacity: leadOpacity,
         transition: 'opacity 1.5s ease',
       }}>
-        Models I have designed and printed, for sale on Etsy.
+        Or buy this stuff for your Hyundai Ioniq 5 (N)!
       </p>
 
       {/* Each piece on a card of its own, the model sitting in a tinted disc
@@ -61,7 +108,7 @@ export default function Contact() {
           gap: 24,
           width: '100%',
           maxWidth: 720,
-          margin: '56px 0 0',
+          margin: '24px 0 0',
           opacity: shopOpacity,
           transition: 'opacity 1.5s ease',
         }}>
@@ -108,6 +155,7 @@ export default function Contact() {
           ))}
         </div>
       )}
+
     </div>
   )
 }
