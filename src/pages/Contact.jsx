@@ -95,7 +95,7 @@ export default function Contact() {
         opacity: leadOpacity,
         transition: 'opacity 1.5s ease',
       }}>
-        Or buy this stuff for your Hyundai Ioniq 5 (N)!
+        Or buy these essentials for your Hyundai Ioniq 5 (N)!
       </p>
 
       {/* Each piece on a card of its own, the model sitting in a tinted disc
