@@ -277,9 +277,19 @@ function PhotoRing({ photos, heading }) {
         {[['Previous photo', -1], ['Next photo', 1]].map(([label, dir]) => (
           <button
             key={label}
-            onClick={() => step(dir)}
+            onClick={(e) => {
+              step(dir)
+              // the press played again from its start on every click
+              const b = e.currentTarget
+              b.classList.remove('arrow-pop')
+              void b.offsetWidth
+              b.classList.add('arrow-pop')
+            }}
+            // let go once the ring, the last of it, has spread and gone
+            onAnimationEnd={(e) => { if (e.target === e.currentTarget && e.pseudoElement === '::before') e.currentTarget.classList.remove('arrow-pop') }}
             aria-label={label}
-            className="glass"
+            className="glass photo-arrow"
+            data-dir={dir}
             style={{
               width: 36,
               height: 36,

@@ -67,16 +67,40 @@ export function startGlassTitles() {
       // a shop listing's — rather than a panel of words: more of the cloth's
       // colour through it, and deeper glass at its edge
       const bright = el.classList.contains('panel-bright')
+      // A card on a page with a wallpaper (the category pages' carousels,
+      // Services' shop): clear glass — the wallpaper behind it seen through
+      // it, bent at its rim, as the bubbles see it — in its own colour
+      const host = el.classList.contains('panel-bright') && el.closest('.home-backdrop')
+      const behind = host ? {
+        wall: () => {
+          if (!host.__pattern) return null
+          const root = document.documentElement
+          const dark = root.dataset.theme === 'dark' || ((root.dataset.theme === 'auto' || !root.dataset.theme) && matchMedia('(prefers-color-scheme: dark)').matches)
+          return { host, dark, region: (...a) => wallRegion(host, ...a) }
+        },
+      } : { silk: silkOf }
       layer.add(el, {
         under: true,              // under the card's words
-        silk: silkOf,
-        depth: bright ? 24 : 16, rim: bright ? 44 : 34, frost: 0, specA: bright ? 0.32 : 0.2, rimOnLight: bright ? 0.75 : 0.6,
-        // the panel's own tone over the silk, most of the way, as the CSS
-        // card had it: the words sit on a panel, not on a cloth
-        tint: () => getComputedStyle(document.documentElement).getPropertyValue('--panel-a').trim(),
-        // less of the tone over the cloth on the light page, where the
-        // cloth is the sunset (dark eases 0..1 with the theme)
-        tintA: bright ? (dark) => 0.12 + 0.2 * dark : (dark) => 0.3 + 0.32 * dark,
+        ...behind,
+        // (what is seen through clear glass softened a little, as a frosted
+        // pane's is)
+        depth: bright ? 24 : 16, rim: bright ? 44 : 34, frost: host ? 3 : 0, specA: bright ? 0.32 : 0.2, rimOnLight: bright ? 0.75 : 0.6,
+        ...(host ? {
+          // clear glass keeps the card's own colour, as a bubble does: a
+          // light of it on the glass (hue, from --lg-hue: its silk's
+          // middle shade, .glass-panel.panel-bright) and a wash of it over
+          // what is seen through
+          hue: true,
+          tint: (e) => getComputedStyle(e).getPropertyValue('--silk-2').trim() || '#ffffff',
+          tintA: (dark) => 0.26 + 0.1 * dark,
+        } : {
+          // the panel's own tone over the silk, most of the way, as the CSS
+          // card had it: the words sit on a panel, not on a cloth
+          tint: () => getComputedStyle(document.documentElement).getPropertyValue('--panel-a').trim(),
+          // less of the tone over the cloth on the light page, where the
+          // cloth is the sunset (dark eases 0..1 with the theme)
+          tintA: bright ? (dark) => 0.12 + 0.2 * dark : (dark) => 0.3 + 0.32 * dark,
+        }),
       })
       el.classList.add('lg-gl-panel')
     }

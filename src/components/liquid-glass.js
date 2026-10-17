@@ -1083,7 +1083,34 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       // loaded, rather than a disc of plain colour on the wallpaper.
       gl.uniform1f(U.useWall, 0)
       const wallOf = s.wall && s.wall(el)
-      if (wallOf) {
+      let strip = false
+      if (wallOf && wallOf.region) {
+        // A card further down the page (a carousel's): a strip of the
+        // wallpaper the page's width and the card's depth, and a margin for
+        // the bend, drawn sharp (wallRegion) — kept in the page's own
+        // co-ordinates, so the cards of a row share it, and it is the same
+        // strip as the page scrolls or the row is dragged along
+        const hr = wallOf.host.getBoundingClientRect()
+        const M = 48
+        const y0 = Math.round((r.top - hr.top - M) / 16) * 16, h0 = Math.round((r.height + 2 * M) / 16) * 16
+        const key = `${wallOf.host.__wallKey}|${y0}|${h0}|${Math.round(hr.width)}|${wallOf.dark ? 1 : 0}|${dpr}`
+        if (s.stripKey !== key) {
+          const url = wallOf.region(0, y0, hr.width, h0, hr.width * dpr, h0 * dpr, wallOf.dark)
+          if (url) {
+            // the strip on screen kept until the new one has loaded
+            if (s.stripUrl && urlTexture(s.stripUrl)) s.stripPrev = { url: s.stripUrl, y0: s.stripY0, h0: s.stripH0 }
+            s.stripKey = key; s.stripUrl = url; s.stripY0 = y0; s.stripH0 = h0
+          }
+        }
+        let st = s.stripUrl && urlTexture(s.stripUrl), sy = s.stripY0, sh = s.stripH0
+        if (!st && s.stripPrev) { st = urlTexture(s.stripPrev.url); sy = s.stripPrev.y0; sh = s.stripPrev.h0 } else if (st) s.stripPrev = null
+        if (!st) return false
+        gl.activeTexture(gl.TEXTURE5); gl.bindTexture(gl.TEXTURE_2D, st.tex)
+        gl.activeTexture(gl.TEXTURE0)
+        gl.uniform4f(U.wallRect, hr.left * dpr, (hr.top + sy) * dpr, hr.width * dpr, sh * dpr)
+        gl.uniform1f(U.useWall, 1)
+        strip = true
+      } else if (wallOf) {
         const hr = wallOf.host.getBoundingClientRect()
         const wt = wallTexture(wallOf.url, wallOf.host)
         if (!wt) return false
@@ -1111,7 +1138,9 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         gl.uniform1f(U.useImage, 1)
         gl.uniform4f(U.imgRect, (ir.left + (ir.width - iw) / 2) * dpr, (ir.top + (ir.height - ih) / 2) * dpr, iw * dpr, ih * dpr)
       } else {
-        gl.uniform1f(U.useImage, s.image ? 1 : 0)
+        // (no picture of its own, but the wallpaper strip all through it:
+        // read as the ground round a picture that is nowhere)
+        gl.uniform1f(U.useImage, s.image || strip ? 1 : 0)
         gl.uniform4f(U.imgRect, -1e5, -1e5, 1, 1)
       }
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
@@ -1157,7 +1186,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       }
       if (flashing || (silkFade >= 0 && silkFade < 1)) hotUntil = now + 120
       const pic = s.image ? !!(s.image(s.el)?.complete) : 0
-      const key = `${ang}|${Math.round(Math.log(cw) * 50)}|${Math.round(Math.log(ch) * 50)}|${dark.toFixed(2)}|${silkFade.toFixed(2)}|${s.silkNow?.tex ? 1 : 0}|${flashing ? now : 0}|${pic}|${dpr}|${s.skip ? s.skip(s.el) : 0}|${s.lens.toFixed(3)}|${s.wall ? `${Math.round(r.left * dpr)},${Math.round(r.top * dpr)}` : ''}|${s.behindKey || ''}|${s.behindUrl && urlTexture(s.behindUrl) ? 1 : 0}`
+      const key = `${ang}|${Math.round(Math.log(cw) * 50)}|${Math.round(Math.log(ch) * 50)}|${dark.toFixed(2)}|${silkFade.toFixed(2)}|${s.silkNow?.tex ? 1 : 0}|${flashing ? now : 0}|${pic}|${dpr}|${s.skip ? s.skip(s.el) : 0}|${s.lens.toFixed(3)}|${s.wall ? `${Math.round(r.left * dpr)},${Math.round(r.top * dpr)}` : ''}|${s.behindKey || ''}|${s.behindUrl && urlTexture(s.behindUrl) ? 1 : 0}|${s.stripKey || ''}|${s.stripUrl && urlTexture(s.stripUrl) ? 1 : 0}`
       if (key === s.drawn) continue
       // A surface's first drawing lays out its letters (and in Safari blurs
       // them by hand) — a page arriving with a dozen of them did all of it
