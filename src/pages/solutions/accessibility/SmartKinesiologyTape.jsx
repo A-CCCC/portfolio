@@ -165,7 +165,7 @@ export default function SmartKinesiologyTape() {
   const introOpacity = useFadeIn(600)
 
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    <div className="home-backdrop wall-page" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
 
       {/* ---- Title ---- */}
       <div style={{
@@ -187,7 +187,7 @@ export default function SmartKinesiologyTape() {
         }}>
           Smart Kinesiology Tape
         </h1>
-        <p className="page-intro-line" style={{
+        <p className="page-intro-line text-chip" style={{
           fontSize: TYPE.lead,
           lineHeight: 1.7,
           color: 'var(--text-body)',

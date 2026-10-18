@@ -82,7 +82,7 @@ export default function ContextNote({ title, images = [], alt = '', children }) 
           {title}
         </h2>
       )}
-      <p style={{
+      <p className="glass glass-vivid nav-glass text-panel" style={{
         margin: 0,
         fontSize: TYPE.body,
         lineHeight: 1.7,

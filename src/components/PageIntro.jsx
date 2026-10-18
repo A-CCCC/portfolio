@@ -47,7 +47,7 @@ export default function PageIntro({
       </h1>
 
       {(description || pending) && (
-        <p className="page-intro-line" style={{
+        <p className="page-intro-line text-chip" style={{
           fontSize: TYPE.lead,
           lineHeight: 1.7,
           color: 'var(--text-body)',

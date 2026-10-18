@@ -74,6 +74,14 @@ export const featured = {
 // The projects underway, shown under the featured one on the home page. Add
 // and remove freely; the section disappears when the list is empty. The
 // featured project is not repeated here.
+// The pages that are finished, shown at the foot of the home page
+export const completed = [
+  { label: 'Skeleton Barrel', path: '/projects/clash-royale/skeleton-barrel', image: asset('/thumbnails/skeleton-barrel.webp'), tint: 1 },
+  { label: 'Elixir Collector', path: '/projects/clash-royale/elixir-collector', image: asset('/thumbnails/elixir-collector.webp'), tint: 5 },
+  { label: 'Wheelchair Storage', path: '/solutions/accessibility/wheelchair-storage', image: asset('/thumbnails/wheelchair-storage.webp'), tint: 3 },
+  { label: 'Smart Kinesiology Tape', path: '/solutions/accessibility/smart-kinesiology-tape', image: asset('/thumbnails/smart-kinesiology-tape.webp'), tint: 6 },
+]
+
 export const current = [
   // No thumbnails yet: the cards say so until there are renders
   { label: 'Lightsaber', path: '/projects/halloween/lightsaber', image: undefined, tint: 4 },

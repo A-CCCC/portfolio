@@ -9,7 +9,7 @@ const DESCRIPTION = describe('car-key-holder')
 
 export default function CarKeyHolder() {
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    <div className="home-backdrop wall-page" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
       <PageIntro
         title="Car Key Holder"
         description={DESCRIPTION}

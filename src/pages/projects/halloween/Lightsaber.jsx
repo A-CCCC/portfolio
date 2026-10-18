@@ -23,7 +23,7 @@ export default function Lightsaber() {
   const [photosRef, photosOpacity] = useFadeInOnScroll(0)
 
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    <div className="home-backdrop wall-page" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
       <PageIntro
         title="Lightsaber"
         description={DESCRIPTION}

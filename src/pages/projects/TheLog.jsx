@@ -8,7 +8,7 @@ const DESCRIPTION = describe('the-log')
 
 export default function TheLog() {
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    <div className="home-backdrop wall-page" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
       <PageIntro title="The Log" description={DESCRIPTION} comingSoon />
     </div>
   )

@@ -39,6 +39,7 @@ const INSPIRATION = (pagePhotos['skeleton-barrel'] ?? []).map(asset)
 // answers that, measured from the frames themselves: for a given share of the
 // image that is on screen (index 0 is 0.75, in steps of 0.01) it gives the
 // first frame in which the model has come into view.
+const ENTRY_MARGIN = 8          // frames before the model reaches the edge (about 40px)
 const ENTRY_STEP = 0.01
 const ENTRY_BASE = 0.75
 const ENTRY_FRAME = [
@@ -100,14 +101,27 @@ export default function SkeletonBarrel() {
 
   // Which frame the model first appears in depends on how much of the box is on
   // screen, so this waits for the size above to settle.
+  //
+  // Measured against the panel, not the window: a page that arrives by
+  // sliding in (page-sweep.js) is laid out a whole screen to the right while
+  // this runs, so the box read as entirely off screen, the latest start in
+  // the table was taken, and the model was already in view when the section
+  // pinned. And a few frames earlier than the table says, so it is clear of
+  // the edge at the start rather than on it.
   useEffect(() => {
     const image = frameBoxRef.current
-    if (!image) return
-    const { left, width } = image.getBoundingClientRect()
+    const panel = panelRef.current
+    if (!image || !panel) return
+    // From the layout itself (offsets within the panel, whose right edge is
+    // the window's), which no transform on the way in and no scale of the
+    // page can move
+    let left = 0
+    for (let el = image; el && el !== panel; el = el.offsetParent) left += el.offsetLeft
+    const width = image.offsetWidth
     if (!width) return
-    const onScreen = (window.innerWidth - left) / width
+    const onScreen = (panel.clientWidth - left) / width
     const step = Math.round((onScreen - ENTRY_BASE) / ENTRY_STEP)
-    setStartFrame(ENTRY_FRAME[Math.max(0, Math.min(ENTRY_FRAME.length - 1, step))])
+    setStartFrame(Math.max(1, ENTRY_FRAME[Math.max(0, Math.min(ENTRY_FRAME.length - 1, step))] - ENTRY_MARGIN))
   }, [box])
 
   const [sectionRef, frameRef, scrubProgress] =
@@ -128,7 +142,7 @@ export default function SkeletonBarrel() {
 
 
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    <div className="home-backdrop wall-page" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
 
       {/* ---- SECTION 1: Intro ---- */}
       <div style={{
@@ -149,7 +163,7 @@ export default function SkeletonBarrel() {
         }}>
           Skeleton Barrel
         </h1>
-        <p className="page-intro-line" style={{
+        <p className="page-intro-line text-chip" style={{
           fontSize: TYPE.lead,
           lineHeight: 1.7,
           color: 'var(--text-body)',
@@ -312,6 +326,7 @@ export default function SkeletonBarrel() {
           </h2>
           <p
             ref={bodyRef}
+            className="glass glass-vivid nav-glass text-panel"
             style={{
               fontSize: TYPE.body,
               lineHeight: 1.7,

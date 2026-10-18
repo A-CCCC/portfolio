@@ -9,7 +9,7 @@ const DESCRIPTION = describe('sunglasses-holder')
 
 export default function SunglassesHolder() {
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    <div className="home-backdrop wall-page" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
       <PageIntro
         title="Sunglasses Holder"
         description={DESCRIPTION}

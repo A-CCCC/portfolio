@@ -24,7 +24,7 @@ export default function CannonCart() {
   const [buildRef, buildOpacity] = useFadeInOnScroll(0)
 
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    <div className="home-backdrop wall-page" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
 
       <PageIntro title="Cannon Cart" description={DESCRIPTION} />
 

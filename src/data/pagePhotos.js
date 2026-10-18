@@ -5,6 +5,25 @@ export default {
   "about": [
     "/photos/about/profile.jpg"
   ],
+  "backup-camera-wiper": [
+    "/photos/backup-camera-wiper/challenge-01.webp",
+    "/photos/backup-camera-wiper/challenge-02.webp",
+    "/photos/backup-camera-wiper/challenge-03.webp",
+    "/photos/backup-camera-wiper/early-01.webp",
+    "/photos/backup-camera-wiper/early-02.webp",
+    "/photos/backup-camera-wiper/early-03.webp",
+    "/photos/backup-camera-wiper/early-04.webp",
+    "/photos/backup-camera-wiper/early-05.webp",
+    "/photos/backup-camera-wiper/early-06.webp",
+    "/photos/backup-camera-wiper/early-07.webp",
+    "/photos/backup-camera-wiper/final-01-casing.webp",
+    "/photos/backup-camera-wiper/final-02-installing.webp",
+    "/photos/backup-camera-wiper/final-03-installed.webp",
+    "/photos/backup-camera-wiper/solution-01-mounted.webp",
+    "/photos/backup-camera-wiper/solution-02-from-the-side.webp",
+    "/photos/backup-camera-wiper/start-01-first-idea.webp",
+    "/photos/backup-camera-wiper/start-02-microfiber-arm.webp"
+  ],
   "elixir-collector": [
     "/photos/elixir-collector/1-elixir-collector.webp",
     "/photos/elixir-collector/2-elixir-collector-card.webp"

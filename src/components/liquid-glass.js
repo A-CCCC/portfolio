@@ -1028,7 +1028,11 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         // under the pointer (about its left edge) keeps the same drawing,
         // rather than asking for a new one with every hover
         const ow = el.offsetWidth, oh = el.offsetHeight
-        const box = { x: r.left - hr.left - M, y: r.top + r.height / 2 - oh / 2 - hr.top - M, w: ow + 2 * M, h: oh + 2 * M }
+        // (on a pinned panel, the wallpaper where the panel's section begins:
+        // the box as it is on the wallpaper, drawn there and laid back where
+        // the title is now)
+        const shift = behind.shift ? behind.shift() : 0
+        const box = { x: r.left - hr.left - M, y: r.top + r.height / 2 - oh / 2 - hr.top - M - shift, w: ow + 2 * M, h: oh + 2 * M }
         const key = `${behind.host.__wallKey}|${Math.round(box.x / 8)}|${Math.round(box.y / 8)}|${Math.round(box.w / 8)}|${Math.round(box.h / 8)}|${behind.dark ? 1 : 0}|${dpr}`
         if (s.behindKey !== key) {
           const url = behind.region(box.x, box.y, box.w, box.h, box.w * dpr, box.h * dpr, behind.dark)
@@ -1063,7 +1067,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
           // what is seen through the face softened a little, as the clock's is
           gl.uniform1f(U.frost, 5.0 * dpr)
           if (!el.classList.contains('lg-clear')) el.classList.add('lg-clear')
-          gl.uniform4f(U.imgRect, (hr.left + bx.x) * dpr, (hr.top + bx.y) * dpr, bx.w * dpr, bx.h * dpr)
+          gl.uniform4f(U.imgRect, (hr.left + bx.x) * dpr, (hr.top + bx.y + shift) * dpr, bx.w * dpr, bx.h * dpr)
           gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
           return true
         }

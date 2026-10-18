@@ -38,15 +38,27 @@ export function startGlassTitles() {
         wallBehind: (el) => {
           const host = el.closest('.home-backdrop')
           if (!host || !host.__pattern) return null
+          // (a page's title; and on a project's own page, the headings that
+          // stand on the wallpaper by themselves — beside an animation, over
+          // a run of sections — set as the title is. Those on a panel are
+          // caught above.)
+          if (el.tagName !== 'H1' && !(el.tagName === 'H2' && (host.classList.contains('wall-page') || el.closest('.hub-link, .about-panel')))) return null
           // (not on a panel of glass: what is behind it there is the panel,
           // and clear letters showing the wallpaper through it vanished into
           // it — the About me heading — so they keep their coloured glass)
-          if (el.closest('.about-panel, .text-panel, .glass-panel')) return null
+          // (but a hub's category name, at the head of its panel, and the
+          // home page's About me are set as the titles are, on purpose)
+          if (el.closest('.about-panel, .text-panel, .glass-panel') && !el.closest('.hub-link') && !el.matches('.about-panel h2')) return null
           const root = document.documentElement
           const pageDark = root.dataset.theme === 'dark' || ((root.dataset.theme === 'auto' || !root.dataset.theme) && matchMedia('(prefers-color-scheme: dark)').matches)
           const inverted = !!el.closest('[data-inverted]')
           const dark = inverted ? true : pageDark
-          return { host, dark, region: (...a) => wallRegion(host, ...a) }
+          // On a panel pinned to the screen (wallpaper.js, HELD STILL) the
+          // wallpaper behind it is the stretch where its section begins: how
+          // far the panel has come down its section, to take off
+          const held = el.closest('.wall-hold')
+          const shift = held ? () => held.getBoundingClientRect().top - held.parentElement.getBoundingClientRect().top : null
+          return { host, dark, shift, region: (...a) => wallRegion(host, ...a) }
         },
         glow: 0.6,                // lit from within, with a halo
         pad: 14,                  // the letters' glow reaches past their box

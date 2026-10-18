@@ -63,7 +63,7 @@ const FIRST = [
   { d: 'M 150 -30 C 200 42, 302 30, 430 112 C 540 180, 640 150, 690 70 C 730 0, 700 -90, 610 -130 C 480 -185, 260 -170, 175 -100 C 140 -72, 135 -50, 150 -30 Z', colour: 'gold', dir: [0.2, 0, 0.8, 1] },
   { d: 'M -120 120 A 110 96 0 1 0 100 120 A 110 96 0 1 0 -120 120 Z', colour: 'cream', dir: [0.3, 0.2, 0.9, 0.9] },
   { d: 'M -370 300 C -300 240, -170 260, -140 360 C -115 450, -200 520, -300 500 C -390 482, -440 360, -370 300 Z', colour: 'gold', dir: [0.2, 0, 0.8, 1] },
-  { d: 'M 550 330 A 90 84 0 1 0 730 330 A 90 84 0 1 0 550 330 Z', colour: 'apricot', dir: [0.3, 0.2, 0.9, 0.9] },
+  { d: 'M 550 330 A 90 84 0 1 0 730 330 A 90 84 0 1 0 550 330 Z', colour: 'honey', dir: [0.3, 0.2, 0.9, 0.9] },
   { hero: true, colour: 'coral', dir: [0, 0.3, 1, 0.6] },
   { d: 'M 430 392 C 336 410, 300 500, 356 566 C 388 600, 418 610, 460 612 C 540 612, 600 560, 590 490 C 580 420, 510 380, 430 392 Z', colour: 'peach', dir: [1, 0, 0.2, 1] },
   { d: 'M -30 560 C 62 520, 172 592, 252 700 L -260 700 C -250 640, -104 592, -30 560 Z', colour: 'apricot', dir: [0, 0, 0.7, 1] },
@@ -72,7 +72,7 @@ const FIRST = [
     [[-400, 700], [-260, 650], [-120, 672], [-30, 664], [92, 640], [202, 672], [322, 652], [430, 626], [560, 640], [690, 690]],
     [[-400, 805], [-250, 770], [-120, 795], [-30, 782], [62, 752], [222, 742], [322, 728], [430, 702], [560, 730], [690, 800]],
   ], colour: 'amber', dir: [0, 0.4, 1, 0.6] },
-  { d: 'M 232 830 C 252 742, 332 702, 430 716 C 520 728, 600 790, 600 860 C 600 930, 520 960, 420 950 C 320 940, 225 900, 232 830 Z', colour: 'honey', dir: [0.1, 0, 0.9, 1] },
+  { d: 'M 232 830 C 252 742, 332 702, 430 716 C 520 728, 600 790, 600 860 C 600 930, 520 960, 420 950 C 320 940, 225 900, 232 830 Z', colour: 'apricot', dir: [0.1, 0, 0.9, 1] },
 ]
 
 // The third: two ribbons crossing the page at gentle slants with a disc
@@ -84,15 +84,15 @@ const THIRD = [
   { d: 'M 260 -30 C 230 30, 120 70, -30 60 C -150 52, -260 20, -300 -50 C -330 -110, -260 -170, -130 -170 C 20 -170, 290 -140, 290 -90 C 290 -65, 275 -55, 260 -30 Z', colour: 'cream', dir: [0, 0, 0.9, 1] },
   { d: 'M 520 120 C 580 60, 720 70, 760 150 C 795 225, 730 300, 640 290 C 550 280, 460 180, 520 120 Z', colour: 'apricot', dir: [0, 0, 0.9, 1] },
   { d: 'M -330 330 A 80 76 0 1 0 -170 330 A 80 76 0 1 0 -330 330 Z', colour: 'honey', dir: [0.2, 0.1, 0.9, 1] },
-  { hero: true, colour: 'gold', dir: [0, 0.3, 1, 0.7] },
-  { d: 'M 250 430 A 96 90 0 1 0 442 430 A 96 90 0 1 0 250 430 Z', colour: 'coral', dir: [0.2, 0.1, 0.9, 1] },
-  { d: 'M 560 470 C 620 430, 740 450, 760 530 C 780 600, 700 650, 620 630 C 540 612, 500 510, 560 470 Z', colour: 'gold', dir: [1, 0, 0, 1] },
+  { hero: true, colour: 'coral', dir: [0, 0.3, 1, 0.7] },
+  { d: 'M 250 430 A 96 90 0 1 0 442 430 A 96 90 0 1 0 250 430 Z', colour: 'gold', dir: [0.2, 0.1, 0.9, 1] },
+  { d: 'M 560 470 C 620 430, 740 450, 760 530 C 780 600, 700 650, 620 630 C 540 612, 500 510, 560 470 Z', colour: 'peach', dir: [1, 0, 0, 1] },
   { d: 'M -30 470 C 40 450, 110 500, 120 560 C 128 610, 60 640, -30 630 C -110 622, -170 580, -165 540 C -160 495, -100 490, -30 470 Z', colour: 'peach', dir: [0, 0, 1, 1] },
   { band: [
     [[-400, 650], [-250, 700], [-120, 676], [-30, 690], [100, 664], [210, 700], [330, 676], [430, 652], [560, 630], [690, 640]],
     [[-400, 760], [-250, 812], [-120, 790], [-30, 800], [60, 772], [220, 760], [320, 760], [430, 724], [560, 712], [690, 735]],
   ], colour: 'amber', dir: [0, 0.5, 1, 0.5] },
-  { d: 'M 300 830 C 312 776, 370 750, 430 756 C 510 764, 560 820, 545 880 C 530 940, 450 960, 380 935 C 320 915, 292 870, 300 830 Z', colour: 'honey', dir: [0.2, 0, 0.8, 1] },
+  { d: 'M 300 830 C 312 776, 370 750, 430 756 C 510 764, 560 820, 545 880 C 530 940, 450 960, 380 935 C 320 915, 292 870, 300 830 Z', colour: 'apricot', dir: [0.2, 0, 0.8, 1] },
 ]
 
 // Each pattern: its shapes, turned about (the second and fourth are the
@@ -101,22 +101,26 @@ const THIRD = [
 // it leans (tilt, +1 rising to the right), and which side of its edge it lies
 // and where on the title the edge falls (at, from the title's top to its
 // foot).
+// How the colours are given out. In both themes the colours fall into a few
+// families — on the light page yellows and oranges, on the dark bright blues,
+// deep blues and teals — and two shapes that overlap are always given
+// colours of different families in both, so neither runs into the other.
+// The band behind the title is coral (orange to pink; teal to indigo) and
+// nothing else is, since it may lie over any of them. The mirrored patterns
+// trade the bright for the deep and the one teal for the other, which keeps
+// all of that true.
 const SAME = (c) => c
+const TRADE = { gold: 'cream', cream: 'gold', peach: 'apricot', apricot: 'peach', amber: 'honey', honey: 'amber', coral: 'coral' }
 const PATTERNS = [
   { shapes: FIRST, mirror: false, colour: SAME,
     hero: { tilt: -1, at: 0.18, side: 'below' } },
-  { shapes: FIRST, mirror: true,
-    colour: (c) => ({ gold: 'amber', cream: 'honey', coral: 'peach', peach: 'coral', apricot: 'gold', amber: 'cream', honey: 'apricot' })[c],
+  { shapes: FIRST, mirror: true, colour: (c) => TRADE[c],
     hero: { tilt: 1, at: 0.2, side: 'below' } },
   { shapes: THIRD, mirror: false, colour: SAME,
     hero: { tilt: 1, at: 0.84, side: 'above' } },
-  { shapes: THIRD, mirror: true,
-    colour: (c) => ({ cream: 'amber', gold: 'coral', coral: 'honey', peach: 'gold', amber: 'peach', honey: 'cream', apricot: 'apricot' })[c],
+  { shapes: THIRD, mirror: true, colour: (c) => TRADE[c],
     hero: { tilt: -1, at: 0.16, side: 'below' } },
 ]
-
-// halfway between two colours (#rrggbb)
-const mix = (a, b) => '#' + [1, 3, 5].map((i) => Math.round((parseInt(a.slice(i, i + 2), 16) + parseInt(b.slice(i, i + 2), 16)) / 2).toString(16).padStart(2, '0')).join('')
 
 const fmt = (p) => p.map((v) => v.toFixed(1)).join(' ')
 
@@ -170,6 +174,33 @@ function heroPath(hero, band, unit, fs, x0, x1) {
   return between(top, foot.reverse())
 }
 
+// HELD STILL. A section that pins a panel to the screen while the page
+// scrolls on under it (the scroll-scrubbed animations) holds the wallpaper
+// still too: the panel wears the stretch of the wallpaper where it pinned,
+// and the wallpaper under the rest of the page goes on from where that
+// stretch ends — the scroll spent while it was held taken out of it — so
+// nothing slides behind the animation, and there is no seam when it lets go.
+//
+// The pinned panels on a page, from its top (px): where each section starts
+// and ends, and how tall its panel is
+function measureHolds(host) {
+  if (!host.classList.contains('wall-page')) return []
+  const hr = host.getBoundingClientRect()
+  const out = []
+  for (const panel of host.querySelectorAll('[style*="position: sticky"]')) {
+    const box = panel.parentElement
+    const br = box.getBoundingClientRect()
+    const runway = br.height - panel.offsetHeight
+    if (runway < 10) continue
+    out.push({ panel, top: br.top - hr.top, bottom: br.bottom - hr.top, h: panel.offsetHeight, left: br.left - hr.left })
+  }
+  return out.sort((a, b) => a.top - b.top)
+}
+// The scroll held still above a point on the page (px)
+const heldAbove = (holds, y) => holds.reduce((n, h) => n + (h.bottom <= y ? h.bottom - h.top - h.h : 0), 0)
+// A point on the page (px) as a row of the pattern
+const rowAt = (host, y) => host.__offY + (y - heldAbove(host.__holds || [], y)) * host.__unit
+
 // The pattern behind a window onto it — x, y, w, h in pattern units — in a
 // palette: the ground, then each shape in turn, as many times over as it
 // takes to fill the window both ways
@@ -189,12 +220,12 @@ function scene(host, palette, x, y, w, h) {
     if (s.band || s.hero) {
       // a band right round the pattern is shaded by where on the pattern it
       // is, not by the piece of it a page draws (that started over at every
-      // seam): across the middle third as it always was, and back again
-      // through the thirds either side, so its two ends meet in one colour
+      // seam): from one of its colours to the other and back across each
+      // page's width — so a page sees it change along its length, not one
+      // flat stretch of a slow turn — three times round, so its ends meet
       const [a, b] = s.hero && pat.mirror === (x1 < x2) ? [c1, c0] : [c0, c1]
-      const m = mix(a, b)
-      defs += `<linearGradient id='g${k}' gradientUnits='userSpaceOnUse' x1='-400' y1='0' x2='800' y2='0'>`
-        + `<stop offset='0' stop-color='${m}'/><stop offset='0.3333' stop-color='${a}'/><stop offset='0.6667' stop-color='${b}'/><stop offset='1' stop-color='${m}'/></linearGradient>`
+      defs += `<linearGradient id='g${k}' gradientUnits='userSpaceOnUse' x1='-400' y1='0' x2='-200' y2='0' spreadMethod='reflect'>`
+        + `<stop offset='0' stop-color='${a}'/><stop offset='1' stop-color='${b}'/></linearGradient>`
     } else {
       defs += `<linearGradient id='g${k}' x1='${x1}' y1='${y1}' x2='${x2}' y2='${y2}'><stop offset='0' stop-color='${c0}'/><stop offset='1' stop-color='${c1}'/></linearGradient>`
     }
@@ -257,10 +288,39 @@ function ownBand(host) {
 }
 
 // The page's wallpaper as drawn now, in both themes' colours
+// Drawn in pieces where the page holds the wallpaper still: the pattern
+// drawn once, for the rows the page shows, and laid down a piece at a time,
+// each piece set back by the scroll held still above it.
 function drawn(host) {
-  const Hs = host.offsetHeight * host.__unit
-  const x = host.__phase * W, y = host.__offY
-  return [LIGHT, DARK].map((pal) => `url("data:image/svg+xml,${encodeURIComponent(svgOf(host, pal, x, y, W, Hs, W, Hs))}")`)
+  const u = host.__unit, Hs = host.offsetHeight * u
+  const x = host.__phase * W
+  const holds = host.__holds || []
+  if (!holds.length) {
+    return [LIGHT, DARK].map((pal) => `url("data:image/svg+xml,${encodeURIComponent(svgOf(host, pal, x, host.__offY, W, Hs, W, Hs))}")`)
+  }
+  const ends = [...holds.map((h) => h.bottom), host.offsetHeight]
+  const y0 = host.__offY, rows = rowAt(host, host.offsetHeight) - y0
+  return [LIGHT, DARK].map((pal) => {
+    const { defs, body } = scene(host, pal, x, y0, W, rows)
+    let from = 0, laid = ''
+    ends.forEach((end, i) => {
+      if (end <= from) return
+      const shift = heldAbove(holds, from) * u
+      laid += `<clipPath id='piece${i}'><rect x='0' y='${(from * u).toFixed(2)}' width='${W}' height='${((end - from) * u + 0.5).toFixed(2)}'/></clipPath>`
+        + `<g clip-path='url(#piece${i})'><use href='#all' transform='translate(${(-x).toFixed(2)} ${(shift - y0).toFixed(2)})'/></g>`
+      from = end
+    })
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='${W}' height='${Math.round(Hs)}' viewBox='0 0 ${W} ${Hs.toFixed(2)}' preserveAspectRatio='none'><defs>${defs}<g id='all'>${body}</g></defs>${laid}</svg>`
+    return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+  })
+}
+// Each pinned panel wearing its stretch of the wallpaper (.wall-hold)
+function holdStill(host) {
+  for (const h of host.__holds || []) {
+    h.panel.classList.add('wall-hold')
+    h.panel.style.setProperty('--hold-size', `${host.offsetWidth}px ${host.offsetHeight}px`)
+    h.panel.style.setProperty('--hold-at', `${(-h.left).toFixed(1)}px ${(-h.top).toFixed(1)}px`)
+  }
 }
 function wear(host, [light, dark]) {
   host.style.setProperty('--home-wall-light', light)
@@ -270,6 +330,11 @@ function wear(host, [light, dark]) {
 
 function paper(host) {
   let drawnH = 0, drawnW = 0
+  // (drawn again, words measured again, once the fonts and the pictures have
+  // settled where the words fall)
+  const again = () => { drawnH = 0; if (host.isConnected) host.__paint?.() }
+  document.fonts?.ready.then(again)
+  setTimeout(again, 1500)
   return () => {
     const hw = host.offsetWidth || 1, hh = host.offsetHeight || 1
     const unit = W / hw, Hs = hh * unit
@@ -292,7 +357,9 @@ function paper(host) {
       // (a page come in carrying on from the one before keeps the pattern
       // as it found it, the last page's band and all)
     }
+    host.__holds = measureHolds(host)
     wear(host, drawn(host))
+    holdStill(host)
   }
 }
 
@@ -303,7 +370,7 @@ function paper(host) {
 export function wallRegion(host, x, y, w, h, wPx, hPx, dark) {
   if (!host.__pattern || host.__unit === undefined) return null
   const u = host.__unit
-  const svg = svgOf(host, dark ? DARK : LIGHT, host.__phase * W + x * u, host.__offY + y * u, w * u, h * u, wPx, hPx)
+  const svg = svgOf(host, dark ? DARK : LIGHT, host.__phase * W + x * u, rowAt(host, y), w * u, h * u, wPx, hPx)
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 
@@ -312,11 +379,20 @@ export function wallRegion(host, x, y, w, h, wPx, hPx, dark) {
 // the pattern up — the third beside this one, on the side the next comes
 // in from, or this same one for a page growing over it — from the row of
 // it at the top of the screen, so the two meet at the seam.
+// The row of the pattern at the top of the screen, held still or not
+function screenTopRow(host) {
+  const y = -host.getBoundingClientRect().top
+  const h = (host.__holds || []).find((k) => y >= k.top && y < k.bottom)
+  // pinned: the panel at the top of the screen shows its stretch from its top
+  if (h) return rowAt(host, h.top) + Math.max(0, y - (h.bottom - h.h)) * host.__unit
+  return rowAt(host, y)
+}
+
 export function handWallOn(page, way) {
   const host = page && (page.matches('.home-backdrop') ? page : page.querySelector('.home-backdrop'))
   if (!host || !host.__pattern || host.__unit === undefined) { window.__wallNext = null; return }
   window.__wallNext = {
-    offY: host.__offY - host.getBoundingClientRect().top * host.__unit,
+    offY: screenTopRow(host),
     phase: ((host.__phase + way + 4) % 3) - 1,
     at: performance.now(),
   }

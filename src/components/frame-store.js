@@ -19,6 +19,8 @@ import asset from '../lib-asset'
 export const SEQUENCES = [
   { folder: 'skeleton-barrel-anim', start: 1, count: 457 },
   { folder: 'elixir-collector-anim', start: 0, count: 201 },
+  { folder: 'backup-camera-wiper-outside-anim', start: 1, count: 219 },
+  { folder: 'backup-camera-wiper-anim', start: 1, count: 235 },
 ]
 
 export const frameSrc = (folder, n) =>

@@ -219,14 +219,18 @@ function PhotoRing({ photos, heading }) {
               onClick={() => step(offset)}
               style={{
                 position: 'absolute',
-                top: 0,
+                top: '50%',
                 left: '50%',
-                height: '100%',
+                // As large as the stack's height and the column's width allow,
+                // in the photo's own shape — so the box is the picture, and its
+                // rounded corners are the picture's. Held to the full height
+                // and fitted inside it, a wide one (a 3:2 photo at this height
+                // is 600px) sat in a box taller than itself, square-cornered
+                // over a strip of empty box.
                 width: 'auto',
-                // Never wider than the column: a 3:2 photo at this height is
-                // 600px, which overflows once the window narrows.
+                height: 'auto',
                 maxWidth: '100%',
-                objectFit: 'contain',
+                maxHeight: '100%',
                 borderRadius: 16,
                 // and, for the ones behind, the same corners as a clip: tilted
                 // in 3D, an image's rounded corners were dropped by some
@@ -241,7 +245,7 @@ function PhotoRing({ photos, heading }) {
                 // of the angle, which keeps a neighbour at the same offset and
                 // angle it had before.
                 transform: `translate(calc(-50% + ${(spread * Math.sin(angle)).toFixed(1)}px),`
-                  + ` ${-(STACK_LIFT * Math.min(recess, 1.5)).toFixed(1)}px)`
+                  + ` calc(-50% + ${-(STACK_LIFT * Math.min(recess, 1.5)).toFixed(1)}px))`
                   + ` scale(${Math.max(0.3, 1 - (1 - STACK_BACK_SCALE) * recess).toFixed(3)})`
                   + ` rotateY(${(-STACK_TILT * Math.sin(angle)).toFixed(1)}deg)`,
                 // Stacking follows depth, so a photo passing behind the front one
@@ -333,7 +337,12 @@ function PhotoRing({ photos, heading }) {
 // Each paragraph fades on its own. A column of them is taller than the window,
 // so faded together the ones at the bottom are long finished by the time they
 // are reached and only the first is ever seen arriving.
+// The words of a section, on a panel of glass, so they read over the
+// wallpaper the page is on (as the hubs' words do, .text-panel)
 function Paragraphs({ body, style }) {
+  return <div className="glass glass-vivid nav-glass text-panel"><Lines body={body} style={style} /></div>
+}
+function Lines({ body, style }) {
   const paragraphs = Array.isArray(body) ? body : [body]
   return paragraphs.map((text, i) => (
     <Reveal key={i} style={{ marginBottom: i < paragraphs.length - 1 ? '1.1em' : 0 }}>
@@ -355,7 +364,7 @@ function Paragraphs({ body, style }) {
 // Nothing here fades as a whole any more: a band is taller than the window, so
 // one fade for all of it finishes before its lower half is reached. The heading,
 // each paragraph and the pictures each wait for their own moment instead.
-export default function PhotoSection({ heading, body, photos, flip, layout, sub, centered, aspect }) {
+export default function PhotoSection({ heading, body, photos, flip, layout, sub, centered, aspect, parts }) {
   const phone = useIsPhone()
 
   // A section with no photos sets its heading against its text rather than
@@ -407,7 +416,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
           }}
         >
           <Reveal style={{ marginBottom: sub ? 24 : 32 }}>
-            <h2 className="glass-title" data-text={heading} style={{
+            <h2 className="glass-title" data-lead-phone="" data-text={heading} style={{
               fontSize: sub ? TYPE.sub : TYPE.section,
               fontWeight: '300',
               margin: 0,
@@ -444,7 +453,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
         {/* The heading holds the left column on its own, the way a chapter
             opening does, so the eye has somewhere to land before the prose. */}
         <Reveal style={{ flex: '0 1 360px', maxWidth: 360 }}>
-          <h2 className="glass-title" data-text={heading} style={{
+          <h2 className="glass-title" data-lead-phone="" data-text={heading} style={{
             fontSize: sub ? TYPE.sub : TYPE.section,
             fontWeight: '300',
             lineHeight: 1.1,
@@ -464,6 +473,74 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
     )
   }
 
+  // The pictures of a section, or of one part of it: a picture alone, a
+  // group, or a ring (a strip to swipe, on a phone)
+  const pictures = (set) => (set.length === 1
+    // A carousel of one is just a picture: no stack behind it, nothing to
+    // rotate, and arrows that would do nothing.
+    ? (
+      <img
+        src={set[0]}
+        alt={heading}
+        loading="lazy"
+        // (centred: on a phone a tall one is held to part of the screen's
+        // height, and is then narrower than the column)
+        style={{ width: '100%', height: 'auto', borderRadius: 16, display: 'block', margin: '0 auto' }}
+      />
+    )
+    // A ring of landscape photos on a phone is a ring of crops: where
+    // the section says what shape its photos are, a phone shows them
+    // whole, one above another, instead.
+    : layout === 'carousel' && phone && aspect
+      ? <PhotoGroup photos={set} heading={heading} columns={1} aspect={aspect} />
+    : layout === 'carousel'
+      ? <PhotoCarousel photos={set} heading={heading} />
+      : <PhotoGroup photos={set} heading={heading} />)
+
+  const headingEl = (
+    <Reveal style={{ marginBottom: phone ? 0 : 24 }}>
+      <h2 className="glass-title" data-lead="" data-text={heading} style={{ fontSize: sub ? TYPE.sub : TYPE.section, fontWeight: '300', margin: 0 }}>
+        {heading}
+      </h2>
+    </Reveal>
+  )
+  const prose = { fontSize: TYPE.body, lineHeight: 1.7, color: 'var(--text-body)' }
+
+  // On a phone, one column: the heading, then the pictures, then the words
+  // about them — the thing first, then what is said of it. A section given
+  // in parts (`parts`: each a few photos and the lines about them) goes part
+  // by part, a short block of words under each picture, rather than all of
+  // its words and then all of its pictures.
+  if (phone) {
+    return (
+      <div className="split story-band"
+        style={{
+          minHeight: BAND_HEIGHT,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: BAND_PADDING,
+          background: 'var(--bg)',
+        }}
+      >
+        {headingEl}
+        {parts
+          ? parts.map((part, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              {part.photos.length > 0 && <Reveal rise={part.photos.length === 1 ? 48 : 0}>{pictures(part.photos)}</Reveal>}
+              <Paragraphs body={part.text} style={prose} />
+            </div>
+          ))
+          : (
+            <>
+              <Reveal rise={photos.length === 1 ? 48 : 0}>{pictures(photos)}</Reveal>
+              {body && <div><Paragraphs body={body} style={prose} /></div>}
+            </>
+          )}
+      </div>
+    )
+  }
+
   return (
     <div className="split story-band"
       style={{
@@ -479,39 +556,12 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
       }}
     >
       <div style={{ flex: '1 1 360px', maxWidth: 480 }}>
-        <Reveal style={{ marginBottom: 24 }}>
-          <h2 className="glass-title" data-text={heading} style={{ fontSize: sub ? TYPE.sub : TYPE.section, fontWeight: '300', margin: 0 }}>
-            {heading}
-          </h2>
-        </Reveal>
-        {body && (
-          <Paragraphs
-            body={body}
-            style={{ fontSize: TYPE.body, lineHeight: 1.7, color: 'var(--text-body)' }}
-          />
-        )}
+        {headingEl}
+        {body && <Paragraphs body={body} style={prose} />}
       </div>
 
       <Reveal style={{ flex: '1 1 420px', maxWidth: 620 }} rise={photos.length === 1 ? 48 : 0}>
-        {photos.length === 1
-          // A carousel of one is just a picture: no stack behind it, nothing to
-          // rotate, and arrows that would do nothing.
-          ? (
-            <img
-              src={photos[0]}
-              alt={heading}
-              loading="lazy"
-              style={{ width: '100%', height: 'auto', borderRadius: 16, display: 'block' }}
-            />
-          )
-          // A ring of landscape photos on a phone is a ring of crops: where
-          // the section says what shape its photos are, a phone shows them
-          // whole, one above another, instead.
-          : layout === 'carousel' && phone && aspect
-            ? <PhotoGroup photos={photos} heading={heading} columns={1} aspect={aspect} />
-          : layout === 'carousel'
-            ? <PhotoCarousel photos={photos} heading={heading} />
-            : <PhotoGroup photos={photos} heading={heading} />}
+        {pictures(photos)}
       </Reveal>
     </div>
   )
@@ -594,21 +644,21 @@ export function FeatureImage({ src, alt }) {
 // simply sits centered, so the section reads properly before its photos arrive.
 export function SplitRow({ heading, body, photo, alt, flip }) {
   const [ref, opacity] = useFadeInOnScroll(0)
+  const phone = useIsPhone()
   const RISE = 48   // matches the feature image, so the page moves one way
 
-  const text = (
-    <>
-      {/* Matched to the sub-section headings elsewhere, so a page reads the same
-          however its sections happen to be built. */}
-      {heading && (
-        <h2 className="glass-title" data-text={heading} style={{ fontSize: TYPE.sub, fontWeight: '300', marginBottom: 24 }}>{heading}</h2>
-      )}
-      <Paragraphs
-        body={body}
-        style={{ fontSize: TYPE.body, lineHeight: 1.7, color: 'var(--text-body)' }}
-      />
-    </>
+  // Matched to the sub-section headings elsewhere, so a page reads the same
+  // however its sections happen to be built.
+  const headingEl = heading && (
+    <h2 className="glass-title" data-lead="" data-text={heading} style={{ fontSize: TYPE.sub, fontWeight: '300', marginBottom: phone && photo ? 0 : 24 }}>{heading}</h2>
   )
+  const words = (
+    <Paragraphs
+      body={body}
+      style={{ fontSize: TYPE.body, lineHeight: 1.7, color: 'var(--text-body)' }}
+    />
+  )
+  const text = <>{headingEl}{words}</>
 
   // The band metrics below are PhotoSection's, so a run of these reads with the
   // same rhythm as a run of sub-sections built the other way — the two were
@@ -648,7 +698,9 @@ export function SplitRow({ heading, body, photo, alt, flip }) {
         transition: 'opacity 1.5s ease',
       }}
     >
-      <div style={{ flex: '1 1 360px', maxWidth: 480 }}>{text}</div>
+      {/* (on a phone, one column: the heading, the picture, then the words —
+          as PhotoSection has it) */}
+      {phone ? headingEl : <div style={{ flex: '1 1 360px', maxWidth: 480 }}>{text}</div>}
       <div style={{ flex: '1 1 420px', maxWidth: 620 }}>
         <img
           src={photo}
@@ -659,11 +711,13 @@ export function SplitRow({ heading, body, photo, alt, flip }) {
             height: 'auto',
             borderRadius: 16,
             display: 'block',
+            margin: '0 auto',
             transform: `translateY(${(1 - opacity) * RISE}px)`,
             transition: 'transform 1.5s cubic-bezier(0.22, 1, 0.36, 1)',
           }}
         />
       </div>
+      {phone && <div>{words}</div>}
     </div>
   )
 }

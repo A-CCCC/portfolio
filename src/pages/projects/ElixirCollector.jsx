@@ -26,7 +26,7 @@ export default function ElixirCollector() {
   const [buildBodyRef, buildBodyOpacity] = useFadeInOnScroll(0)
 
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    <div className="home-backdrop wall-page" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
 
       {/* ---- SECTION 1: Intro ---- */}
       <div style={{
@@ -47,7 +47,7 @@ export default function ElixirCollector() {
         }}>
           Elixir Collector
         </h1>
-        <p className="page-intro-line" style={{
+        <p className="page-intro-line text-chip" style={{
           fontSize: TYPE.lead,
           lineHeight: 1.7,
           color: 'var(--text-body)',
@@ -151,6 +151,7 @@ export default function ElixirCollector() {
           </h2>
           <p
             ref={buildBodyRef}
+            className="glass glass-vivid nav-glass text-panel"
             style={{
               fontSize: TYPE.body,
               lineHeight: 1.7,

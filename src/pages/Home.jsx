@@ -6,7 +6,7 @@ import useFadeIn from '../hooks/useFadeIn'
 import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
 import ProjectBubbles from '../components/ProjectBubbles'
 import Portrait from '../components/Portrait'
-import { featured, current } from '../data/projects'
+import { featured, current, completed } from '../data/projects'
 import { describe } from '../data/site-copy'
 import EmailLink from '../components/EmailLink'
 
@@ -24,6 +24,7 @@ export default function Home() {
   // (the current projects start as soon as they are on the screen at all,
   // not once they are well up it: they sit low, under the featured one)
   const [currentRef, currentOpacity] = useFadeInOnScroll(0, 0.04)
+  const [completedRef, completedOpacity] = useFadeInOnScroll(0, 0.04)
   const titleOpacity = useFadeIn(100)
   // Last of everything on the opening screen. The bubbles begin at 0.7s and
   // arrive one after another over half a second more, so this waits for the
@@ -306,6 +307,66 @@ export default function Home() {
                   {item.image
                     ? <img src={item.image} alt="" />
                     : <span style={{ fontSize: TYPE.caption, color: 'var(--text-body)', opacity: 0.7 }}>Coming soon</span>}
+                </span>
+                <span style={{
+                  fontSize: TYPE.small,
+                  fontWeight: 400,
+                  letterSpacing: '-0.01em',
+                  margin: '14px 0 0',
+                  textAlign: 'center',
+                }}>
+                  {item.label}
+                </span>
+                <span className="shop-card-go" style={{ fontSize: TYPE.caption, marginTop: 10 }}>
+                  See the project
+                  <span className="count-arrow" aria-hidden="true">→</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ---- Completed pages ---- */}
+      {/* The pages that are finished, last: the same cards again, four
+          across where there is room. */}
+      {completed.length > 0 && (
+        <div
+          ref={completedRef}
+          style={{
+            padding: '0 var(--gutter) 96px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            opacity: completedOpacity,
+            transition: 'opacity 1.5s ease',
+          }}
+        >
+          <h2 style={{
+            margin: '0 0 20px',
+            fontSize: TYPE.caption,
+            fontWeight: 400,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted)',
+          }}>
+            Completed pages
+          </h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 224px))',
+            justifyContent: 'center',
+            gap: 16,
+            width: '100%',
+            maxWidth: 960,
+          }}>
+            {completed.map((item) => (
+              <Link key={item.path} to={item.path} className="glass glass-vivid nav-glass shop-card current-card">
+                <span
+                  className="glass shop-card-disc"
+                  style={{ '--lg-hue': `var(--hue-${item.tint})` }}
+                >
+                  <img src={item.image} alt="" />
                 </span>
                 <span style={{
                   fontSize: TYPE.small,

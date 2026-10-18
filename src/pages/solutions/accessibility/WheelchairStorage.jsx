@@ -50,9 +50,12 @@ const PHOTO_SECTIONS = [
   },
   {
     heading: 'The Solution',
-    body: "The final product is a U-shaped container that fits under the wheelchair. The body is 3D printed in PETG with straps that route around the wheelchair\u2019s frame. The straps hold the container securely, while the printed body is sturdy but flexible enough to close. TPU mesh panels cover the sides to keep items from sliding out, and a velcro strap at the open end closes the unit and is easy to reach.",
     layout: 'carousel',
-    photos: ['final-container.jpeg', 'under-chair-1.jpeg', 'under-chair-2.jpeg'],
+    parts: [
+      { text: "The final product is a U-shaped container that fits under the wheelchair. The body is 3D printed in PETG with straps that route around the wheelchair\u2019s frame.", photos: ['final-container.jpeg'] },
+      { text: 'The straps hold the container securely, while the printed body is sturdy but flexible enough to close.', photos: ['under-chair-1.jpeg'] },
+      { text: 'TPU mesh panels cover the sides to keep items from sliding out, and a velcro strap at the open end closes the unit and is easy to reach.', photos: ['under-chair-2.jpeg'] },
+    ],
   },
   {
     // Opens the process the same way The Problem opens the page — a full-width
@@ -63,43 +66,54 @@ const PHOTO_SECTIONS = [
   },
   {
     heading: 'Starting the Project',
-    body: "Beginning the project, I worked with my school\u2019s maker space coordinator to conduct interviews with the student to identify issues in his daily life. A major problem he highlighted was straining his back while reaching for materials in his backpack. After brainstorming solutions, I landed on a container that fits under his wheelchair. This allows him to easily access materials without twisting or obstructing his movement. The first prototypes involved a canvas bag on a plastic backing held on by TPU clips. However, this solution was not nearly sturdy enough to be permanent.",
     sub: true,
-    // Sketch sits between the two bag shots so the near-identical photos are
-    // not side by side; the two made parts close the second row.
     layout: 'carousel',
-    photos: [
-      'canvas-bag.jpeg',
-      'prototype-sketch.jpeg',
-      'canvas-bag-testing.jpeg',
-      'prototype-1.jpeg',
-      'tpu-clip.jpeg',
+    parts: [
+      { text: "Beginning the project, I worked with my school\u2019s maker space coordinator to conduct interviews with the student to identify issues in his daily life. A major problem he highlighted was straining his back while reaching for materials in his backpack. After brainstorming solutions, I landed on a container that fits under his wheelchair. This allows him to easily access materials without twisting or obstructing his movement.", photos: ['prototype-sketch.jpeg', 'prototype-1.jpeg'] },
+      { text: 'The first prototypes involved a canvas bag on a plastic backing held on by TPU clips.', photos: ['canvas-bag.jpeg', 'tpu-clip.jpeg'] },
+      { text: 'However, this solution was not nearly sturdy enough to be permanent.', photos: ['canvas-bag-testing.jpeg'] },
     ],
   },
   {
     heading: 'Printed Prototypes',
-    body: 'Next, I developed printed prototypes using measurements we took during an interview. In Fusion, I designed a U-shaped container that would sit at an angled position to keep contents from sliding out. Two challenges shaped the process: my original models had issues with the nozzle hitting previous layers (blue TPU prototype), and parts of his wheelchair frame stuck out and interfered with the container. After redesigning a few times and meeting with the student to confirm that the prototypes actually fit, I printed the final container.',
     sub: true,
     layout: 'carousel',
-    photos: ['prototype-2.jpeg', 'prototype-3.jpeg', 'prototype-4.jpeg', 'prototype-5.jpeg'],
+    parts: [
+      { text: 'Next, I developed printed prototypes using measurements we took during an interview. In Fusion, I designed a U-shaped container that would sit at an angled position to keep contents from sliding out.', photos: ['prototype-2.jpeg', 'prototype-3.jpeg'] },
+      { text: 'Two challenges shaped the process: my original models had issues with the nozzle hitting previous layers (blue TPU prototype), and parts of his wheelchair frame stuck out and interfered with the container.', photos: ['prototype-5.jpeg'] },
+      { text: 'After redesigning a few times and meeting with the student to confirm that the prototypes actually fit, I printed the final container.', photos: ['prototype-4.jpeg'] },
+    ],
   },
   {
     heading: 'Final Assembly',
-    body: 'Finally, I printed the body out of PETG for a combination of strength and flexibility. My teacher and I landed on using nylon straps to attach the container to the wheelchair. The straps are sturdy and route through slots in the container for a strong attachment. I printed TPU mesh pieces to cover the sides, which were glued on and also routed through the straps. The student also wanted a secure closing system, so I looped a small velcro strip through the straps at the end of the container. After using the container for a while, he noticed that the printed body was cracking along the print lines. To fix this, I cut plastic sheets and glued them across the print lines to provide extra strength. The student now uses the container to hold his computer and folders, and told me it is much more convenient than the backpack.',
     sub: true,
     layout: 'carousel',
-    photos: ['prototype-6.jpeg', 'prototype-7.jpeg', 'final-prototype.jpeg'],
+    parts: [
+      { text: 'Finally, I printed the body out of PETG for a combination of strength and flexibility.', photos: ['prototype-6.jpeg'] },
+      { text: 'My teacher and I landed on using nylon straps to attach the container to the wheelchair. The straps are sturdy and route through slots in the container for a strong attachment. I printed TPU mesh pieces to cover the sides, which were glued on and also routed through the straps. The student also wanted a secure closing system, so I looped a small velcro strip through the straps at the end of the container.', photos: ['final-prototype.jpeg'] },
+      { text: 'After using the container for a while, he noticed that the printed body was cracking along the print lines. To fix this, I cut plastic sheets and glued them across the print lines to provide extra strength. The student now uses the container to hold his computer and folders, and told me it is much more convenient than the backpack.', photos: ['prototype-7.jpeg'] },
+    ],
   },
 ]
 
+// A section given in `parts` — a few photos and the lines about them — shows
+// part by part on a phone (PhotoSection); on a wider screen its words run on
+// as one paragraph beside all of its photos, as before.
+//
 // Photo rows alternate sides. Counted across photo-bearing sections only, so a
 // full-width statement in the middle does not break the left/right rhythm.
 let photoRow = 0
-const SECTIONS = PHOTO_SECTIONS.map((section) => ({
-  ...section,
-  photos: section.photos.map((file) => `${PHOTO_DIR}/${file}`),
-  flip: section.photos.length ? photoRow++ % 2 === 1 : false,
-}))
+const SECTIONS = PHOTO_SECTIONS.map((section) => {
+  const parts = section.parts?.map((part) => ({ ...part, photos: part.photos.map((file) => `${PHOTO_DIR}/${file}`) }))
+  const photos = parts ? parts.flatMap((part) => part.photos) : section.photos.map((file) => `${PHOTO_DIR}/${file}`)
+  return {
+    ...section,
+    parts,
+    body: parts ? parts.map((part) => part.text).join(' ') : section.body,
+    photos,
+    flip: photos.length ? photoRow++ % 2 === 1 : false,
+  }
+})
 
 
 export default function WheelchairStorage() {
@@ -128,7 +142,7 @@ export default function WheelchairStorage() {
   }
 
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    <div className="home-backdrop wall-page" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
 
       {/* ---- SECTION 1: Intro ---- */}
       <div style={{
@@ -149,7 +163,7 @@ export default function WheelchairStorage() {
         }}>
           Wheelchair Storage
         </h1>
-        <p className="page-intro-line" style={{
+        <p className="page-intro-line text-chip" style={{
           fontSize: TYPE.lead,
           lineHeight: 1.7,
           color: 'var(--text-body)',

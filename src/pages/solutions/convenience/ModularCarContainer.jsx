@@ -8,7 +8,7 @@ const DESCRIPTION = describe('modular-car-container')
 
 export default function ModularCarContainer() {
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    <div className="home-backdrop wall-page" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
       <PageIntro title="Modular Car Container" description={DESCRIPTION} comingSoon />
     </div>
   )

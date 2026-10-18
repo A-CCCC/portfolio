@@ -8,7 +8,7 @@ const DESCRIPTION = describe('ketchup-extruder')
 
 export default function KetchupExtruder() {
   return (
-    <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
+    <div className="home-backdrop wall-page" style={{ color: 'var(--text)', fontFamily: 'system-ui' }}>
       <PageIntro title="Ketchup Extruder" description={DESCRIPTION} comingSoon />
     </div>
   )

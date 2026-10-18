@@ -83,7 +83,8 @@ export default function CategoryBand({
           arrived. Its contents sit at the middle of it, and reach that line when
           the band is most of the way on screen. */}
       {/* on a panel of the navbar's glass, so the words read clear of the
-          wallpaper (.text-panel) */}
+          wallpaper (.text-panel); the name at its head set as the pages'
+          titles are, tall clear glass (.hub-link h2) */}
       <div ref={ref} className="glass glass-vivid nav-glass text-panel" style={{
         flex: '1 1 340px',
         maxWidth: 520,
@@ -92,7 +93,7 @@ export default function CategoryBand({
       }}>
         {/* Goes where the count below goes, and moves the same way: the
             page sweeps on (page-sweep.js), as it does for an arrow. */}
-        <Link to={path} className="hub-link" data-sweep="" style={{ color: 'inherit' }}>
+        <Link to={path} className="hub-link" data-sweep="" style={{ color: 'inherit', display: 'inline-block', marginBottom: 14 }}>
           <h2 className="glass-title" data-text={label} style={{
             fontSize: TYPE.hubCategory,
             fontWeight: 300,
@@ -104,7 +105,7 @@ export default function CategoryBand({
         </Link>
 
         <p style={{
-          margin: '20px 0 28px',
+          margin: '0 0 28px',
           fontSize: TYPE.body,
           lineHeight: 1.7,
           color: alt ? 'var(--band-body)' : 'var(--text-body)',
