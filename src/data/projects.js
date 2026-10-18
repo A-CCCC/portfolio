@@ -80,6 +80,7 @@ export const completed = [
   { label: 'Elixir Collector', path: '/projects/clash-royale/elixir-collector', image: asset('/thumbnails/elixir-collector.webp'), tint: 5 },
   { label: 'Wheelchair Storage', path: '/solutions/accessibility/wheelchair-storage', image: asset('/thumbnails/wheelchair-storage.webp'), tint: 3 },
   { label: 'Smart Kinesiology Tape', path: '/solutions/accessibility/smart-kinesiology-tape', image: asset('/thumbnails/smart-kinesiology-tape.webp'), tint: 6 },
+  { label: 'Backup Camera Wiper', path: '/solutions/convenience/backup-camera-wiper', image: asset('/thumbnails/backup-camera-wiper.webp'), tint: 2 },
 ]
 
 export const current = [

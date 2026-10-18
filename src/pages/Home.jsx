@@ -328,7 +328,7 @@ export default function Home() {
       )}
 
       {/* ---- Completed pages ---- */}
-      {/* The pages that are finished, last: the same cards again, four
+      {/* The pages that are finished, last: the same cards again, three
           across where there is room. */}
       {completed.length > 0 && (
         <div
@@ -352,16 +352,18 @@ export default function Home() {
           }}>
             Completed pages
           </h2>
+          {/* (wrapped and centred row by row, so a last row of fewer than
+              the others sits in the middle rather than at the left) */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 224px))',
+            display: 'flex',
+            flexWrap: 'wrap',
             justifyContent: 'center',
             gap: 16,
             width: '100%',
-            maxWidth: 960,
+            maxWidth: 720,
           }}>
             {completed.map((item) => (
-              <Link key={item.path} to={item.path} className="glass glass-vivid nav-glass shop-card current-card">
+              <Link key={item.path} to={item.path} className="glass glass-vivid nav-glass shop-card current-card" style={{ flex: '0 1 224px', minWidth: 200 }}>
                 <span
                   className="glass shop-card-disc"
                   style={{ '--lg-hue': `var(--hue-${item.tint})` }}

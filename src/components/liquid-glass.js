@@ -169,7 +169,7 @@ void main() {
     // clear glass letters take no part of a pixel the letters barely touch:
     // the canvas left a breath of coverage across each letter's box, and
     // through glass that showed as a faint rectangle round every letter
-    if (seeThrough > 0.5) edge = smoothstep(0.04, 0.5, edge);
+    if (seeThrough > 0.5) edge = smoothstep(0.04, 0.85, edge);
     if (edge <= 0.003) {
       // Outside a letter: its glow, if it has one — the light it gives off,
       // spilling past its edge in its own colour and falling away
@@ -511,7 +511,7 @@ void main() {
     vec2 dx = vec2(1.2 / maskRect.z, 0.0), dy = vec2(0.0, 1.2 / maskRect.w);
     float nb = min(min(texture2D(mask, tm + dx).a, texture2D(mask, tm - dx).a),
                    min(texture2D(mask, tm + dy).a, texture2D(mask, tm - dy).a));
-    edge = smoothstep(0.3, 1.0, edge) * mix(0.45, 1.0, smoothstep(0.2, 0.95, nb));
+    edge = smoothstep(0.12, 1.0, edge) * mix(0.55, 1.0, smoothstep(0.1, 0.95, nb));
     // and every outer corner rounded off cleanly: the face's corners are
     // square (the t's crossbar ends square), the fade above took most of
     // each but left a breath of its tip, a faint square corner seen close
@@ -692,15 +692,19 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     // the cloth's width the blur ran neighbouring strokes and letters
     // together, and what was seen through them bent in blobs
     const thin = s.wallBehind && s.wallBehind(el) ? 1 : 0
-    const key = `${el.textContent}|${cs.font}|${cs.fontStretch}|${cs.letterSpacing}|${w}x${h}|${dpr}|${thin}`
+    // Clear glass letters' shape drawn at twice the screen's density, as far
+    // as a texture allows: at the screen's own, their edge — kept crisp, as
+    // clear letters need — stepped visibly once the page was zoomed in
+    const mdpr = thin && (w + MARGIN * 2) * dpr * 2 <= 8192 ? dpr * 2 : dpr
+    const key = `${el.textContent}|${cs.font}|${cs.fontStretch}|${cs.letterSpacing}|${w}x${h}|${mdpr}|${thin}`
     if (s.mask && s.mask.key === key) return s.mask.pending ? s.mask.was : s.mask
     const box = el.getBoundingClientRect()
     // the element may be scaled (a hover): the layout is read in its own size
     const kx = w / (box.width || 1), ky = h / (box.height || 1)
-    const cw = Math.ceil((w + MARGIN * 2) * dpr), ch = Math.ceil((h + MARGIN * 2) * dpr)
+    const cw = Math.ceil((w + MARGIN * 2) * mdpr), ch = Math.ceil((h + MARGIN * 2) * mdpr)
     const crisp = document.createElement('canvas'); crisp.width = cw; crisp.height = ch
     const c = crisp.getContext('2d')
-    c.scale(dpr, dpr)
+    c.scale(mdpr, mdpr)
     // The page's font, named so a canvas finds it too: built from its parts
     // (Safari can leave the shorthand empty), and the system font asked for
     // by Apple's own name as well — a canvas in Safari did not know
@@ -762,7 +766,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     const blurred = document.createElement('canvas'); blurred.width = cw; blurred.height = ch
     const b = blurred.getContext('2d')
     if (canvasBlurs()) {
-      b.filter = `blur(${softPx * dpr}px)`
+      b.filter = `blur(${softPx * mdpr}px)`
       b.drawImage(crisp, 0, 0)
     } else {
       // By hand, on a copy shrunk until the blur is a few pixels across, then
@@ -770,13 +774,13 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       // small copy loses nothing, and it is the difference between a frame's
       // work and the better part of a second's — paid for every title of a
       // page as it arrives, in the middle of the page's own transition.
-      const k = Math.max(1, (softPx * dpr) / 2.5)
+      const k = Math.max(1, (softPx * mdpr) / 2.5)
       const sw = Math.max(1, Math.round(cw / k)), sh = Math.max(1, Math.round(ch / k))
       const small = document.createElement('canvas'); small.width = sw; small.height = sh
       const sc = small.getContext('2d', { willReadFrequently: true })
       sc.imageSmoothingEnabled = true; sc.imageSmoothingQuality = 'high'
       sc.drawImage(crisp, 0, 0, sw, sh)
-      blurAlpha(sc, sw, sh, (softPx * dpr) / k)
+      blurAlpha(sc, sw, sh, (softPx * mdpr) / k)
       b.imageSmoothingEnabled = true; b.imageSmoothingQuality = 'high'
       b.drawImage(small, 0, 0, cw, ch)
     }
@@ -786,14 +790,14 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     if (thin) {
       wideCanvas = document.createElement('canvas'); wideCanvas.width = cw; wideCanvas.height = ch
       const wb = wideCanvas.getContext('2d')
-      if (canvasBlurs()) { wb.filter = `blur(${widePx * dpr}px)`; wb.drawImage(crisp, 0, 0) }
+      if (canvasBlurs()) { wb.filter = `blur(${widePx * mdpr}px)`; wb.drawImage(crisp, 0, 0) }
       else {
-        const k = Math.max(1, (widePx * dpr) / 2.5)
+        const k = Math.max(1, (widePx * mdpr) / 2.5)
         const sw = Math.max(1, Math.round(cw / k)), sh = Math.max(1, Math.round(ch / k))
         const small = document.createElement('canvas'); small.width = sw; small.height = sh
         const sc = small.getContext('2d', { willReadFrequently: true })
         sc.imageSmoothingEnabled = true; sc.drawImage(crisp, 0, 0, sw, sh)
-        blurAlpha(sc, sw, sh, (widePx * dpr) / k)
+        blurAlpha(sc, sw, sh, (widePx * mdpr) / k)
         wb.imageSmoothingEnabled = true; wb.drawImage(small, 0, 0, cw, ch)
       }
     }
@@ -808,7 +812,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     // meanwhile
     const esc = (x) => x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     const fam = family.replace(/"/g, "'")
-    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${cw}' height='${ch}' viewBox='0 0 ${cw / dpr} ${ch / dpr}'>`
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${cw}' height='${ch}' viewBox='0 0 ${cw / mdpr} ${ch / mdpr}'>`
       + `<g fill='#fff' style="font-style:${cs.fontStyle};font-weight:${cs.fontWeight};font-size:${cs.fontSize};font-family:${esc(fam)};font-stretch:${cs.fontStretch}">`
       + glyphs.map(([g, x, y]) => `<text x='${x.toFixed(2)}' y='${y.toFixed(2)}'>${esc(g)}</text>`).join('')
       + `</g></svg>`
