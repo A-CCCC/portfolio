@@ -636,7 +636,10 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   const walls = new Map()
   const wallTexture = (url, host) => {
     const w = host.offsetWidth, hh = host.offsetHeight
-    const h = Math.min(hh, Math.round(window.innerHeight * 1.5))
+    // a screen and a half, of the tallest the screen gets: not the window's
+    // height now, which on a phone changes all the way through the address
+    // bar rolling away — and with it, the drawing, over and over
+    const h = Math.min(hh, Math.round(Math.max(window.innerHeight, window.screen?.height || 0) * 1.5))
     // keyed on the whole drawing itself: the light and the dark wallpapers
     // are the same length and differ only in their colours, and keyed on a
     // sample of them (every seventh letter) the bubbles went on showing the
@@ -644,8 +647,11 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     const key = `${w}|${hh}|${h}|${dpr}`
     let e = walls.get(host)
     if (!e || e.key !== key || e.url !== url) {
-      const prev = e
-      e = { key, url, tex: null, h, img: new Image() }
+      // (the last drawing kept, and shown, until this one has loaded — on
+      // every frame till then, not only this one: the bubbles went blank
+      // in between)
+      const prev = e?.tex ? e : e?.prev
+      e = { key, url, tex: null, h, img: new Image(), prev }
       walls.set(host, e)
       e.img.onload = () => {
         const k = Math.min(dpr, 4096 / Math.max(w, h))
@@ -654,13 +660,14 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         // the whole drawing scaled to the page, of which only the top is kept
         cv.getContext('2d').drawImage(e.img, 0, 0, cv.width, Math.round(hh * k))
         e.tex = upload(cv, prev?.tex || undefined)
+        e.prev = null
         hotUntil = performance.now() + 200
       }
       e.img.src = url
-      // until it is drawn, the last one does
-      if (prev?.tex) return { tex: prev.tex, h: prev.h }
     }
-    return e.tex ? e : null
+    // until it is drawn, the last one does
+    if (e.tex) return e
+    return e.prev?.tex ? { tex: e.prev.tex, h: e.prev.h } : null
   }
   function upload(source, t = gl.createTexture()) {
     gl.bindTexture(gl.TEXTURE_2D, t)
