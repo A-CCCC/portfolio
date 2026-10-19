@@ -5,6 +5,23 @@ import { warmFramesWhenIdle } from './components/frame-store'
 import { lightTheGlass } from './components/useLight'
 import './index.css'
 
+// The titles are set in the system's own face at half its width — which only
+// Apple's system face has; elsewhere (Segoe UI on Windows, Roboto on Android)
+// there is no narrow cut, the text came out at its full width and the home
+// page's title ran into the bubbles. Where the system face does not narrow,
+// the titles take a face that is narrow already (.no-narrow, index.css).
+{
+  const probe = document.createElement('span')
+  probe.textContent = 'Alex\'s Design Portfolio'
+  probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font:500 100px system-ui'
+  document.body.append(probe)
+  const full = probe.offsetWidth
+  probe.style.fontStretch = '50%'
+  const narrow = probe.offsetWidth
+  probe.remove()
+  if (narrow > full * 0.85) document.documentElement.classList.add('no-narrow')
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

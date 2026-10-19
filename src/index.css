@@ -3021,6 +3021,19 @@ html.vt-grow::view-transition-new(root) {
   --page-title: clamp(3.4rem, 15vw, 6rem);
   --title-lh: 1.1;
 }
+/* the titles where the system's own face has no narrow cut (src/main.jsx):
+   in one that is narrow already */
+.no-narrow .home-backdrop h1.glass-title,
+.no-narrow .wall-page h2.glass-title,
+.no-narrow .home-backdrop .hub-link h2.glass-title,
+.no-narrow .home-backdrop .about-panel h2.glass-title {
+  font-family: 'Barlow Condensed', system-ui, sans-serif;
+}
+/* (a little wider than the system face narrowed: a size down, so a title
+   takes the same room) */
+.no-narrow .home-backdrop h1.glass-title {
+  font-size: calc(var(--page-title) * 0.86) !important;
+}
 .home-backdrop h1.glass-title {
   font-size: var(--page-title) !important;
   font-stretch: 50%;
