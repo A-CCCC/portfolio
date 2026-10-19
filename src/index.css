@@ -1928,6 +1928,15 @@ canvas {
 /* The current projects on the home page: the same card, smaller. */
 .current-card { padding: 22px 16px 20px; }
 .current-card .shop-card-disc { width: 96px; height: 96px; }
+/* the completed pages, wrapped and centred row by row (Home.jsx) */
+.completed-card { flex: 0 1 224px; min-width: 200px; }
+/* two across on a phone: a little smaller inside, to sit in half the row */
+@media (max-width: 480px) {
+  .current-card { padding: 18px 10px 16px; min-width: 0; text-align: center; }
+  .current-card > span { max-width: 100%; }
+  .completed-card { flex-basis: calc(50% - 8px); min-width: 0; }
+  .current-card .shop-card-disc { width: 80px; height: 80px; }
+}
 
 /* Takes a copy of the address beside it. Quiet until approached — it is an
    alternative to the link, not a second thing to read. */
@@ -2942,6 +2951,13 @@ html.vt-grow::view-transition-new(root) {
 /* a pinned panel holding the wallpaper still (wallpaper.js, HELD STILL):
    the stretch of it where its section begins, fixed to the panel */
 .wall-page .wall-hold[style] {
+  /* as tall as the screen with a phone's address bar rolled away, so the
+     strip it leaves at the foot is the panel's, held still, and not the
+     page scrolling on under it — the extra height a transparent border,
+     so what is in the panel is laid out in the screen with the bar showing,
+     as before (none of this on a computer, where the two are the same) */
+  height: 100lvh !important;
+  border-bottom: calc(100lvh - 100svh) solid transparent;
   background-color: var(--bg) !important;
   background-image: var(--home-wall) !important;
   background-size: var(--hold-size) !important;

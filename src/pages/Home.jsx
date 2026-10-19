@@ -292,7 +292,8 @@ export default function Home() {
               its own is a card rather than a band. */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 224px))',
+            // (two across on a phone: never narrower than half the row)
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, calc(50% - 8px)), 224px))',
             justifyContent: 'center',
             gap: 16,
             width: '100%',
@@ -361,9 +362,11 @@ export default function Home() {
             gap: 16,
             width: '100%',
             maxWidth: 720,
+            // (two across on a phone: each card half the row, its text
+            // wrapping rather than holding the card wide)
           }}>
             {completed.map((item) => (
-              <Link key={item.path} to={item.path} className="glass glass-vivid nav-glass shop-card current-card" style={{ flex: '0 1 224px', minWidth: 200 }}>
+              <Link key={item.path} to={item.path} className="glass glass-vivid nav-glass shop-card current-card completed-card">
                 <span
                   className="glass shop-card-disc"
                   style={{ '--lg-hue': `var(--hue-${item.tint})` }}
