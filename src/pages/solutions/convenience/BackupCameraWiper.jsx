@@ -201,8 +201,14 @@ function Scrub({ folder, count, aspect, label, hint, title, full }) {
       // (none of the growing for a section that starts at full screen)
       const grows = full ? 0 : GROWS_FOR
       const grown = full ? 1 : Math.min(1, t / GROWS_FOR)
-      box.style.width = `${lerp(w0, vw, grown).toFixed(1)}px`
-      box.style.height = `${lerp(h0, vh, grown).toFixed(1)}px`
+      // Grown to the whole screen on a computer; on a phone, held upright,
+      // to the whole width in the footage's own shape — grown to its height
+      // as well it showed a sliver of the middle, the lens and the arm cut
+      // away either side
+      let w1 = vw, h1 = vh
+      if (phone && vh > vw) { w1 = vw; h1 = Math.min(vh, vw / aspect) }
+      box.style.width = `${lerp(w0, w1, grown).toFixed(1)}px`
+      box.style.height = `${lerp(h0, h1, grown).toFixed(1)}px`
       box.style.borderRadius = `${lerp(RADIUS, 0, grown).toFixed(1)}px`
 
       // The footage plays over what is left of the runway — or, with a title
