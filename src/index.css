@@ -2695,11 +2695,15 @@ html.theme-snap *::after {
 .photo-strip img,
 .split .photo-strip img {
   flex: 0 0 auto;
-  height: min(50vh, 420px) !important;
+  /* each in its own shape, as large as fits — a common height cropped the
+     wide ones, held to the screen's width, to a tall sliver of themselves —
+     and middled one against another */
+  height: auto !important;
   width: auto !important;
   max-width: 86vw !important;
-  max-height: none !important;
-  object-fit: cover;
+  max-height: min(50vh, 420px) !important;
+  align-self: center;
+  object-fit: contain;
   border-radius: 16px;
   scroll-snap-align: center;
   box-shadow: var(--card-shadow);

@@ -128,7 +128,9 @@ function PhotoStrip({ photos, heading }) {
             key={file}
             src={file}
             alt={`${heading} — ${i + 1} of ${photos.length}`}
-            loading={i < 2 ? 'eager' : 'lazy'}
+            // (all of them: sized by their own shape, one not yet loaded
+            // has no width, and lazily it waited for a view it never got)
+            loading="eager"
             onClick={() => go(i)}
             className={i === at ? 'is-at' : undefined}
           />
@@ -488,11 +490,7 @@ export default function PhotoSection({ heading, body, photos, flip, layout, sub,
         style={{ width: '100%', height: 'auto', borderRadius: 16, display: 'block', margin: '0 auto' }}
       />
     )
-    // A ring of landscape photos on a phone is a ring of crops: where
-    // the section says what shape its photos are, a phone shows them
-    // whole, one above another, instead.
-    : layout === 'carousel' && phone && aspect
-      ? <PhotoGroup photos={set} heading={heading} columns={1} aspect={aspect} />
+    // (a phone's strip shows each photo whole, in its own shape)
     : layout === 'carousel'
       ? <PhotoCarousel photos={set} heading={heading} />
       : <PhotoGroup photos={set} heading={heading} />)
