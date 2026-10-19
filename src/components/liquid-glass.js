@@ -768,7 +768,11 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         i = next
       }
     }
-    const softPx = Math.max(thin ? 2.0 : 2.5, parseFloat(cs.fontSize) * (thin ? 0.03 : 0.07))
+    // (clear glass letters in proportion to their size, all the way down: a
+    // floor of 2px, generous on a title, was a third of a small heading's
+    // stroke, and the rounding of corners that reaches that far took the
+    // dots off its i's)
+    const softPx = thin ? Math.max(0.8, parseFloat(cs.fontSize) * 0.03) : Math.max(2.5, parseFloat(cs.fontSize) * 0.07)
     const finish = () => {
     const blurred = document.createElement('canvas'); blurred.width = cw; blurred.height = ch
     const b = blurred.getContext('2d')
