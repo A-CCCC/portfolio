@@ -290,17 +290,18 @@ export default function Home() {
           </h2>
           {/* Cards of a fixed size, centred: three fill the row, and one on
               its own is a card rather than a band. */}
+          {/* (laid out as the completed pages are, below, card for card the
+              same size) */}
           <div style={{
-            display: 'grid',
-            // (two across on a phone: never narrower than half the row)
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, calc(50% - 8px)), 224px))',
+            display: 'flex',
+            flexWrap: 'wrap',
             justifyContent: 'center',
             gap: 16,
             width: '100%',
             maxWidth: 720,
           }}>
             {current.map((item) => (
-              <Link key={item.path} to={item.path} className="glass glass-vivid nav-glass shop-card current-card">
+              <Link key={item.path} to={item.path} className="glass glass-vivid nav-glass shop-card current-card completed-card">
                 <span
                   className="glass shop-card-disc"
                   style={{ '--lg-hue': `var(--hue-${item.tint})` }}
