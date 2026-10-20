@@ -283,7 +283,7 @@ function ownBand(host) {
   const hr = host.getBoundingClientRect(), r = h1.getBoundingClientRect()
   return {
     y: host.__offY + (r.top - hr.top + r.height * host.__pattern.hero.at) * host.__unit,
-    c: host.__phase * W + W / 2,
+    c: host.__x + host.offsetWidth * host.__unit / 2,
   }
 }
 
@@ -293,24 +293,24 @@ function ownBand(host) {
 // each piece set back by the scroll held still above it.
 function drawn(host) {
   const u = host.__unit, Hs = host.offsetHeight * u
-  const x = host.__phase * W
+  const x = host.__x, pw = host.offsetWidth * u
   const holds = host.__holds || []
   if (!holds.length) {
-    return [LIGHT, DARK].map((pal) => `url("data:image/svg+xml,${encodeURIComponent(svgOf(host, pal, x, host.__offY, W, Hs, W, Hs))}")`)
+    return [LIGHT, DARK].map((pal) => `url("data:image/svg+xml,${encodeURIComponent(svgOf(host, pal, x, host.__offY, pw, Hs, pw, Hs))}")`)
   }
   const ends = [...holds.map((h) => h.bottom), host.offsetHeight]
   const y0 = host.__offY, rows = rowAt(host, host.offsetHeight) - y0
   return [LIGHT, DARK].map((pal) => {
-    const { defs, body } = scene(host, pal, x, y0, W, rows)
+    const { defs, body } = scene(host, pal, x, y0, pw, rows)
     let from = 0, laid = ''
     ends.forEach((end, i) => {
       if (end <= from) return
       const shift = heldAbove(holds, from) * u
-      laid += `<clipPath id='piece${i}'><rect x='0' y='${(from * u).toFixed(2)}' width='${W}' height='${((end - from) * u + 0.5).toFixed(2)}'/></clipPath>`
+      laid += `<clipPath id='piece${i}'><rect x='0' y='${(from * u).toFixed(2)}' width='${pw.toFixed(2)}' height='${((end - from) * u + 0.5).toFixed(2)}'/></clipPath>`
         + `<g clip-path='url(#piece${i})'><use href='#all' transform='translate(${(-x).toFixed(2)} ${(shift - y0).toFixed(2)})'/></g>`
       from = end
     })
-    const svg = `<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='${W}' height='${Math.round(Hs)}' viewBox='0 0 ${W} ${Hs.toFixed(2)}' preserveAspectRatio='none'><defs>${defs}<g id='all'>${body}</g></defs>${laid}</svg>`
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='${Math.round(pw)}' height='${Math.round(Hs)}' viewBox='0 0 ${pw.toFixed(2)} ${Hs.toFixed(2)}' preserveAspectRatio='none'><defs>${defs}<g id='all'>${body}</g></defs>${laid}</svg>`
     return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
   })
 }
@@ -328,6 +328,20 @@ function wear(host, [light, dark]) {
   host.__wallKey = `${host.__wallSeq = (host.__wallSeq || 0) + 1}`
 }
 
+// How many of the pattern's units a pixel is: the pattern laid so that the
+// screen's diagonal takes as much of it as a laptop's does — a page 400 units
+// across at 1280 by 820. Fitted to the page's width alone, a phone, a third
+// as wide, showed every shape a third the size. The screen's height is taken
+// once, so a phone's address bar coming and going does not redraw it.
+let screenH = 0
+const DIAGONAL = 1280 / Math.hypot(1280, 820)
+function unitFor(hw) {
+  if (!screenH) screenH = window.innerHeight
+  return W / Math.max(hw, DIAGONAL * Math.hypot(window.innerWidth, screenH))
+}
+// Where the pattern wraps round, side to side
+const wrapX = (x) => ((((x + 400) % WIDE) + WIDE) % WIDE) - 400
+
 function paper(host) {
   let drawnH = 0, drawnW = 0
   // (drawn again, words measured again, once the fonts and the pictures have
@@ -337,7 +351,7 @@ function paper(host) {
   setTimeout(again, 1500)
   return () => {
     const hw = host.offsetWidth || 1, hh = host.offsetHeight || 1
-    const unit = W / hw, Hs = hh * unit
+    const unit = unitFor(hw), Hs = hh * unit
     if (hw === drawnW && Math.abs(Hs - drawnH) < 6) return
     drawnH = Hs; drawnW = hw
     host.__unit = unit
@@ -349,7 +363,8 @@ function paper(host) {
         // A page opened afresh: anywhere on the pattern — any of its three
         // thirds, from any row of it — so it is not the same place each
         // time; and the band laid across its title there
-        host.__phase = Math.floor(Math.random() * 3) - 1
+        // (in the middle of a third, the page's width of it)
+        host.__x = (Math.floor(Math.random() * 3) - 1) * W + (W - hw * unit) / 2
         host.__offY = Math.random() * DEEP
         const b = ownBand(host)
         bands = b ? [b] : []
@@ -370,7 +385,7 @@ function paper(host) {
 export function wallRegion(host, x, y, w, h, wPx, hPx, dark) {
   if (!host.__pattern || host.__unit === undefined) return null
   const u = host.__unit
-  const svg = svgOf(host, dark ? DARK : LIGHT, host.__phase * W + x * u, rowAt(host, y), w * u, h * u, wPx, hPx)
+  const svg = svgOf(host, dark ? DARK : LIGHT, host.__x + x * u, rowAt(host, y), w * u, h * u, wPx, hPx)
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 
@@ -393,7 +408,9 @@ export function handWallOn(page, way) {
   if (!host || !host.__pattern || host.__unit === undefined) { window.__wallNext = null; return }
   window.__wallNext = {
     offY: screenTopRow(host),
-    phase: ((host.__phase + way + 4) % 3) - 1,
+    // the stretch beside this one, a page's width over, on the side the
+    // next comes in from
+    x: wrapX(host.__x + way * host.offsetWidth * host.__unit),
     at: performance.now(),
   }
 }
@@ -415,7 +432,7 @@ export function watchWallpapers() {
       const next = window.__wallNext
       if (next && performance.now() - next.at < 4000) {
         host.__offY = next.offY
-        host.__phase = next.phase
+        host.__x = next.x
         window.__wallNext = null
       }
       host.__paint = paper(host)
