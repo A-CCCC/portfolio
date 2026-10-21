@@ -2730,6 +2730,18 @@ html.theme-snap *::after {
   transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
 }
 .photo-strip-dots button.is-at { width: 20px; opacity: 0.9; }
+/* held and slid along (PhotoStrip): a band a finger can hold, the page
+   still scrolling up and down through it, and the dots grown while held,
+   as Instagram's are */
+.photo-strip-dots {
+  padding: 10px 16px;
+  margin-top: 0;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.photo-strip-dots button { transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease, scale 0.2s ease; }
+.photo-strip-dots.is-scrubbing button { scale: 1.45; }
 
 /* ON A PHONE: a finger is broader than a pointer. The small things to press —
    the dots under a strip of photos, the contact links, the copy button —

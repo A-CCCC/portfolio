@@ -112,12 +112,49 @@ function PhotoStrip({ photos, heading }) {
       setAt(best)
     }
     el.addEventListener('scroll', look, { passive: true })
-    // the first photo in the middle to begin with, once it has a width
-    const first = el.children[0]
-    const centre = () => { if (el.scrollLeft < 2) go(0, 'instant') }
-    if (first?.complete) centre(); else first?.addEventListener('load', centre, { once: true })
-    return () => el.removeEventListener('scroll', look)
+    // The first photo to begin with, and held there until the strip is
+    // touched: the photos arrive one by one, each changing the strip's
+    // width as it does, and the snapping took that as a reason to settle on
+    // some other photo — so it is put back on the first after each arrives,
+    // and when the screen changes size, until someone takes hold of it
+    let held = false
+    const hold = () => { held = true }
+    const first = () => { if (!held) go(0, 'instant') }
+    const imgs = [...el.querySelectorAll('img')]
+    imgs.forEach((img) => { if (img.complete) first(); else img.addEventListener('load', first) })
+    first()
+    window.addEventListener('resize', first)
+    el.addEventListener('pointerdown', hold, { passive: true })
+    el.addEventListener('touchstart', hold, { passive: true })
+    el.addEventListener('wheel', hold, { passive: true })
+    return () => {
+      el.removeEventListener('scroll', look)
+      imgs.forEach((img) => img.removeEventListener('load', first))
+      window.removeEventListener('resize', first)
+      el.removeEventListener('pointerdown', hold)
+      el.removeEventListener('touchstart', hold)
+      el.removeEventListener('wheel', hold)
+    }
   }, [])
+
+  // The dots held and slid along, as Instagram's are: the photo under the
+  // finger comes to the middle as it passes over each dot
+  const dots = useRef(null)
+  const [scrubbing, setScrubbing] = useState(false)
+  const dotAt = (x) => {
+    const bs = [...(dots.current?.children ?? [])]
+    let best = 0, dist = Infinity
+    bs.forEach((b, i) => {
+      const r = b.getBoundingClientRect()
+      const d = Math.abs(r.left + r.width / 2 - x)
+      if (d < dist) { dist = d; best = i }
+    })
+    return best
+  }
+  const scrub = (e) => {
+    const i = dotAt(e.clientX)
+    if (i !== at) go(i, 'instant')
+  }
 
 
   return (
@@ -136,7 +173,16 @@ function PhotoStrip({ photos, heading }) {
           />
         ))}
       </div>
-      <div className="photo-strip-dots" role="tablist" aria-label={`${heading} photos`}>
+      <div
+        ref={dots}
+        className={`photo-strip-dots${scrubbing ? ' is-scrubbing' : ''}`}
+        role="tablist"
+        aria-label={`${heading} photos`}
+        onPointerDown={(e) => { e.currentTarget.setPointerCapture?.(e.pointerId); setScrubbing(true); scrub(e) }}
+        onPointerMove={(e) => { if (scrubbing) scrub(e) }}
+        onPointerUp={() => setScrubbing(false)}
+        onPointerCancel={() => setScrubbing(false)}
+      >
         {photos.map((file, i) => (
           <button
             key={file}
