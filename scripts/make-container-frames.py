@@ -155,6 +155,31 @@ for _i, _f in enumerate(fr):
     _f[..., :3] *= _g[..., None]
 print('light evened: mean gain per frame', _gains)
 
+# And past the parts, the fourth frame itself. The light above is smooth, so
+# it cannot follow a thing as thin as the lip along the top or the rim down
+# the sides, which still went lighter and darker between frames; but the
+# camera did not move, so wherever a frame has nothing the fourth has not
+# (or the fourth something it has not — the holder and pegs, in the first
+# frames), the fourth's own pixels stand in for it, and only the parts, and
+# a soft margin round them for their shadows, are the frame's own. The
+# photographs as taken are carried the same way, so the holes and the paper
+# in them are found in the same pixels the frame shows.
+_l3 = fr[3][..., :3].mean(2)
+# (and a band round the outline always the fourth's: no part comes near the
+# lip or the rim, but the light on them moves enough to pass for one)
+_inside = np.asarray(Image.fromarray(((fr[3][..., 3] > 250) * 255).astype('uint8')).filter(ImageFilter.MinFilter(71))) > 0
+_own_areas = []
+for _i in range(len(fr)):
+    if _i == 3: continue
+    _li = fr[_i][..., :3].mean(2)
+    _d = (np.abs(_li - _l3) > 30) & _inside
+    _d = np.asarray(Image.fromarray((_d * 255).astype('uint8')).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(41))) > 0
+    _own = np.asarray(Image.fromarray((_d * 255).astype('uint8')).filter(ImageFilter.GaussianBlur(10))).astype(float)[..., None] / 255
+    _own_areas.append(round(float(_own.mean()), 3))
+    for _set in (fr, raw):
+        _set[_i][..., :3] = _set[_i][..., :3] * _own + _set[3][..., :3] * (1 - _own)
+print('own share of each frame (the rest the fourth):', _own_areas)
+
 # The key frame (6) made from the two either side of it: the hook frame's
 # left side and the sunglasses frame's right, where the key is — so the key
 # is already where it sits when the sunglasses arrive, and does not shift
