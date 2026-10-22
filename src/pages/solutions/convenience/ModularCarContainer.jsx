@@ -63,7 +63,7 @@ const LOOSE = PHOTOS.filter((f) => !/\/(problem|solution|first|measure|grid)-[^/
 const FRAMES = 7
 const FRAME_SRC = (i) => asset(`/modular-car-container-anim/${String(i).padStart(2, '0')}.webp`)
 const RATIO = 1400 / 989        // the frames' own shape (scripts/make-container-frames.py)
-const RUNWAY = '420vh'           // how far the page scrolls while it is pinned
+const RUNWAY = '300vh'           // how far the page scrolls while it is pinned
 const RISES_FOR = 0.22           // the share of that spent rising into view
 const BUILT_BY = 0.9             // and where the last part has arrived
 

@@ -101,6 +101,60 @@ fr=[]
 for c in crops:
     im=c.copy(); im.putalpha(alpha); im=im.crop(cb); im=im.resize((OUT_W, round(OUT_W*im.height/im.width)), Image.LANCZOS)
     fr.append(np.array(im).astype(float))
+# The light the same in every frame. The photos were taken some seconds
+# apart, and the room's light — on the back wall most — rose and fell
+# between them, so the container brightened and darkened as the parts came.
+# Each frame is brought to the light of one of them, place by place: its
+# brightness, smoothed right out, measured where nothing changes between
+# the frames (the container itself, not the parts or the paper in the holes),
+# and the frame scaled down to that wherever it is lighter.
+def _smooth(v, w, k=10, sigma=4):
+    h, wd = v.shape; hh, ww = h // k, wd // k
+    vs = (v[:hh*k, :ww*k] * w[:hh*k, :ww*k]).reshape(hh, k, ww, k).sum((1, 3))
+    ws = w[:hh*k, :ww*k].reshape(hh, k, ww, k).sum((1, 3))
+    _k = np.exp(-0.5 * (np.arange(-3 * sigma, 3 * sigma + 1) / sigma) ** 2); _k /= _k.sum()
+    def blur(a):
+        a = np.pad(a, 3 * sigma, mode='edge')
+        a = np.apply_along_axis(lambda r: np.convolve(r, _k, 'valid'), 1, a)
+        return np.apply_along_axis(lambda c: np.convolve(c, _k, 'valid'), 0, a)
+    out = blur(vs) / np.maximum(blur(ws), 1e-3)
+    return np.asarray(Image.fromarray(out.astype('float32'), 'F').resize((wd, h), Image.BILINEAR))
+# (the frames as photographed kept too: the holes and the paper in them are
+# found in these, the light evened afterwards)
+raw = [f.copy() for f in fr]
+_lum = [f[..., :3].mean(2) for f in fr]
+# (the paper in the holes left out by its own shape: what is bright and
+# round enough to survive a small erosion, then grown over its rim — not by
+# a plain brightness cut, which took the lit floor with it and left the light
+# there to be guessed from the dark wall, a shadow of nothing)
+_paper = np.asarray(Image.fromarray((_lum[0] > 200).astype('uint8') * 255).filter(ImageFilter.MinFilter(5)).filter(ImageFilter.MaxFilter(17))) > 0
+# (the parts found as what differs from the empty frame once the light is
+# matched: the light alone moves the lit floor by more than a part's own
+# difference would need, so a plain difference took the floor for parts)
+_base = (fr[0][..., 3] > 250) & ~_paper
+_parts = np.zeros(_lum[0].shape, bool)
+for _pass in range(2):
+    _w = (_base & ~_parts).astype(float)
+    _f0 = _smooth(_lum[0], _w)
+    _parts = np.zeros(_lum[0].shape, bool)
+    for _l in _lum[1:]:
+        _parts |= np.abs(_l * _f0 / np.maximum(_smooth(_l, _w), 1) - _lum[0]) > 40
+    _parts = np.asarray(Image.fromarray((_parts * 255).astype('uint8')).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(21))) > 0
+_still = (_base & ~_parts).astype(float)
+_fields = [_smooth(_l, _still) for _l in _lum]
+# (the light of one frame, the fourth — the pegs in, before the hook: the
+# parts after it cast soft shadows of their own, the hook's on the floor at
+# the top left, the sunglasses' under them, which taken as the light put
+# them in every frame; each later frame keeps its own shadows, since a frame
+# is only ever darkened to it, never lightened)
+_target = _fields[3]
+_gains = []
+for _i, _f in enumerate(fr):
+    _g = np.clip(_target / np.maximum(_fields[_i], 1), 0.55, 1.0)
+    _gains.append(round(float(_g[_still > 0].mean()), 3))
+    _f[..., :3] *= _g[..., None]
+print('light evened: mean gain per frame', _gains)
+
 # The key frame (6) made from the two either side of it: the hook frame's
 # left side and the sunglasses frame's right, where the key is — so the key
 # is already where it sits when the sunglasses arrive, and does not shift
@@ -111,7 +165,8 @@ _hw=fr[0].shape[1]
 SPLIT, SOFT = 0.728 * _hw, 0.01 * _hw
 _m=np.clip((np.arange(_hw)-(SPLIT-SOFT))/(2*SOFT),0,1)[None,:,None]
 fr[5]=fr[4]*(1-_m)+fr[6]*_m
-ref=fr[0]; L0=ref[...,:3].mean(2); A0=ref[...,3]; H,W=L0.shape
+raw[5]=raw[4]*(1-_m)+raw[6]*_m
+ref=raw[0]; L0=ref[...,:3].mean(2); A0=ref[...,3]; H,W=L0.shape
 inner=np.asarray(Image.fromarray((A0>250).astype('uint8')*255).filter(ImageFilter.MinFilter(41)))>0
 bright=(L0>150)&inner; seen=np.zeros_like(bright); blobs=[]
 for y,x in zip(*np.nonzero(bright)):
@@ -136,7 +191,7 @@ holemask=np.asarray(m.resize((W,H),Image.LANCZOS)).astype(float)/255
 # shows there cleanly; bridged across the holes it passes over, that is the
 # rim, thin and exact, kept solid from then on (it is no paler than the
 # shadowed paper beside it, so colour alone cannot tell the two apart)
-f1=fr[1][...,:3].mean(2)
+f1=raw[1][...,:3].mean(2)
 rim=(f1-L0>28)&(L0<100)
 # (looked for on the right of the container, where the holder goes)
 bx=np.zeros_like(rim); bx[int(H*0.2):int(H*0.97),int(W*0.62):int(W*0.96)]=True; rim&=bx
@@ -187,7 +242,7 @@ for i in (5,6):
         w=np.clip((rad*1.6-rr)/(rad*0.8),0,1)*inside
         f[y0:y1,x0:x1,:3]=np.minimum(patch, patch*(1-w[...,None])+base*w[...,None])
 for i,f in enumerate(fr):
-    c=f[...,:3]; Lf=c.mean(2); sat=c.max(2)-c.min(2)
+    c=raw[i][...,:3]; Lf=c.mean(2); sat=c.max(2)-c.min(2)
     paper=(Lf>95)&(sat<34)
     if i>=1: paper&=~ring
     if i>=5: paper&=~fob
