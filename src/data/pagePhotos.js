@@ -28,6 +28,13 @@ export default {
     "/photos/elixir-collector/1-elixir-collector.webp",
     "/photos/elixir-collector/2-elixir-collector-card.webp"
   ],
+  "modular-car-container": [
+    "/photos/modular-car-container/first-01-compartment.webp",
+    "/photos/modular-car-container/first-02-red-prototype.webp",
+    "/photos/modular-car-container/first-03-teal-prototype.webp",
+    "/photos/modular-car-container/measure-01-sketch.webp",
+    "/photos/modular-car-container/solution-01-in-the-car.webp"
+  ],
   "skeleton-barrel": [
     "/photos/skeleton-barrel/1-skeleton-barrel.webp",
     "/photos/skeleton-barrel/2-skeleton-barrel-card.webp"

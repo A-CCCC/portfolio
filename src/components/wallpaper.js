@@ -97,10 +97,9 @@ const THIRD = [
 
 // Each pattern: its shapes, turned about (the second and fourth are the
 // first and third in a mirror, the middle of the page staying where it is),
-// what each colour becomes in it, and the band behind the title — which way
-// it leans (tilt, +1 rising to the right), and which side of its edge it lies
-// and where on the title the edge falls (at, from the title's top to its
-// foot).
+// what each colour becomes in it, and which way the band behind the title
+// leans (tilt, +1 rising to the right). The band lies round the whole title
+// on a page opened afresh (heroPath).
 // How the colours are given out. In both themes the colours fall into a few
 // families — on the light page yellows and oranges, on the dark bright blues,
 // deep blues and teals — and two shapes that overlap are always given
@@ -113,13 +112,13 @@ const SAME = (c) => c
 const TRADE = { gold: 'cream', cream: 'gold', peach: 'apricot', apricot: 'peach', amber: 'honey', honey: 'amber', coral: 'coral' }
 const PATTERNS = [
   { shapes: FIRST, mirror: false, colour: SAME,
-    hero: { tilt: -1, at: 0.18, side: 'below' } },
+    hero: { tilt: -1 } },
   { shapes: FIRST, mirror: true, colour: (c) => TRADE[c],
-    hero: { tilt: 1, at: 0.2, side: 'below' } },
+    hero: { tilt: 1 } },
   { shapes: THIRD, mirror: false, colour: SAME,
-    hero: { tilt: 1, at: 0.84, side: 'above' } },
+    hero: { tilt: 1 } },
   { shapes: THIRD, mirror: true, colour: (c) => TRADE[c],
-    hero: { tilt: -1, at: 0.16, side: 'below' } },
+    hero: { tilt: -1 } },
 ]
 
 const fmt = (p) => p.map((v) => v.toFixed(1)).join(' ')
@@ -164,8 +163,16 @@ let bands = []
 // laid across each title in pixels
 function heroPath(hero, band, unit, fs, x0, x1) {
   const lean = (40 * unit * hero.tilt) / 0.866
-  const T = Math.max(190, fs * 1.1 * 2.8) * unit * (hero.side === 'above' ? -1 : 1)
-  const at = (x) => band.y - lean * Math.sin((2 * Math.PI * (x - band.c)) / WIDE)
+  // The whole title inside it, with room round it: how far the band's wave
+  // rises and falls across the title's width, and a margin past that, is
+  // the least it may clear the title by above and below; its foot may come
+  // in by 6% of its breadth where its own wave does
+  const swing = Math.abs(lean) * Math.sin(Math.min(Math.PI / 2, (2 * Math.PI * (band.w / 2)) / WIDE))
+  const margin = swing + 26 * unit
+  const T = Math.max(190 * unit, fs * 1.1 * 2.8 * unit, (band.h + 2 * margin) / 0.94)
+  const slack = T * 0.94 - band.h - 2 * margin
+  const top0 = band.y - band.h / 2 - margin - slack / 2
+  const at = (x) => top0 - lean * Math.sin((2 * Math.PI * (x - band.c)) / WIDE)
   const top = [], foot = []
   for (let x = Math.floor(x0 / 50) * 50 - 100; x <= x1 + 100; x += 50) {
     top.push([x, at(x)])
@@ -282,8 +289,11 @@ function ownBand(host) {
   if (!h1) return null
   const hr = host.getBoundingClientRect(), r = h1.getBoundingClientRect()
   return {
-    y: host.__offY + (r.top - hr.top + r.height * host.__pattern.hero.at) * host.__unit,
-    c: host.__x + host.offsetWidth * host.__unit / 2,
+    // the title's middle, height and width, on the pattern
+    y: host.__offY + (r.top - hr.top + r.height / 2) * host.__unit,
+    h: r.height * host.__unit,
+    w: r.width * host.__unit,
+    c: host.__x + (r.left - hr.left + r.width / 2) * host.__unit,
   }
 }
 

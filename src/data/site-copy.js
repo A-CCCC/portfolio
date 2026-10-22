@@ -30,6 +30,7 @@ const published = {
   'wheelchair-storage': 'A custom container to bring daily materials within reach.',
   'smart-kinesiology-tape': 'Disposable tape to track joint movement and hydration for recovery.',
   'backup-camera-wiper': 'A remote-controlled wiper to keep a backup camera clear in the rain.',
+  'modular-car-container': 'A modular container to make an awkward car compartment usable.',
   // Shown on the home page, so they have to be here rather than in the private copy
   'darth-vader': 'A wearable cardboard Darth Vader helmet, built from scratch for Halloween.',
   lightsaber: 'A working lightsaber, hopefully built in time for Halloween.',

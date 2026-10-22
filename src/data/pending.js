@@ -5,7 +5,6 @@
 // its page is finished — the page itself is the source of truth; this is the
 // navbar's copy of it, since a menu cannot ask a page it has not opened.
 export const PENDING = new Set([
-  '/solutions/convenience/modular-car-container',
   '/solutions/convenience/sunglasses-holder',
   '/solutions/convenience/car-key-holder',
   '/solutions/convenience/ketchup-extruder',
