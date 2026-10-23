@@ -49,21 +49,21 @@ export default {
     "/photos/smart-kinesiology-tape/testing-1.webp"
   ],
   "wheelchair-storage": [
-    "/photos/wheelchair-storage/canvas-bag-testing.jpeg",
-    "/photos/wheelchair-storage/canvas-bag.jpeg",
-    "/photos/wheelchair-storage/final-container.jpeg",
-    "/photos/wheelchair-storage/final-prototype.jpeg",
-    "/photos/wheelchair-storage/prototype-1.jpeg",
-    "/photos/wheelchair-storage/prototype-2.jpeg",
-    "/photos/wheelchair-storage/prototype-3.jpeg",
-    "/photos/wheelchair-storage/prototype-4.jpeg",
-    "/photos/wheelchair-storage/prototype-5.jpeg",
-    "/photos/wheelchair-storage/prototype-6.jpeg",
-    "/photos/wheelchair-storage/prototype-7.jpeg",
-    "/photos/wheelchair-storage/prototype-sketch.jpeg",
-    "/photos/wheelchair-storage/tpu-clip.jpeg",
-    "/photos/wheelchair-storage/under-chair-1.jpeg",
-    "/photos/wheelchair-storage/under-chair-2.jpeg"
+    "/photos/wheelchair-storage/canvas-bag-testing.webp",
+    "/photos/wheelchair-storage/canvas-bag.webp",
+    "/photos/wheelchair-storage/final-container.webp",
+    "/photos/wheelchair-storage/final-prototype.webp",
+    "/photos/wheelchair-storage/prototype-1.webp",
+    "/photos/wheelchair-storage/prototype-2.webp",
+    "/photos/wheelchair-storage/prototype-3.webp",
+    "/photos/wheelchair-storage/prototype-4.webp",
+    "/photos/wheelchair-storage/prototype-5.webp",
+    "/photos/wheelchair-storage/prototype-6.webp",
+    "/photos/wheelchair-storage/prototype-7.webp",
+    "/photos/wheelchair-storage/prototype-sketch.webp",
+    "/photos/wheelchair-storage/tpu-clip.webp",
+    "/photos/wheelchair-storage/under-chair-1.webp",
+    "/photos/wheelchair-storage/under-chair-2.webp"
   ]
 }
 

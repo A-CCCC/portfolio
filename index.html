@@ -31,13 +31,27 @@
          inward at the edges and blurred, which is how Apple's glass takes
          what is beneath it. Only Chromium can put an SVG filter behind a
          surface; the entry script marks the document when it can, and other
-         browsers keep the plain blur. -->
+         browsers keep the plain blur.
+         The bend's map is sized to the element in pixels, by
+         components/lens-fit.js, which gives each size of surface a copy of
+         the filter: Chromium lays the map from the element's corner but
+         reads a width of 100% as the window's, so a card's glass showed the
+         page shifted, and changed when a menu opened. (Left to fill the
+         element's box on its own, with no x, y, width or height, the map was
+         right but drawn again for every surface on every frame, and
+         scrolling fell to a few frames a second.) The map is a strip of
+         64 pixels, a PNG, stretched: Chromium drew an SVG map afresh at its
+         full size on every frame, which on a panel or a window-sized surface
+         was most of the frame; a picture is only scaled. And it eases off
+         inward rather than stopping dead a fifth of the way in, where a
+         straight ramp kinked whatever edge was seen through it into points
+         and a diamond at the corners. -->
     <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
       <filter id="lg-lens" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="mx"
-          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23000'/%3E%3Cstop offset='.2' stop-color='%23800000'/%3E%3Cstop offset='.8' stop-color='%23800000'/%3E%3Cstop offset='1' stop-color='%23ff0000'/%3E%3C/linearGradient%3E%3Crect width='10' height='10' fill='url(%23g)'/%3E%3C/svg%3E"/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAABCAIAAADhDz9AAAAAN0lEQVR42rXONwGAMAAAsHTT7d8tFxKIgoSHy2GzmAw6jUalkElEAsHvApFEplC/TGcwWWwOlxdhUgD5tLpmewAAAABJRU5ErkJggg=="/>
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="my"
-          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23000'/%3E%3Cstop offset='.2' stop-color='%23008000'/%3E%3Cstop offset='.8' stop-color='%23008000'/%3E%3Cstop offset='1' stop-color='%2300ff00'/%3E%3C/linearGradient%3E%3Crect width='10' height='10' fill='url(%23g)'/%3E%3C/svg%3E"/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAARElEQVR42sXPtwGAQBAEMbHwuMf0XykpyVEDweQaVnGLS5ziEF3sYhNLNYsmJjGKiKHyc0N5xvK18n72rX56/Z3iwuMFv5oCXKHoviIAAAAASUVORK5CYII="/>
         <feBlend in="mx" in2="my" mode="screen" result="map"/>
         <!-- The page under the menu bent in hard at its edges, as thick glass
              bends what is seen through its rim, and its colours parted a
@@ -57,9 +71,9 @@
       <!-- The same lens, small, for the pills of glass a hovered link sits on -->
       <filter id="lg-lens-sm" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="mx"
-          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23000'/%3E%3Cstop offset='.2' stop-color='%23800000'/%3E%3Cstop offset='.8' stop-color='%23800000'/%3E%3Cstop offset='1' stop-color='%23ff0000'/%3E%3C/linearGradient%3E%3Crect width='10' height='10' fill='url(%23g)'/%3E%3C/svg%3E"/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAABCAIAAADhDz9AAAAAN0lEQVR42rXONwGAMAAAsHTT7d8tFxKIgoSHy2GzmAw6jUalkElEAsHvApFEplC/TGcwWWwOlxdhUgD5tLpmewAAAABJRU5ErkJggg=="/>
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="my"
-          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23000'/%3E%3Cstop offset='.2' stop-color='%23008000'/%3E%3Cstop offset='.8' stop-color='%23008000'/%3E%3Cstop offset='1' stop-color='%2300ff00'/%3E%3C/linearGradient%3E%3Crect width='10' height='10' fill='url(%23g)'/%3E%3C/svg%3E"/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAARElEQVR42sXPtwGAQBAEMbHwuMf0XykpyVEDweQaVnGLS5ziEF3sYhNLNYsmJjGKiKHyc0N5xvK18n72rX56/Z3iwuMFv5oCXKHoviIAAAAASUVORK5CYII="/>
         <feBlend in="mx" in2="my" mode="screen" result="map"/>
         <feDisplacementMap in="SourceGraphic" in2="map" scale="18" xChannelSelector="R" yChannelSelector="G" result="bent"/>
         <feGaussianBlur in="bent" stdDeviation="1"/>

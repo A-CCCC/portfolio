@@ -28,8 +28,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   </React.StrictMode>,
 )
 
-// Once this page has finished loading, fetch the frames for the scrubbed
-// animations in the background, so those pages play rather than buffer.
+// Once this page has finished loading, fetch the openings of the scrubbed
+// animations in the background, and a page's frames further ahead when a link
+// to it is pointed at, so those pages play rather than buffer.
 warmFramesWhenIdle()
 
 // Everything in glass is lit from one point fixed to the window; as the
@@ -52,4 +53,6 @@ import('./components/glass-titles').then((m) => m.startGlassTitles()).catch(() =
 // iOS is WebKit underneath and says CriOS instead, which is right.
 if (/Chrome\//.test(navigator.userAgent)) {
   document.documentElement.setAttribute('data-lens', '')
+  // each surface given the lens at its own size (see components/lens-fit.js)
+  import('./components/lens-fit').then((m) => m.fitLenses()).catch(() => {})
 }

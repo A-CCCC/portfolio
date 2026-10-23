@@ -2259,14 +2259,14 @@ canvas {
   --glint-size: 90% 70%;
 }
 [data-lens] .nav-lit {
-  -webkit-backdrop-filter: url(#lg-lens-sm) saturate(1.6) brightness(1.05);
-  backdrop-filter: url(#lg-lens-sm) saturate(1.6) brightness(1.05);
+  -webkit-backdrop-filter: var(--lens-sm, url(#lg-lens-sm)) saturate(1.6) brightness(1.05);
+  backdrop-filter: var(--lens-sm, url(#lg-lens-sm)) saturate(1.6) brightness(1.05);
 }
 [data-lens] .nav-menu,
 [data-lens] .nav-sheet,
 [data-lens] .glass.nav-glass {
-  -webkit-backdrop-filter: url(#lg-lens) saturate(1.7) brightness(1.04);
-  backdrop-filter: url(#lg-lens) saturate(1.7) brightness(1.04);
+  -webkit-backdrop-filter: var(--lens, url(#lg-lens)) saturate(1.7) brightness(1.04);
+  backdrop-filter: var(--lens, url(#lg-lens)) saturate(1.7) brightness(1.04);
 }
 .nav-sheet {
   /* From the top of the screen rather than from the underside of the bar, so
@@ -3031,8 +3031,8 @@ html.vt-grow::view-transition-new(root) {
 }
 [data-lens] .glass.about-panel,
 [data-lens] .glass.text-panel {
-  -webkit-backdrop-filter: url(#lg-lens) blur(6px) saturate(1.6) brightness(1.04);
-  backdrop-filter: url(#lg-lens) blur(6px) saturate(1.6) brightness(1.04);
+  -webkit-backdrop-filter: var(--lens, url(#lg-lens)) blur(6px) saturate(1.6) brightness(1.04);
+  backdrop-filter: var(--lens, url(#lg-lens)) blur(6px) saturate(1.6) brightness(1.04);
 }
 @media (max-width: 700px) {
   .glass.about-panel { padding: 24px 20px; border-radius: 22px; gap: 24px !important; }
