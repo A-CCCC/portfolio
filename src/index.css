@@ -794,9 +794,23 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; line
 
 /* A title the WebGL glass draws (glass-titles.js): its CSS glass stands
    down — the letters' cloth and gloss are hidden, the shadow they cast
-   stays — and the lens draws the letters over it. */
-.lg-gl-text::after,
-.lg-gl-text::before { visibility: hidden; }
+   stays — and the lens draws the letters over it. Only once the lens has
+   drawn them (.lg-drawn, liquid-glass.js): until then the CSS glass is the
+   title, rather than nothing but its shadow. */
+.lg-gl-text.lg-drawn::after,
+.lg-gl-text.lg-drawn::before { visibility: hidden; }
+/* — and a title on the wallpaper, until then, in letters of the clear
+   glass's own milky colour: its CSS glass is its letters' filter
+   (#lg-letters), which Safari does not draw, so there the title was not
+   there at all for the moment its glass took (most of a page's slide, once) */
+.home-backdrop .glass-title.lg-gl-text:not(.lg-drawn) { color: rgba(255, 251, 246, 0.8); }
+.home-backdrop .glass-title.lg-gl-text:not(.lg-drawn)::after,
+.home-backdrop .glass-title.lg-gl-text:not(.lg-drawn)::before { visibility: hidden; }
+:root[data-theme='dark'] .home-backdrop .glass-title.lg-gl-text:not(.lg-drawn) { color: rgba(196, 206, 255, 0.62); }
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] .home-backdrop .glass-title.lg-gl-text:not(.lg-drawn),
+  :root:not([data-theme]) .home-backdrop .glass-title.lg-gl-text:not(.lg-drawn) { color: rgba(196, 206, 255, 0.62); }
+}
 /* and for clear glass letters, gone outright — filter and all: hidden, the
    copy still carried its letters' glass filter (#lg-letters), which some
    renderers still drew in part, as a faint box behind every letter */
@@ -2666,6 +2680,26 @@ html.theme-snap *::after {
 ::view-transition-new(root) {
   animation-duration: 0.6s;
   animation-timing-function: ease-in-out;
+}
+/* The theme's fade the other way up: the new theme held still underneath,
+   the old laid over it and fading out. The browser's own fade has both
+   moving, the new one fading in — and Safari showed the new one whole for
+   a frame before its fade took hold, so the screen flashed to the new theme
+   and back before the fade began. This way a fade that starts a frame late
+   only shows the old theme a frame longer. */
+html.theme-snap::view-transition-new(root) {
+  animation: none;
+  opacity: 1;
+  mix-blend-mode: normal;
+}
+html.theme-snap::view-transition-old(root) {
+  z-index: 1;
+  mix-blend-mode: normal;
+  animation: theme-old-out 0.6s ease-in-out both;
+}
+@keyframes theme-old-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 /* THE PHOTO STRIP — a section's photographs on a phone (PhotoStory.jsx).

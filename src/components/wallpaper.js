@@ -211,6 +211,13 @@ const rowAt = (host, y) => host.__offY + (y - heldAbove(host.__holds || [], y)) 
 // The pattern behind a window onto it — x, y, w, h in pattern units — in a
 // palette: the ground, then each shape in turn, as many times over as it
 // takes to fill the window both ways
+// The soft shadow each shape once cast on the ground (an feDropShadow). Off:
+// Safari draws an SVG's filters on the page's own thread as it paints, and a
+// page-tall wallpaper of shadowed shapes took a quarter to two thirds of a
+// second to paint — the moment a page arrived, in the middle of its slide —
+// so the switches stuck and skipped. True puts them back.
+const SHADOWS = false
+
 function scene(host, palette, x, y, w, h) {
   const pat = host.__pattern
   // the window as the unmirrored shapes see it
@@ -236,12 +243,12 @@ function scene(host, palette, x, y, w, h) {
     } else {
       defs += `<linearGradient id='g${k}' x1='${x1}' y1='${y1}' x2='${x2}' y2='${y2}'><stop offset='0' stop-color='${c0}'/><stop offset='1' stop-color='${c1}'/></linearGradient>`
     }
-    defs += `<filter id='s${k}' x='-20%' y='-20%' width='140%' height='150%'><feDropShadow dx='0' dy='${2 + (k % 2)}' stdDeviation='${4 + (k % 3)}' flood-color='${palette.shadows[k % palette.shadows.length]}' flood-opacity='${palette.shadowA}'/></filter>`
+    if (SHADOWS) defs += `<filter id='s${k}' x='-20%' y='-20%' width='140%' height='150%'><feDropShadow dx='0' dy='${2 + (k % 2)}' stdDeviation='${4 + (k % 3)}' flood-color='${palette.shadows[k % palette.shadows.length]}' flood-opacity='${palette.shadowA}'/></filter>`
     const lay = (id, d, across, turn) => {
       defs += `<path id='${id}' d='${d}'/>`
       for (let r = r0; r <= r1; r += 1) {
         for (const dx of across) {
-          body += `<use href='#${id}'${turn} x='${dx}' y='${r * DEEP}' fill='url(#g${k})' filter='url(#s${k})'/>`
+          body += `<use href='#${id}'${turn} x='${dx}' y='${r * DEEP}' fill='url(#g${k})'${SHADOWS ? ` filter='url(#s${k})'` : ''}/>`
         }
       }
     }

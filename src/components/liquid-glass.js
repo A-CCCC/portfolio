@@ -1029,13 +1029,17 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         s.silkAt = s.silkWas === fresh || missed || document.documentElement.classList.contains('theme-snap') ? -1e9 : now
       }
       const fromUrl = s.silkNow
-      if (s.silk && !fromUrl) return false          // nothing loaded yet: the CSS glass shows
-      gl.uniform1f(U.seeThrough, 0)
       // Letters on a page with a wallpaper: the wallpaper behind them, seen
       // through them — a sharp drawing of the part of it behind the title
       // (wallRegion), bent at the edges of every stroke as the glass bends
       // it — rather than a cloth of their own. Until it is drawn, the cloth.
       const behind = s.wallBehind && s.wallBehind(el)
+      // (letters seeing through do not wait for their cloth, which they show
+      // only as the theme turns: waiting, the wallpaper's drawing was not
+      // even asked for until the cloth had loaded, and a page's title
+      // arrived the better part of a second after the page)
+      if (s.silk && !fromUrl && !behind) return false          // nothing loaded yet: the CSS glass shows
+      gl.uniform1f(U.seeThrough, 0)
       if (behind) {
         const hr = behind.host.getBoundingClientRect()
         const M = 40                                   // a margin round it, for the bend to reach into
@@ -1066,7 +1070,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         // nothing yet at all (a title just arrived): drawn a moment later,
         // not in the cloth's colours meanwhile
         if (!bt) return false
-        if (bt && fromUrl) {
+        if (bt) {
           gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, bt.tex)
           // and the glass's own colour, its cloth, to tint what comes through
           gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, (fromUrl || bt).tex)
@@ -1235,7 +1239,15 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       const ctx = into.getContext('2d')
       ctx.clearRect(0, 0, cw, ch)
       s.draws = (s.draws || 0) + 1
-      if (draw(s)) { ctx.drawImage(canvas, 0, 0, cw, ch, 0, 0, cw, ch); s.drawn = key } else s.drawn = null
+      if (draw(s)) {
+        ctx.drawImage(canvas, 0, 0, cw, ch, 0, 0, cw, ch); s.drawn = key
+        // drawn at last: the CSS glass it stood in for can stand down now
+        // (index.css, .lg-drawn), not before — a title marked as WebGL glass
+        // the moment it was taken up hid its CSS letters at once, and until
+        // its own were laid out (most of a page's slide, in Safari) all that
+        // showed of it was their dark shadow
+        if (!s.shown) { s.shown = true; s.el.classList.add('lg-drawn') }
+      } else s.drawn = null
     }
     gl.disable(gl.SCISSOR_TEST)
     requestAnimationFrame(frame)
