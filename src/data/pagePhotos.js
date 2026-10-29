@@ -91,7 +91,8 @@ export const stages = {
       "slug": "04-hilt",
       "title": "Hilt",
       "photos": [
-        "/photos/lightsaber/04-hilt/01-printed-hilt.webp"
+        "/photos/lightsaber/04-hilt/01-printed-hilt.webp",
+        "/photos/lightsaber/04-hilt/02-printed-hilt-rollers.webp"
       ],
       "note": ""
     }

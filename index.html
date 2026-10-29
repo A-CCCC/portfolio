@@ -68,12 +68,39 @@
         <feBlend in="rg" in2="b" mode="screen" result="bent"/>
         <feGaussianBlur in="bent" stdDeviation="2.4"/>
       </filter>
-      <!-- The same lens, small, for the pills of glass a hovered link sits on -->
+      <!-- The menus' own: the same lens, and the page under them magnified
+           across the whole of them as well, as a thick lens does, rather
+           than seen at its own size with only the rims bent — the map
+           runs from one side to the other as well as easing in at the
+           edges. (The cards keep the lens above.) -->
+      <filter id="lg-lens-menu" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="mx"
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAABCAIAAADhDz9AAAAAPElEQVR42p3OyQmAMAAAwcl9kNRl/w0ZXxagsN+BDRebxWQy6DQqhUwiEsDh/tg/gkAkkSlUGp3xri42D4HlI7q4F3Y4AAAAAElFTkSuQmCC"/>
+        <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="my"
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAARklEQVR42q3PsRGCABTA0GdERA/mcv+FxOY7gRZpcwkvOWSX5/CQTe6yyk0WuUpyEXLK+0f+5TBdTecy3et8bPP1fdzl8AH5DyQ3LG5C+QAAAABJRU5ErkJggg=="/>
+        <feBlend in="mx" in2="my" mode="screen" result="map"/>
+        <!-- The page under the menu bent in hard at its edges, as thick glass
+             bends what is seen through its rim, and its colours parted a
+             little there — red bent least, blue most — as glass parts light;
+             clear through the middle, and only a breath of blur, so what is
+             under it is still there to be read -->
+        <feDisplacementMap in="SourceGraphic" in2="map" scale="60" xChannelSelector="R" yChannelSelector="G" result="dr"/>
+        <feDisplacementMap in="SourceGraphic" in2="map" scale="62" xChannelSelector="R" yChannelSelector="G" result="dg"/>
+        <feDisplacementMap in="SourceGraphic" in2="map" scale="64" xChannelSelector="R" yChannelSelector="G" result="db"/>
+        <feColorMatrix in="dr" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>
+        <feColorMatrix in="dg" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>
+        <feColorMatrix in="db" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>
+        <feBlend in="r" in2="g" mode="screen" result="rg"/>
+        <feBlend in="rg" in2="b" mode="screen" result="bent"/>
+        <feGaussianBlur in="bent" stdDeviation="2.4"/>
+      </filter>
+      <!-- The same lens, small, for the pills of glass a hovered link sits on,
+           magnifying across the whole of them as the menus' does -->
       <filter id="lg-lens-sm" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="mx"
-          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAABCAIAAADhDz9AAAAAN0lEQVR42rXONwGAMAAAsHTT7d8tFxKIgoSHy2GzmAw6jUalkElEAsHvApFEplC/TGcwWWwOlxdhUgD5tLpmewAAAABJRU5ErkJggg=="/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAABCAIAAADhDz9AAAAAPElEQVR42p3OyQmAMAAAwcl9kNRl/w0ZXxagsN+BDRebxWQy6DQqhUwiEsDh/tg/gkAkkSlUGp3xri42D4HlI7q4F3Y4AAAAAElFTkSuQmCC"/>
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="my"
-          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAARElEQVR42sXPtwGAQBAEMbHwuMf0XykpyVEDweQaVnGLS5ziEF3sYhNLNYsmJjGKiKHyc0N5xvK18n72rX56/Z3iwuMFv5oCXKHoviIAAAAASUVORK5CYII="/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAARklEQVR42q3PsRGCABTA0GdERA/mcv+FxOY7gRZpcwkvOWSX5/CQTe6yyk0WuUpyEXLK+0f+5TBdTecy3et8bPP1fdzl8AH5DyQ3LG5C+QAAAABJRU5ErkJggg=="/>
         <feBlend in="mx" in2="my" mode="screen" result="map"/>
         <feDisplacementMap in="SourceGraphic" in2="map" scale="18" xChannelSelector="R" yChannelSelector="G" result="bent"/>
         <feGaussianBlur in="bent" stdDeviation="1"/>

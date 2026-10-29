@@ -16,7 +16,8 @@
 // The surfaces and the filter each looks through, with the custom property
 // the stylesheet reads it from (index.css: var(--lens, url(#lg-lens)))
 const KINDS = [
-  { base: 'lg-lens', prop: '--lens', match: '.nav-menu, .nav-sheet, .glass.nav-glass, .glass.about-panel, .glass.text-panel' },
+  { base: 'lg-lens-menu', prop: '--lens', match: '.nav-menu, .nav-sheet' },
+  { base: 'lg-lens', prop: '--lens', match: '.glass.nav-glass, .glass.about-panel, .glass.text-panel' },
   { base: 'lg-lens-sm', prop: '--lens-sm', match: '.nav-lit' },
 ]
 const ALL = KINDS.map((k) => k.match).join(', ')
