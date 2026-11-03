@@ -2816,6 +2816,17 @@ html.vt-grow::view-transition-new(root) {
 html.vt-grow::view-transition-new(root) {
   clip-path: var(--grow-from, none);
 }
+/* A bubble's page opening out of it (ProjectBubbles.jsx, openOutOf): the
+   same, from a circle the size of the bubble's glow, the page dived into
+   held still round it */
+html.vt-bubble::view-transition-old(root),
+html.vt-bubble::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html.vt-bubble::view-transition-new(root) {
+  clip-path: var(--grow-from, none);
+}
 .page-grow-tint {
   position: fixed;
   inset: 0;

@@ -54,6 +54,10 @@ export default function PageIntro({
           opacity: introOpacity,
           transition: 'opacity 1.5s ease',
         }}>
+          {/* One run of words inside the pill: the pill is a flex box, which
+              made the description and the note two items side by side —
+              the space between them dropped, and on a wrap, two columns */}
+          <span>
           {description}
           {pending && (
             <>
@@ -71,6 +75,7 @@ export default function PageIntro({
               <span style={{ color: 'var(--text-muted)' }}>{notice}</span>
             </>
           )}
+          </span>
         </p>
       )}
 

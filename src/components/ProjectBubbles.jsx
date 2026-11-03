@@ -208,6 +208,38 @@ const DIVE_SCALE = 3.4
 // scales the page, not them), in perspective about the bubble, and carried
 // to the middle of the screen with it as the dive brings it there.
 const SHARD_COUNT = 14
+// The page the bubble leads to, opening out of it: where the browser has
+// page transitions of its own, the new page is shown inside a circle the
+// size the bubble was — in the middle of the screen, where the dive brought
+// the bubble — and the circle widens until it is the whole screen,
+// the page dived into still round it. Without them, the page is simply put
+// in under the glow, as before.
+const OPEN_MS = 720
+function openOutOf(r0, go) {
+  const html = document.documentElement
+  if (!document.startViewTransition) { go(); return }
+  const vw = window.innerWidth, vh = window.innerHeight
+  const at = `at ${(vw / 2).toFixed(0)}px ${(vh / 2).toFixed(0)}px`
+  // the first frame cut by the stylesheet, before the animation has it
+  html.style.setProperty('--grow-from', `circle(${r0.toFixed(0)}px ${at})`)
+  html.classList.add('vt-bubble')
+  const root = document.getElementById('root')
+  const turn = document.startViewTransition(() => new Promise((done) => {
+    // the picture of the new page taken once it is in (or anyway, shortly)
+    const mo = new MutationObserver(() => { mo.disconnect(); done() })
+    mo.observe(root, { childList: true })
+    setTimeout(() => { mo.disconnect(); done() }, 1200)
+    go()
+  }))
+  turn.ready.then(() => {
+    html.animate([
+      { clipPath: `circle(${r0.toFixed(0)}px ${at})` },
+      { clipPath: `circle(${Math.hypot(vw, vh).toFixed(0)}px ${at})` },
+    ], { duration: OPEN_MS, easing: 'cubic-bezier(0.3, 0.6, 0.25, 1)', fill: 'forwards', pseudoElement: '::view-transition-new(root)' })
+  }).catch(() => {})
+  turn.finished.finally(() => { html.classList.remove('vt-bubble'); html.style.removeProperty('--grow-from') })
+}
+
 function flyThrough(cx, cy, radius, hue) {
   const vw = window.innerWidth, vh = window.innerHeight
   const box = document.createElement('div')
@@ -471,6 +503,7 @@ export default function ProjectBubbles() {
     for (const b of document.querySelectorAll('.bubble')) b.getAnimations().forEach((a) => { if (a.effect?.getKeyframes()[0]?.transform || a.effect?.getKeyframes()[0]?.scale) a.pause() })
     setSwelling(path)
     let bloomR = 0
+    let startR = 0
     setTimeout(() => {
       setPopping(path)
       // The page dives into the bubble: the page's own root element (the
@@ -483,6 +516,8 @@ export default function ProjectBubbles() {
       const cy = r.top + r.height / 2
       // .bubble-bloom: 1.8 of the swollen bubble across, then the dive's 3.4
       bloomR = (r.width / 2) * BLOOM * DIVE_SCALE
+      // and the new page opens from the bubble's own size, in the middle of it
+      startR = r.width / 2
       page.style.setProperty('--dive-x', `${cx - pr.left}px`)
       page.style.setProperty('--dive-y', `${cy - pr.top}px`)
       // and slides so the bubble ends up in the middle of the screen, so
@@ -497,16 +532,18 @@ export default function ProjectBubbles() {
       document.documentElement.classList.remove('diving')
       // The colour stays over the new page for a moment and clears, so the
       // page arrives out of the bubble's colour rather than cutting from it.
-      const after = document.createElement('div')
-      after.className = 'bubble-veil-out'
-      after.style.setProperty('--pop-hue', hue)
-      // the glow as big as the dive has made it, in the middle of the
-      // screen where the dive brought the bubble, so the new page arrives
-      // under the same spot of colour and not a wash over the whole of it
-      after.style.setProperty('--bloom-r', `${bloomR}px`)
-      document.body.appendChild(after)
-      setTimeout(() => after.remove(), 650)
-      navigate(path)
+      const veil = () => {
+        const after = document.createElement('div')
+        after.className = 'bubble-veil-out'
+        after.style.setProperty('--pop-hue', hue)
+        // the glow as big as the dive has made it, in the middle of the
+        // screen where the dive brought the bubble, so the new page arrives
+        // under the same spot of colour and not a wash over the whole of it
+        after.style.setProperty('--bloom-r', `${bloomR}px`)
+        document.body.appendChild(after)
+        setTimeout(() => after.remove(), OPEN_MS + 100)
+      }
+      openOutOf(startR, () => { veil(); navigate(path) })
     }, SWELL_MS + DIVE_MS)
   }
 

@@ -157,6 +157,9 @@ export default function WheelchairStorage() {
           fontSize: TYPE.pageTitle,
           fontWeight: 'bold',
           letterSpacing: '0.01em',
+          // centred as every other page's title is: on a phone it wraps, and
+          // its two lines sat against the left
+          textAlign: 'center',
           marginBottom: TITLE_GAP,
           opacity: titleOpacity,
           transition: 'opacity 1.5s ease',
