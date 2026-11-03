@@ -6,25 +6,18 @@
 // way in, and are not worth it again every time someone comes back for another
 // go. Remembered for the tab rather than for ever, so it is there again
 // tomorrow for whoever liked it.
+//
+// When the bar is full, the page opens out of it (loading-joke.js).
 import { useState } from 'react'
 import LoadingScreen from './LoadingScreen'
-
-const REMEMBERS = 'games-loading-seen'
-
-const seenAlready = () => {
-  try {
-    return sessionStorage.getItem(REMEMBERS) === 'yes'
-  } catch {
-    return false      // a private window throws; the joke is not worth a crash
-  }
-}
+import { seenAlready, markLoadingSeen, openOutOfBar } from './loading-joke'
 
 export default function Loads({ children }) {
   const [waiting, setWaiting] = useState(() => !seenAlready())
 
   const finish = () => {
-    try { sessionStorage.setItem(REMEMBERS, 'yes') } catch { /* fine */ }
-    setWaiting(false)
+    markLoadingSeen()
+    openOutOfBar(() => setWaiting(false))
   }
 
   if (waiting) return <LoadingScreen onDone={finish} />

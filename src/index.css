@@ -984,7 +984,7 @@ h1.glass-title { width: fit-content; margin-left: auto; margin-right: auto; line
    than staying whole to the last frame and then being gone: held through
    the first half of the dive (DIVE_MS), clear by its end */
 .bubble-popping img {
-  animation: pop-model-fade 0.58s cubic-bezier(0.4, 0, 0.7, 0.4) both;
+  animation: pop-model-fade 0.7s cubic-bezier(0.4, 0, 0.7, 0.4) both;
 }
 @keyframes pop-model-fade {
   0%, 40% { opacity: 1; }
@@ -1049,7 +1049,9 @@ html.diving #root { overflow: clip; }
 
 .page-diving {
   transform-origin: var(--dive-x) var(--dive-y);
-  animation: page-dive 0.58s cubic-bezier(0.55, 0, 0.8, 0.4) forwards;
+  /* gathering speed, then slowing as it arrives — the new page opens out of
+     a dive that has come to rest, not one cut off at full tilt */
+  animation: page-dive 0.7s cubic-bezier(0.6, 0, 0.2, 1) forwards;
   will-change: transform;
 }
 @keyframes page-dive {
@@ -1074,7 +1076,7 @@ html.diving #root { overflow: clip; }
     transparent);
   /* the length of the dive (DIVE_MS): a spike at the burst, then easing
      away all the while the page dives in */
-  animation: bubble-bloom 0.58s linear both;
+  animation: bubble-bloom 0.7s linear both;
   pointer-events: none;
 }
 @keyframes bubble-bloom {

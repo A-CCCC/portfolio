@@ -194,7 +194,7 @@ const ALWAYS_PATHS = ['/solutions/convenience/backup-camera-wiper']
 // The pop, in two beats: the bubble swells, then bursts — and from the
 // burst the page dives into where it was, until the page is the project's.
 const SWELL_MS = 150
-const DIVE_MS = 580
+const DIVE_MS = 700
 // How far the burst's glow reaches, as a share of the bubble's width, and
 // how far the dive enlarges the page — both kept in step with the CSS
 // (.bubble-bloom, @keyframes page-dive)
@@ -214,7 +214,7 @@ const SHARD_COUNT = 14
 // the bubble — and the circle widens until it is the whole screen,
 // the page dived into still round it. Without them, the page is simply put
 // in under the glow, as before.
-const OPEN_MS = 720
+const OPEN_MS = 820
 function openOutOf(r0, go) {
   const html = document.documentElement
   if (!document.startViewTransition) { go(); return }
@@ -234,8 +234,11 @@ function openOutOf(r0, go) {
   turn.ready.then(() => {
     html.animate([
       { clipPath: `circle(${r0.toFixed(0)}px ${at})` },
-      { clipPath: `circle(${Math.hypot(vw, vh).toFixed(0)}px ${at})` },
-    ], { duration: OPEN_MS, easing: 'cubic-bezier(0.3, 0.6, 0.25, 1)', fill: 'forwards', pseudoElement: '::view-transition-new(root)' })
+      // just to the corners: grown past them, the rest of its growth — and
+      // its slowing at the end — happened off the screen, and the page was
+      // all there in a third of the time
+      { clipPath: `circle(${(Math.hypot(vw, vh) / 2 + 2).toFixed(0)}px ${at})` },
+    ], { duration: OPEN_MS, easing: 'cubic-bezier(0.45, 0, 0.2, 1)', fill: 'forwards', pseudoElement: '::view-transition-new(root)' })
   }).catch(() => {})
   turn.finished.finally(() => { html.classList.remove('vt-bubble'); html.style.removeProperty('--grow-from') })
 }
@@ -281,7 +284,7 @@ function flyThrough(cx, cy, radius, hue) {
   box.animate([
     { transform: 'none' },
     { transform: `translate(${(vw / 2 - cx).toFixed(1)}px, ${(vh / 2 - cy).toFixed(1)}px)` },
-  ], { duration: DIVE_MS, easing: 'cubic-bezier(0.55, 0, 0.8, 0.4)', fill: 'forwards' })
+  ], { duration: DIVE_MS, easing: 'cubic-bezier(0.6, 0, 0.2, 1)', fill: 'forwards' })   // the dive's own (.page-diving)
   setTimeout(() => box.remove(), DIVE_MS + 200)
 }
 
