@@ -412,15 +412,14 @@ void main() {
     vec3 behind = col;
     float faceL = dot(outW, toLight);
     // the face
+    // as the lock screen's numbers are: the colour behind at full brightness,
+    // in its own hue, then paled — pale blue on blue, pale cyan on teal,
+    // pale peach on orange — rather than a grey or white haze over it, which
+    // took the colour out of the letters; a little of what is behind kept
+    // through it, so the face is frosted glass and not a flat fill
     vec3 own = col / max(max(col.r, max(col.g, col.b)), 0.02);
-    col = mix(col, own * 0.9, 0.34);
-    col = mix(col, white, 0.2 - 0.08 * dark);
-    // and on the light page a hazy white over that — milkier glass, so the
-    // letters stand out from the pale ground
-    col = mix(col, vec3(1.0, 0.995, 0.985), 0.55 * (1.0 - dark));
-    // and on the dark page a pale, cool haze, so the letters stand clear of a
-    // dark ground as the lock screen's numbers do
-    col = mix(col, vec3(0.86, 0.9, 1.0), 0.42 * dark);
+    vec3 bright = mix(own, white, 0.66 - 0.18 * dark);
+    col = mix(col, bright, 0.88);
     // The light on it, from the top left, as on clear glass: a highlight on
     // the edges turned to the light, and — the light passing through the
     // glass and catching the inside of the far edge — a fainter one on the
@@ -729,6 +728,15 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     const stretched = st !== 'normal' && !('fontStretch' in c)
     const glyphs = []
     c.fillStyle = '#fff'
+    // Clear glass letters fade out over the last pixel or two of their
+    // outline (the shader's edge), which on a heavy face thinned every stroke
+    // and set the letters apart: their shape is drawn that much bolder, a
+    // stroke round each glyph, so what shows is the page's own weight
+    const fatten = thin ? Math.max(0.6, parseFloat(cs.fontSize) * 0.012) : 0
+    c.strokeStyle = '#fff'
+    c.lineJoin = 'round'
+    c.lineWidth = fatten
+    const put = (ch, x, y) => { c.fillText(ch, x, y); if (fatten) c.strokeText(ch, x, y) }
     c.textBaseline = 'alphabetic'
     // Letter by letter, each where the page set it. A word drawn whole was
     // spaced by the canvas, which on a phone's browser ignores the title's
@@ -761,8 +769,8 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
             // cached picture of it, and left a faint film across its whole
             // box — through clear glass, a box round every letter)
             if (stretched) glyphs.push([ch, x, y])
-            else if (Math.abs(sx - 1) < 0.05) c.fillText(ch, x, y)
-            else { c.save(); c.translate(x, y); c.scale(sx, 1); c.fillText(ch, 0, 0); c.restore() }
+            else if (Math.abs(sx - 1) < 0.05) put(ch, x, y)
+            else { c.save(); c.translate(x, y); c.scale(sx, 1); put(ch, 0, 0); c.restore() }
           }
         }
         i = next

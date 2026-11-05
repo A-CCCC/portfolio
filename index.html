@@ -45,13 +45,21 @@
          was most of the frame; a picture is only scaled. And it eases off
          inward rather than stopping dead a fifth of the way in, where a
          straight ramp kinked whatever edge was seen through it into points
-         and a diamond at the corners. -->
+         and a diamond at the corners.
+         Every edge takes what is just inside it, never what is outside: the
+         page beyond a surface's edge is not there to be read, and Chromium
+         fills it with the surface's own edge mirrored, so a rim that reached
+         outward showed the wallpaper flipped back on itself. Taking from
+         inside stretches what is under the rim out to the edge, as the rim
+         of thick glass does. data-safe is the smallest surface the full bend
+         suits; on a smaller one lens-fit.js eases it off, since a bend
+         steeper than the surface is wide folds the picture over. -->
     <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-      <filter id="lg-lens" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <filter id="lg-lens" data-safe="275" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="mx"
-          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAABCAIAAADhDz9AAAAAN0lEQVR42rXONwGAMAAAsHTT7d8tFxKIgoSHy2GzmAw6jUalkElEAsHvApFEplC/TGcwWWwOlxdhUgD5tLpmewAAAABJRU5ErkJggg=="/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAABCAIAAADhDz9AAAAAXklEQVR42rXCIQ6CAAAAwIs8wAfQ6VaqlUgjkSwENjbnhDE2NwPFRLIRqVaqnc4DeACRV3g7OxsrCz9mvkyMfBh40/PiSUdLQ/2HD+7cqCgpuJKTkZJwIeZMRMiJgAM2YiABCzyb6AAAAABJRU5ErkJggg=="/>
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="my"
-          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAARElEQVR42sXPtwGAQBAEMbHwuMf0XykpyVEDweQaVnGLS5ziEF3sYhNLNYsmJjGKiKHyc0N5xvK18n72rX56/Z3iwuMFv5oCXKHoviIAAAAASUVORK5CYII="/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAAY0lEQVR42r3DIQ6CABQA0B85AAeg061WK5FGMlEIbmzOqWNsbgaLyWQzUq1Uu90DcAAj7xS87UX8I2Ly59ePo28HXz59ePfm1Yu9nWdPCz96cG/rzsbarZWlhRvXrszNTE1iBrMiIAHPpJqIAAAAAElFTkSuQmCC"/>
         <feBlend in="mx" in2="my" mode="screen" result="map"/>
         <!-- The page under the menu bent in hard at its edges, as thick glass
              bends what is seen through its rim, and its colours parted a
@@ -73,11 +81,11 @@
            than seen at its own size with only the rims bent — the map
            runs from one side to the other as well as easing in at the
            edges. (The cards keep the lens above.) -->
-      <filter id="lg-lens-menu" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <filter id="lg-lens-menu" data-safe="230" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="mx"
-          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAABCAIAAADhDz9AAAAAPElEQVR42p3OyQmAMAAAwcl9kNRl/w0ZXxagsN+BDRebxWQy6DQqhUwiEsDh/tg/gkAkkSlUGp3xri42D4HlI7q4F3Y4AAAAAElFTkSuQmCC"/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAABCAIAAADhDz9AAAAAfklEQVR42gXBIYwBAAAAwEuqLIqipmmSoiiCYLOZGcYwhmHM/xhmZrMJgqIokqZpoijKquTOlw9vXjx5cOfGlQtnThw5sGfHlg1rVixZMGfGP39MmTBmxJABfXp06dCmRZMGdWpUqVCmRJECeXJkyZAmRZIEcWJEiRAmRJAAP+Y5IAGxdWO7AAAAAElFTkSuQmCC"/>
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="my"
-          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAARklEQVR42q3PsRGCABTA0GdERA/mcv+FxOY7gRZpcwkvOWSX5/CQTe6yyk0WuUpyEXLK+0f+5TBdTecy3et8bPP1fdzl8AH5DyQ3LG5C+QAAAABJRU5ErkJggg=="/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAAh0lEQVR42g3DIYwBUAAA0J/Uy6IoXtM0SVEUQbDZbmbYGcaOYW7uxjAz222CoCiKpGmaKIqyesl72wvhP4Tw9OHdm1cvnj159ODenVs3/rl25dKFc2dOnfjrj2O/HTl0YN+eXb/s2LZl04Z1P61ZtWLZkh8WLZg3Z9aMaVMmTfhu3JhR34yEF52lIAFr3QfAAAAAAElFTkSuQmCC"/>
         <feBlend in="mx" in2="my" mode="screen" result="map"/>
         <!-- The page under the menu bent in hard at its edges, as thick glass
              bends what is seen through its rim, and its colours parted a
@@ -96,11 +104,11 @@
       </filter>
       <!-- The same lens, small, for the pills of glass a hovered link sits on,
            magnifying across the whole of them as the menus' does -->
-      <filter id="lg-lens-sm" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <filter id="lg-lens-sm" data-safe="65" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="mx"
-          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAABCAIAAADhDz9AAAAAPElEQVR42p3OyQmAMAAAwcl9kNRl/w0ZXxagsN+BDRebxWQy6DQqhUwiEsDh/tg/gkAkkSlUGp3xri42D4HlI7q4F3Y4AAAAAElFTkSuQmCC"/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAABCAIAAADhDz9AAAAAfklEQVR42gXBIYwBAAAAwEuqLIqipmmSoiiCYLOZGcYwhmHM/xhmZrMJgqIokqZpoijKquTOlw9vXjx5cOfGlQtnThw5sGfHlg1rVixZMGfGP39MmTBmxJABfXp06dCmRZMGdWpUqVCmRJECeXJkyZAmRZIEcWJEiRAmRJAAP+Y5IAGxdWO7AAAAAElFTkSuQmCC"/>
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="my"
-          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAARklEQVR42q3PsRGCABTA0GdERA/mcv+FxOY7gRZpcwkvOWSX5/CQTe6yyk0WuUpyEXLK+0f+5TBdTecy3et8bPP1fdzl8AH5DyQ3LG5C+QAAAABJRU5ErkJggg=="/>
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAAh0lEQVR42g3DIYwBUAAA0J/Uy6IoXtM0SVEUQbDZbmbYGcaOYW7uxjAz222CoCiKpGmaKIqyesl72wvhP4Tw9OHdm1cvnj159ODenVs3/rl25dKFc2dOnfjrj2O/HTl0YN+eXb/s2LZl04Z1P61ZtWLZkh8WLZg3Z9aMaVMmTfhu3JhR34yEF52lIAFr3QfAAAAAAElFTkSuQmCC"/>
         <feBlend in="mx" in2="my" mode="screen" result="map"/>
         <feDisplacementMap in="SourceGraphic" in2="map" scale="18" xChannelSelector="R" yChannelSelector="G" result="bent"/>
         <feGaussianBlur in="bent" stdDeviation="1"/>

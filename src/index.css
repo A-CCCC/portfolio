@@ -1597,6 +1597,11 @@ body {
    every sticky panel stuck to that rather than to the window — the
    scroll-scrubbed pictures scrolled away instead of holding still. */
 #root { overflow-x: clip; }
+/* Pulled past the top or the bottom, the page stays where it is rather than
+   stretching away and showing a bare band of colour where the wallpaper
+   ends. (overscroll-behavior, unlike overflow, leaves the body passing its
+   scrolling to the window, so the sticky panels above are unaffected.) */
+html { overscroll-behavior-y: none; }
 
 /* A heading that wraps is split into lines of even length, rather than
    leaving one word on a line of its own */
@@ -3093,9 +3098,10 @@ html.vt-bubble::view-transition-new(root) {
 }
 
 /* The titles of the pages on a wallpaper, after the lock screen's clock:
-   clear glass letters (liquid-glass.js), tall — the system face at its
-   compressed width, much larger — and only the faintest shadow under them,
-   none on the dark page: the glass is drawn by its rim, not by a shadow. */
+   clear glass letters (liquid-glass.js) in the system's own face as the
+   clock is set — SF Pro narrowed, tall, medium — and only the faintest
+   shadow under them, none on the dark page: the glass is drawn by its rim,
+   not by a shadow. */
 .home-backdrop {
   --page-title: clamp(3.4rem, 15vw, 6rem);
   --title-lh: 1.1;
@@ -3106,7 +3112,7 @@ html.vt-bubble::view-transition-new(root) {
 .no-narrow .wall-page h2.glass-title,
 .no-narrow .home-backdrop .hub-link h2.glass-title,
 .no-narrow .home-backdrop .about-panel h2.glass-title {
-  font-family: 'Barlow Condensed', system-ui, sans-serif;
+  font-family: 'Barlow Condensed', system-ui, sans-serif !important;
 }
 /* (a little wider than the system face narrowed: a size down, so a title
    takes the same room) */
@@ -3115,9 +3121,10 @@ html.vt-bubble::view-transition-new(root) {
 }
 .home-backdrop h1.glass-title {
   font-size: var(--page-title) !important;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-stretch: 50%;
   font-weight: 500 !important;
-  letter-spacing: 0.01em !important;
+  letter-spacing: 0.005em !important;
   line-height: 1.1;
 }
 /* and on a project's own page, the headings that stand on the wallpaper by
@@ -3127,9 +3134,10 @@ html.vt-bubble::view-transition-new(root) {
 .home-backdrop .hub-link h2.glass-title,
 .home-backdrop .about-panel h2.glass-title {
   font-size: clamp(2.5rem, 10vw, 3.6rem) !important;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-stretch: 50%;
   font-weight: 500 !important;
-  letter-spacing: 0.01em !important;
+  letter-spacing: 0.005em !important;
   line-height: 1.05;
 }
 /* a heading over the panel of its words lines up with the words, not with
@@ -3163,21 +3171,23 @@ html.vt-bubble::view-transition-new(root) {
    the bubbles' shadows fall; and a faint close one at the very edge, for
    the outline */
 .glass-title.lg-clear > canvas.liquid-glass-surface {
+  /* (faint, as the lock screen's numbers have it: a heavy one blurred the
+     letters' edges into a dark halo) */
   filter:
-    drop-shadow(0 0.01em 0.02em rgba(105, 82, 62, 0.22))
-    drop-shadow(0.025em 0.05em 0.12em rgba(110, 88, 68, 0.28));
+    drop-shadow(0 0.01em 0.015em rgba(105, 82, 62, 0.16))
+    drop-shadow(0.01em 0.03em 0.08em rgba(110, 88, 68, 0.12));
 }
 :root[data-theme='dark'] .glass-title.lg-clear > canvas.liquid-glass-surface {
   filter:
-    drop-shadow(0 0.01em 0.02em rgba(0, 4, 16, 0.5))
-    drop-shadow(0.025em 0.05em 0.12em rgba(0, 4, 16, 0.6));
+    drop-shadow(0 0.01em 0.015em rgba(0, 4, 16, 0.35))
+    drop-shadow(0.01em 0.03em 0.08em rgba(0, 4, 16, 0.3));
 }
 @media (prefers-color-scheme: dark) {
   :root[data-theme='auto'] .glass-title.lg-clear > canvas.liquid-glass-surface,
   :root:not([data-theme]) .glass-title.lg-clear > canvas.liquid-glass-surface {
     filter:
-      drop-shadow(0 0.01em 0.02em rgba(0, 4, 16, 0.5))
-      drop-shadow(0.025em 0.05em 0.12em rgba(0, 4, 16, 0.6));
+      drop-shadow(0 0.01em 0.015em rgba(0, 4, 16, 0.35))
+      drop-shadow(0.01em 0.03em 0.08em rgba(0, 4, 16, 0.3));
   }
 }
 :root[data-theme='dark'] .glass-title.lg-clear { text-shadow: none; }

@@ -36,6 +36,14 @@ function copyFor(base, w, h) {
       img.setAttribute('width', w)
       img.setAttribute('height', h)
     })
+    // A surface smaller than the bend suits (index.html, data-safe) gets
+    // a gentler one, or the rim would fold what is under it over itself
+    const ease = Math.min(1, Math.min(w, h) / (parseFloat(template.dataset.safe) || Infinity))
+    if (ease < 1) {
+      copy.querySelectorAll('feDisplacementMap').forEach((d) => {
+        d.setAttribute('scale', (parseFloat(d.getAttribute('scale')) * ease).toFixed(1))
+      })
+    }
     template.parentNode.appendChild(copy)
   }
   return id
