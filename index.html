@@ -61,19 +61,14 @@
         <feImage x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="my"
           href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAABACAIAAABUc4oXAAAAY0lEQVR42r3DIQ6CABQA0B85AAeg061WK5FGMlEIbmzOqWNsbgaLyWQzUq1Uu90DcAAj7xS87UX8I2Ly59ePo28HXz59ePfm1Yu9nWdPCz96cG/rzsbarZWlhRvXrszNTE1iBrMiIAHPpJqIAAAAAElFTkSuQmCC"/>
         <feBlend in="mx" in2="my" mode="screen" result="map"/>
-        <!-- The page under the menu bent in hard at its edges, as thick glass
-             bends what is seen through its rim, and its colours parted a
-             little there — red bent least, blue most — as glass parts light;
-             clear through the middle, and only a breath of blur, so what is
-             under it is still there to be read -->
-        <feDisplacementMap in="SourceGraphic" in2="map" scale="60" xChannelSelector="R" yChannelSelector="G" result="dr"/>
-        <feDisplacementMap in="SourceGraphic" in2="map" scale="62" xChannelSelector="R" yChannelSelector="G" result="dg"/>
-        <feDisplacementMap in="SourceGraphic" in2="map" scale="64" xChannelSelector="R" yChannelSelector="G" result="db"/>
-        <feColorMatrix in="dr" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>
-        <feColorMatrix in="dg" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>
-        <feColorMatrix in="db" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>
-        <feBlend in="r" in2="g" mode="screen" result="rg"/>
-        <feBlend in="rg" in2="b" mode="screen" result="bent"/>
+        <!-- The page under it bent in hard at its edges, as thick glass
+             bends what is seen through its rim; clear through the middle,
+             and only a breath of blur, so what is under it is still there
+             to be read. One bend, not the menus' three (their colours
+             parted at the rim, red bent least and blue most): the page has
+             a dozen of these at once, the three took twice the frames to
+             scroll, and on a card the parting could not be seen. -->
+        <feDisplacementMap in="SourceGraphic" in2="map" scale="62" xChannelSelector="R" yChannelSelector="G" result="bent"/>
         <feGaussianBlur in="bent" stdDeviation="2.4"/>
       </filter>
       <!-- The menus' own: the same lens, and the page under them magnified

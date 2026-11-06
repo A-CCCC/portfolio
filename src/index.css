@@ -3033,6 +3033,30 @@ html.vt-bubble::view-transition-new(root) {
   background-repeat: no-repeat !important;
 }
 
+/* The home page from the words about me down (wallpaper.js, HELD STILL
+   FROM A POINT ON): under it, a layer the height of the screen pinned to
+   it, wearing the stretch of the wallpaper where that part begins — behind
+   everything in the part, and over the page's own wallpaper. Not there
+   until the script has placed it. */
+.wall-lock-zone { position: relative; isolation: isolate; }
+.wall-lock { position: absolute; inset: 0 0 calc(-1 * var(--lock-past, 0px)); z-index: -1; pointer-events: none; }
+/* (the footer over it, the layer reaching on under it to the end) */
+.site-footer { position: relative; }
+.wall-lock-zone:not([style]) .wall-lock { display: none; }
+.wall-lock > i {
+  display: block;
+  position: sticky;
+  top: 0;
+  /* (as tall as the screen with a phone's address bar rolled away, as a
+     pinned panel's is) */
+  height: 100lvh;
+  background-color: var(--bg);
+  background-image: var(--home-wall);
+  background-size: var(--hold-size);
+  background-position: var(--hold-at);
+  background-repeat: no-repeat;
+}
+
 /* the ground round a title drawn out of footage (BackupCameraWiper.jsx):
    the page's wallpaper, sized and placed by the page's script */
 .title-ground {

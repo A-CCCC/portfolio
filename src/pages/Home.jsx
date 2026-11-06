@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { contact } from '../data/site-copy'
 import { TYPE, HERO_TOP, TITLE_GAP } from '../styles/type'
 import useFadeIn from '../hooks/useFadeIn'
-import useFadeInOnScroll from '../hooks/useFadeInOnScroll'
 import ProjectBubbles from '../components/ProjectBubbles'
 import Portrait from '../components/Portrait'
 import { featured, current, completed } from '../data/projects'
@@ -15,22 +14,21 @@ import EmailLink from '../components/EmailLink'
 // Absent in public, where the block below is not built at all.
 const REACH = contact
 
+// The pictures in the cards' discs, at the size the bubbles use: the full
+// thumbnails are 1400 pixels across for a disc under 100, and the browser,
+// which decodes a picture only as it comes on screen, showed a card empty
+// while it worked through one
+const small = (src) => src.replace('.webp', '-small.webp')
+
 // The line under the featured project's name; nothing until it is written.
 const FEATURED_LINE = describe(featured.page)
 
 export default function Home() {
-  // (as the current projects below it: as soon as it is on the screen at all)
-  const [featuredRef, featuredOpacity] = useFadeInOnScroll(0, 0.04)
-  // (the current projects start as soon as they are on the screen at all,
-  // not once they are well up it: they sit low, under the featured one)
-  const [currentRef, currentOpacity] = useFadeInOnScroll(0, 0.04)
-  const [completedRef, completedOpacity] = useFadeInOnScroll(0, 0.04)
   const titleOpacity = useFadeIn(100)
   // Last of everything on the opening screen. The bubbles begin at 0.7s and
   // arrive one after another over half a second more, so this waits for the
   // screen to be finished before offering somewhere to go.
   const servicesOpacity = useFadeIn(2200)
-  const [aboutRef, aboutOpacity] = useFadeInOnScroll(0)
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'system-ui' }}>
@@ -94,16 +92,19 @@ export default function Home() {
         </Link>
       </div>
 
-      {/* ---- About + contact: fades in when scrolled into view ---- */}
+      {/* From the words about me down, the wallpaper held still: once the
+          opening screen has scrolled away, the panels and cards go on up
+          over the wallpaper as it stood then (.wall-lock, wallpaper.js) */}
+      <div className="wall-lock-zone">
+      <div className="wall-lock" aria-hidden="true"><i /></div>
+
+      {/* ---- About + contact ---- */}
       <div
-        ref={aboutRef}
         style={{
           // Sized by its padding rather than a share of the viewport: a short
           // section that fills the screen reads as another page to scroll past,
           // and this one is meant to sit at the foot of the hero.
           padding: '72px 24px 96px',
-          opacity: aboutOpacity,
-          transition: 'opacity 1.5s ease',
         }}
       >
         {/* On a panel of the navbar's glass, so the words read clear of the
@@ -129,13 +130,13 @@ export default function Home() {
               color: 'var(--text-body)',
               marginBottom: 20,
             }}>
-              Hi, I'm Alex. I design and build solutions to everyday problems, from small
-              annoyances to real accessibility challenges. I model most of my projects in
-              Fusion, adding electronics where they're needed. I also recreate models from
-              games like Clash Royale, which is where I push my modeling and animation
-              abilities the furthest. I'm a junior in high school with interests in
-              engineering and science, and outside of school I row. I hid some fun Easter
-              eggs across this website, so look everywhere!
+              I’m Alex, a junior at the Bullis School. I design and build solutions to a
+              wide range of problems, ranging from daily annoyances to long-term problems. I
+              also make cool projects, like models from Clash Royale, a working lightsaber
+              (still in progress!), and Halloween costumes and accessories. On this website,
+              I try to present these projects and solutions in a fun and visually engaging
+              way, so I added some fun Easter eggs too! I’m interested in engineering and
+              science and I row outside of school.
             </p>
 
             {/* Not rendered at all without somewhere to point: hiding it
@@ -199,13 +200,10 @@ export default function Home() {
           use, laid on its side: the model in its disc, the words beside it,
           and the whole card the way through. */}
       <div
-        ref={featuredRef}
         style={{
           padding: '0 var(--gutter) 96px',
           display: 'flex',
           justifyContent: 'center',
-          opacity: featuredOpacity,
-          transition: 'opacity 1.5s ease',
         }}
       >
         <Link to={featured.path} className="glass glass-vivid nav-glass shop-card feature-card">
@@ -214,7 +212,7 @@ export default function Home() {
             style={{ '--lg-hue': `var(--hue-${featured.tint})` }}
           >
             {featured.image
-              ? <img src={featured.image} alt="" />
+              ? <img src={small(featured.image)} alt="" />
               : <span style={{
                   fontSize: TYPE.caption,
                   letterSpacing: '0.02em',
@@ -268,14 +266,11 @@ export default function Home() {
           card again, smaller, three across where there is room. */}
       {current.length > 0 && (
         <div
-          ref={currentRef}
           style={{
             padding: '0 var(--gutter) 96px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            opacity: currentOpacity,
-            transition: 'opacity 1.5s ease',
           }}
         >
           <h2 style={{
@@ -307,7 +302,7 @@ export default function Home() {
                   style={{ '--lg-hue': `var(--hue-${item.tint})` }}
                 >
                   {item.image
-                    ? <img src={item.image} alt="" />
+                    ? <img src={small(item.image)} alt="" />
                     : <span style={{ fontSize: TYPE.caption, color: 'var(--text-body)', opacity: 0.7 }}>Coming soon</span>}
                 </span>
                 <span style={{
@@ -334,14 +329,11 @@ export default function Home() {
           across where there is room. */}
       {completed.length > 0 && (
         <div
-          ref={completedRef}
           style={{
             padding: '0 var(--gutter) 96px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            opacity: completedOpacity,
-            transition: 'opacity 1.5s ease',
           }}
         >
           <h2 style={{
@@ -372,7 +364,7 @@ export default function Home() {
                   className="glass shop-card-disc"
                   style={{ '--lg-hue': `var(--hue-${item.tint})` }}
                 >
-                  <img src={item.image} alt="" />
+                  <img src={small(item.image)} alt="" />
                 </span>
                 <span style={{
                   fontSize: TYPE.small,
@@ -392,6 +384,8 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      </div>
 
       </div>
     </div>

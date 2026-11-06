@@ -339,6 +339,29 @@ function holdStill(host) {
     h.panel.style.setProperty('--hold-at', `${(-h.left).toFixed(1)}px ${(-h.top).toFixed(1)}px`)
   }
 }
+// HELD STILL FROM A POINT ON. The home page holds its wallpaper still from
+// the words about me down (.wall-lock-zone, Home.jsx): a layer under that
+// part of the page, the height of the screen and pinned to it, wearing the
+// stretch of the wallpaper where the part begins. Until the opening screen
+// has scrolled away the layer sits where that stretch is anyway, so there is
+// no seam as it takes hold; after, the page goes on up over it.
+function lockStill(host) {
+  const zone = host.querySelector('.wall-lock-zone')
+  host.__lockTop = zone ? zone.getBoundingClientRect().top - host.getBoundingClientRect().top : null
+  if (!zone) return
+  zone.style.setProperty('--hold-size', `${host.offsetWidth}px ${host.offsetHeight}px`)
+  zone.style.setProperty('--hold-at', `0px ${(-host.__lockTop).toFixed(1)}px`)
+  // held right to the end: the layer reaches on under the footer below the
+  // page, which goes up over it, rather than letting go as the footer came
+  const foot = document.querySelector('.site-footer')
+  const past = foot ? Math.floor(foot.getBoundingClientRect().bottom - zone.getBoundingClientRect().bottom) : 0
+  zone.style.setProperty('--lock-past', `${Math.max(0, past)}px`)
+}
+// How far the page has scrolled on over the wallpaper held still (px)
+export function lockedBy(host) {
+  if (host.__lockTop == null) return 0
+  return Math.max(0, -host.getBoundingClientRect().top - host.__lockTop)
+}
 function wear(host, [light, dark]) {
   host.style.setProperty('--home-wall-light', light)
   host.style.setProperty('--home-wall-dark', dark)
@@ -392,6 +415,7 @@ function paper(host) {
     host.__holds = measureHolds(host)
     wear(host, drawn(host))
     holdStill(host)
+    lockStill(host)
   }
 }
 
@@ -417,7 +441,8 @@ function screenTopRow(host) {
   const h = (host.__holds || []).find((k) => y >= k.top && y < k.bottom)
   // pinned: the panel at the top of the screen shows its stretch from its top
   if (h) return rowAt(host, h.top) + Math.max(0, y - (h.bottom - h.h)) * host.__unit
-  return rowAt(host, y)
+  // held still from a point on: the stretch where it was held
+  return rowAt(host, y - lockedBy(host))
 }
 
 export function handWallOn(page, way) {

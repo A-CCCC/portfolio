@@ -9,7 +9,7 @@
 // stands down (.lg-gl-text) once the lens is drawing it; until then, and
 // wherever there is no WebGL, the CSS glass is what shows.
 import { glassLayer } from './liquid-glass'
-import { wallRegion } from './wallpaper'
+import { wallRegion, lockedBy } from './wallpaper'
 
 const silkOf = (el) => {
   const v = el.style.getPropertyValue('--river')
@@ -57,7 +57,10 @@ export function startGlassTitles() {
           // wallpaper behind it is the stretch where its section begins: how
           // far the panel has come down its section, to take off
           const held = el.closest('.wall-hold')
-          const shift = held ? () => held.getBoundingClientRect().top - held.parentElement.getBoundingClientRect().top : null
+          // (and below the point the home page holds it still from, how far
+          // the page has scrolled on over it)
+          const shift = held ? () => held.getBoundingClientRect().top - held.parentElement.getBoundingClientRect().top
+            : el.closest('.wall-lock-zone') ? () => lockedBy(host) : null
           return { host, dark, shift, region: (...a) => wallRegion(host, ...a) }
         },
         glow: 0.6,                // lit from within, with a halo
