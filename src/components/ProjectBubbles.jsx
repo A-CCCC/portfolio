@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { EggIcon } from './EggCrack'
 import useFadeIn from '../hooks/useFadeIn'
-import { accessibility, clashRoyale, convenience, halloween, misc, bubbleProjects } from '../data/projects'
+import { accessibility, clashRoyale, convenience, halloween, misc, bubbleProjects, completed, featured } from '../data/projects'
 import useIsPhone, { useIsShort } from '../hooks/useIsPhone'
 
 // Hand-placed as two arcs — one above the hero title, one below — plus a pair
@@ -191,6 +191,20 @@ const GAMES_BUBBLE = { path: '/games', label: 'Games', icon: true }
 const GAMES_CHANCE = 1 / 12
 
 const ALWAYS_PATHS = ['/solutions/convenience/backup-camera-wiper']
+
+// Shy: the bubble of a project whose page is not finished yet runs from the
+// pointer, so it cannot be caught and clicked. Finished means on the home
+// page's list of finished pages, or the featured project. It runs only as
+// far as it needs to clear the pointer, and only to where nothing else is —
+// inside the opening screen, off the title and its link, and clear of every
+// other bubble and the reach of its drift — so the finished ones are never
+// pushed about; and once the pointer is well away it comes back home.
+const FINISHED = new Set([featured, ...completed].map((p) => p.path))
+const isShy = (project) => !project.icon && !FINISHED.has(project.path)
+const SHY_NEAR = 70        // how close the pointer may come to its rim (px)
+const SHY_CLEAR = 110      // and how far off the rim it goes when it runs
+const SHY_DRIFT = 30       // a bubble's wander, kept clear of
+const SHY_TOP = 900        // its top speed (px a second)
 // The pop, in two beats: the bubble swells, then bursts — and from the
 // burst the page dives into where it was, until the page is the project's.
 const SWELL_MS = 150
@@ -491,6 +505,121 @@ export default function ProjectBubbles() {
     el.addEventListener('mouseleave', () => { drift.play(); breath.play() })
   }
 
+  // The shy bubbles running from the pointer. Positions in the layer's own
+  // terms: a spot is placed by its centre (left, top, and a translate of
+  // half itself back), so its offsetLeft and offsetTop are where it rests.
+  // Each has a place it is making for, chosen only when the pointer comes
+  // at it or at that place — not afresh with every movement, which set it
+  // lurching — and it gets there on a spring, every frame, gathering speed
+  // and easing in, quick when it runs and unhurried going home.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+    const layer = layerRef.current
+    if (!layer) return undefined
+    const spots = [...layer.querySelectorAll('.bubble-spot')]
+    const shy = spots.filter((el) => el.dataset.shy !== undefined)
+    if (!shy.length) return undefined
+    // where each is (x, y), how fast (vx, vy), and where it is making for
+    const st = new Map(spots.map((el) => [el, { x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0, home: true }]))
+    const hero = layer.parentElement
+    // Whether a shy bubble of radius r may be at x, y
+    const fits = (el, x, y, r) => {
+      const W = layer.clientWidth, H = layer.clientHeight
+      // (off the bar at the top, and the drift's reach in from every edge)
+      if (x < r + SHY_DRIFT || x > W - r - SHY_DRIFT || y < r + 80 || y > H - r - SHY_DRIFT) return false
+      for (const o of spots) {
+        if (o === el || !o.offsetWidth) continue
+        // (where the other is making for, and clear of both their drifts)
+        const { tx, ty } = st.get(o)
+        if (Math.hypot(x - o.offsetLeft - tx, y - o.offsetTop - ty) < r + o.offsetWidth / 2 + 2 * SHY_DRIFT + 12) return false
+      }
+      const lr = layer.getBoundingClientRect()
+      for (const k of hero.querySelectorAll(':scope > h1, :scope > .hero-link')) {
+        const b = k.getBoundingClientRect()
+        const nx = Math.max(b.left - lr.left - 12, Math.min(x, b.right - lr.left + 12))
+        const ny = Math.max(b.top - lr.top - 12, Math.min(y, b.bottom - lr.top + 12))
+        if (Math.hypot(x - nx, y - ny) < r + SHY_DRIFT) return false
+      }
+      return true
+    }
+    let frame = 0
+    const flee = (el, px, py, caught) => {
+      if (!el.offsetWidth) return
+      const r = el.offsetWidth / 2, hx = el.offsetLeft, hy = el.offsetTop
+      const s = st.get(el)
+      const cx = hx + s.x, cy = hy + s.y, gx = hx + s.tx, gy = hy + s.ty
+      const pressed = Math.hypot(cx - px, cy - py) < r + SHY_NEAR || Math.hypot(gx - px, gy - py) < r + SHY_NEAR
+      if (!caught && !pressed) {
+        // home again, once the pointer is well clear of home
+        if (!s.home && Math.hypot(hx - px, hy - py) > r + SHY_NEAR + SHY_CLEAR && fits(el, hx, hy, r)) {
+          s.tx = 0; s.ty = 0; s.home = true
+          go()
+        }
+        return
+      }
+      // The nearest place round the pointer, clear of it, where it fits: it
+      // slips along an edge or round a neighbour rather than cutting back
+      // across the pointer to the far side
+      const D = r + SHY_CLEAR
+      let best = null
+      for (let k = 0; k < 64; k += 1) {
+        const a = (k / 64) * Math.PI * 2
+        const x = px + Math.cos(a) * D, y = py + Math.sin(a) * D
+        if (!fits(el, x, y, r)) continue
+        const travel = Math.hypot(x - cx, y - cy)
+        if (!best || travel < best[2]) best = [x, y, travel]
+      }
+      if (!best) return
+      s.tx = best[0] - hx; s.ty = best[1] - hy; s.home = false
+      go()
+    }
+    // The spring: stiff and just short of bouncing when it runs, softer home
+    let last = 0
+    const step = (now) => {
+      const dt = Math.min(0.034, (now - (last || now)) / 1000)
+      last = now
+      let moving = false
+      for (const el of shy) {
+        const s = st.get(el)
+        const k = s.home ? 60 : 220, c = 2 * Math.sqrt(k) * 0.92
+        s.vx += (k * (s.tx - s.x) - c * s.vx) * dt
+        s.vy += (k * (s.ty - s.y) - c * s.vy) * dt
+        // (no faster than a quick glide: a long way to go is not a jump)
+        const sp = Math.hypot(s.vx, s.vy)
+        if (sp > SHY_TOP) { s.vx *= SHY_TOP / sp; s.vy *= SHY_TOP / sp }
+        s.x += s.vx * dt; s.y += s.vy * dt
+        if (Math.hypot(s.tx - s.x, s.ty - s.y) < 0.3 && Math.hypot(s.vx, s.vy) < 3) {
+          s.x = s.tx; s.y = s.ty; s.vx = 0; s.vy = 0
+        } else moving = true
+        el.style.translate = `calc(-50% + ${s.x.toFixed(2)}px) calc(-50% + ${s.y.toFixed(2)}px)`
+      }
+      frame = moving ? requestAnimationFrame(step) : 0
+      if (!moving) last = 0
+    }
+    const go = () => { if (!frame) frame = requestAnimationFrame(step) }
+    const near = (e, caught) => {
+      const lr = layer.getBoundingClientRect()
+      for (const el of shy) if (!caught || el.contains(e.target)) flee(el, e.clientX - lr.left, e.clientY - lr.top, caught)
+    }
+    const onMove = (e) => near(e, false)
+    // caught all the same (a quick hand, a tap on a phone): off it goes, and
+    // the click goes nowhere
+    const onClick = (e) => {
+      if (!shy.some((el) => el.contains(e.target))) return
+      e.preventDefault()
+      e.stopPropagation()
+      near(e.detail ? e : { target: e.target, clientX: e.target.getBoundingClientRect().left, clientY: e.target.getBoundingClientRect().top }, true)
+    }
+    window.addEventListener('pointermove', onMove, { passive: true })
+    layer.addEventListener('click', onClick, true)
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      layer.removeEventListener('click', onClick, true)
+      cancelAnimationFrame(frame)
+      for (const el of shy) el.style.translate = '-50% -50%'
+    }
+  }, [cast, placements])
+
   const navigate = useNavigate()
   const [swelling, setSwelling] = useState(null)
   const [popping, setPopping] = useState(null)
@@ -576,6 +705,7 @@ export default function ProjectBubbles() {
           <div
             key={project.path}
             className={`bubble-spot${spot.flank ? ' bubble-flank' : ''}`}
+            data-shy={isShy(project) ? '' : undefined}
             style={{
               position: 'absolute',
               left: spot.left,

@@ -342,13 +342,23 @@ function holdStill(host) {
 // HELD STILL FROM A POINT ON. The home page holds its wallpaper still from
 // the words about me down (.wall-lock-zone, Home.jsx): a layer under that
 // part of the page, the height of the screen and pinned to it, wearing the
-// stretch of the wallpaper where the part begins. Until the opening screen
-// has scrolled away the layer sits where that stretch is anyway, so there is
-// no seam as it takes hold; after, the page goes on up over it.
+// stretch of the wallpaper where it takes hold. Until then the layer sits
+// where that stretch is anyway, so there is no seam as it takes hold; after,
+// the page goes on up over it.
 function lockStill(host) {
   const zone = host.querySelector('.wall-lock-zone')
-  host.__lockTop = zone ? zone.getBoundingClientRect().top - host.getBoundingClientRect().top : null
+  host.__lockTop = null
   if (!zone) return
+  const top = host.getBoundingClientRect().top
+  const zoneTop = zone.getBoundingClientRect().top - top
+  // (or, where it names something above it — the home page's bubbles —
+  // just after the last of them has gone up out of sight, a twentieth of a
+  // screen on: the layer then reaches up a little into the opening screen,
+  // which stands over it)
+  const after = zone.dataset.lockAfter
+  const last = after ? Math.max(0, ...[...host.querySelectorAll(after)].map((e) => e.getBoundingClientRect().bottom - top)) : 0
+  host.__lockTop = last ? last + 0.05 * window.innerHeight : zoneTop
+  zone.style.setProperty('--lock-in', `${(host.__lockTop - zoneTop).toFixed(1)}px`)
   zone.style.setProperty('--hold-size', `${host.offsetWidth}px ${host.offsetHeight}px`)
   zone.style.setProperty('--hold-at', `0px ${(-host.__lockTop).toFixed(1)}px`)
   // held right to the end: the layer reaches on under the footer below the

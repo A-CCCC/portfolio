@@ -39,6 +39,9 @@ export default function Home() {
       {/* ---- Hero: fades in on page load ---- */}
       <div style={{
         position: 'relative',
+        // over the held wallpaper below it, which reaches up a little into
+        // this screen (.wall-lock): the bubbles' layer clips them to it
+        zIndex: 1,
         height: 'var(--screen)',
         display: 'flex',
         flexDirection: 'column',
@@ -92,10 +95,11 @@ export default function Home() {
         </Link>
       </div>
 
-      {/* From the words about me down, the wallpaper held still: once the
-          opening screen has scrolled away, the panels and cards go on up
-          over the wallpaper as it stood then (.wall-lock, wallpaper.js) */}
-      <div className="wall-lock-zone">
+      {/* From the words about me down, the wallpaper held still: just
+          after the last of the bubbles has scrolled away, the panels and
+          cards go on up over the wallpaper as it stood then (.wall-lock,
+          wallpaper.js) */}
+      <div className="wall-lock-zone" data-lock-after=".bubble">
       <div className="wall-lock" aria-hidden="true"><i /></div>
 
       {/* ---- About + contact ---- */}
