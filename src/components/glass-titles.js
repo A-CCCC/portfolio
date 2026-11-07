@@ -23,6 +23,8 @@ export function startGlassTitles() {
   if (!layer) return
   const seen = new WeakSet()
   const scan = () => {
+    // (the browser has taken the glass's context back: the CSS glass stays)
+    if (layer.lost) return
     for (const el of document.querySelectorAll('.glass-title')) {
       if (seen.has(el)) continue
       seen.add(el)

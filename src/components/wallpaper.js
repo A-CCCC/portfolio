@@ -352,12 +352,12 @@ function lockStill(host) {
   const top = host.getBoundingClientRect().top
   const zoneTop = zone.getBoundingClientRect().top - top
   // (or, where it names something above it — the home page's bubbles —
-  // just after the last of them has gone up out of sight, a twentieth of a
+  // just after the last of them has gone up out of sight, a fortieth of a
   // screen on: the layer then reaches up a little into the opening screen,
   // which stands over it)
   const after = zone.dataset.lockAfter
   const last = after ? Math.max(0, ...[...host.querySelectorAll(after)].map((e) => e.getBoundingClientRect().bottom - top)) : 0
-  host.__lockTop = last ? last + 0.05 * window.innerHeight : zoneTop
+  host.__lockTop = last ? last + 0.025 * window.innerHeight : zoneTop
   zone.style.setProperty('--lock-in', `${(host.__lockTop - zoneTop).toFixed(1)}px`)
   zone.style.setProperty('--hold-size', `${host.offsetWidth}px ${host.offsetHeight}px`)
   zone.style.setProperty('--hold-at', `0px ${(-host.__lockTop).toFixed(1)}px`)

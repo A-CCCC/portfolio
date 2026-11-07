@@ -900,6 +900,23 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
   }
 
   let alive = true
+  // Lost: the browser takes the context back (its graphics process restarted,
+  // or reclaimed it under strain, a tab left open for days). Drawing on went
+  // nowhere — every title, card and bubble kept its CSS glass hidden behind
+  // a WebGL one that no longer drew, and a title stood plain on the page. So
+  // everything is handed back to its CSS glass, which stands on its own, for
+  // the rest of the visit; the next load draws it all again.
+  let lost = false
+  canvas.addEventListener('webglcontextlost', () => {
+    lost = true
+    alive = false
+    for (const s of surfaces) {
+      s.into.remove()
+      s.el.classList.remove('lg-drawn', 'lg-clear', 'lg-gl-text', 'lg-gl-panel')
+    }
+    surfaces.clear()
+    document.documentElement.classList.remove('lg-gl')
+  })
   // the theme's fade (--theme-fade), and where the light/dark value is in it
   const FADE = 900
   const theme = { value: null, from: 0, to: null, at: 0 }
@@ -1274,7 +1291,10 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
     // A surface stands in for an element: drawn where the element is, in
     // its shape. Options: circle, depth (px), rim (px), tint (css colour),
     // tintA, frost (px), hue (css colour of a coloured light on it).
+    // (nothing drawing any more: see Lost, above)
+    get lost() { return lost },
     add(el, opts = {}) {
+      if (lost) return () => {}
       // its canvas, inside it: over its picture for a bubble, under its
       // words for a card (opts.under), level with its letters for a title
       const into = document.createElement('canvas')

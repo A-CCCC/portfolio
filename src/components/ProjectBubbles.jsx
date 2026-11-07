@@ -432,7 +432,7 @@ export default function ProjectBubbles() {
     import('./liquid-glass').then(({ glassLayer }) => {
       if (gone || !layerRef.current) return
       const glass = glassLayer()
-      if (!glass) return
+      if (!glass || glass.lost) return
       document.documentElement.classList.add('lg-gl')
       for (const b of layerRef.current.querySelectorAll('.bubble')) {
         // every bubble backed in a deeper shade of its colour on the dark
