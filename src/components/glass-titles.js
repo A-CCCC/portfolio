@@ -62,7 +62,7 @@ export function startGlassTitles() {
           // (and below the point the home page holds it still from, how far
           // the page has scrolled on over it)
           const shift = held ? () => held.getBoundingClientRect().top - held.parentElement.getBoundingClientRect().top
-            : el.closest('.wall-lock-zone') ? () => lockedBy(host) : null
+            : () => lockedBy(host)
           return { host, dark, shift, region: (...a) => wallRegion(host, ...a) }
         },
         glow: 0.6,                // lit from within, with a halo
@@ -93,7 +93,7 @@ export function startGlassTitles() {
           if (!host.__pattern) return null
           const root = document.documentElement
           const dark = root.dataset.theme === 'dark' || ((root.dataset.theme === 'auto' || !root.dataset.theme) && matchMedia('(prefers-color-scheme: dark)').matches)
-          return { host, dark, region: (...a) => wallRegion(host, ...a) }
+          return { host, dark, shift: () => lockedBy(host), region: (...a) => wallRegion(host, ...a) }
         },
       } : { silk: silkOf }
       layer.add(el, {

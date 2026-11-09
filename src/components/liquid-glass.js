@@ -1151,7 +1151,10 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         // strip as the page scrolls or the row is dragged along
         const hr = wallOf.host.getBoundingClientRect()
         const M = 48
-        const y0 = Math.round((r.top - hr.top - M) / 16) * 16, h0 = Math.round((r.height + 2 * M) / 16) * 16
+        // (where the page holds its wallpaper still, the stretch held, laid
+        // back where the card is now)
+        const shift = wallOf.shift ? wallOf.shift() : 0
+        const y0 = Math.round((r.top - hr.top - M - shift) / 16) * 16, h0 = Math.round((r.height + 2 * M) / 16) * 16
         const key = `${wallOf.host.__wallKey}|${y0}|${h0}|${Math.round(hr.width)}|${wallOf.dark ? 1 : 0}|${dpr}`
         if (s.stripKey !== key) {
           const url = wallOf.region(0, y0, hr.width, h0, hr.width * dpr, h0 * dpr, wallOf.dark)
@@ -1166,7 +1169,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
         if (!st) return false
         gl.activeTexture(gl.TEXTURE5); gl.bindTexture(gl.TEXTURE_2D, st.tex)
         gl.activeTexture(gl.TEXTURE0)
-        gl.uniform4f(U.wallRect, hr.left * dpr, (hr.top + sy) * dpr, hr.width * dpr, sh * dpr)
+        gl.uniform4f(U.wallRect, hr.left * dpr, (hr.top + sy + shift) * dpr, hr.width * dpr, sh * dpr)
         gl.uniform1f(U.useWall, 1)
         strip = true
       } else if (wallOf) {

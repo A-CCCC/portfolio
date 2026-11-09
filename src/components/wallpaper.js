@@ -337,6 +337,8 @@ function holdStill(host) {
     h.panel.classList.add('wall-hold')
     h.panel.style.setProperty('--hold-size', `${host.offsetWidth}px ${host.offsetHeight}px`)
     h.panel.style.setProperty('--hold-at', `${(-h.left).toFixed(1)}px ${(-h.top).toFixed(1)}px`)
+    h.panel.style.setProperty('--hold-x', `${(-h.left).toFixed(1)}px`)
+    h.panel.style.setProperty('--hold-y', `${(-h.top).toFixed(1)}px`)
   }
 }
 // HELD STILL FROM A POINT ON. The home page holds its wallpaper still from
@@ -344,28 +346,65 @@ function holdStill(host) {
 // part of the page, the height of the screen and pinned to it, wearing the
 // stretch of the wallpaper where it takes hold. Until then the layer sits
 // where that stretch is anyway, so there is no seam as it takes hold; after,
-// the page goes on up over it.
+// the page goes on up over it. Every other page holds it for the footer
+// alone: from the moment the footer starts to come up, the wallpaper stays
+// and the footer slides up over it, as it does at the foot of the home page.
+// The layer then lies in the page itself, its last screen and the footer's
+// height on (.wall-foot-held).
 function lockStill(host) {
-  const zone = host.querySelector('.wall-lock-zone')
   host.__lockTop = null
-  if (!zone) return
+  const foot = document.querySelector('.site-footer')
+  const zone = host.querySelector('.wall-lock-zone')
   const top = host.getBoundingClientRect().top
-  const zoneTop = zone.getBoundingClientRect().top - top
-  // (or, where it names something above it — the home page's bubbles —
-  // just after the last of them has gone up out of sight, a fortieth of a
-  // screen on: the layer then reaches up a little into the opening screen,
-  // which stands over it)
-  const after = zone.dataset.lockAfter
-  const last = after ? Math.max(0, ...[...host.querySelectorAll(after)].map((e) => e.getBoundingClientRect().bottom - top)) : 0
-  host.__lockTop = last ? last + 0.025 * window.innerHeight : zoneTop
-  zone.style.setProperty('--lock-in', `${(host.__lockTop - zoneTop).toFixed(1)}px`)
-  zone.style.setProperty('--hold-size', `${host.offsetWidth}px ${host.offsetHeight}px`)
-  zone.style.setProperty('--hold-at', `0px ${(-host.__lockTop).toFixed(1)}px`)
+  let box, from
+  if (zone) {
+    box = zone
+    from = zone.getBoundingClientRect().top - top
+    // (or, where it names something above it — the home page's bubbles —
+    // just after the last of them has gone up out of sight, a fortieth of a
+    // screen on: the layer then reaches up a little into the opening screen,
+    // which stands over it)
+    const after = zone.dataset.lockAfter
+    const last = after ? Math.max(0, ...[...host.querySelectorAll(after)].map((e) => e.getBoundingClientRect().bottom - top)) : 0
+    host.__lockTop = last ? last + 0.025 * window.innerHeight : from
+  } else {
+    // (a page with no footer, or no more than a screen of itself, has
+    // nothing to hold it for)
+    const at = host.offsetHeight - window.innerHeight
+    let layer = host.querySelector(':scope > .wall-lock')
+    if (!foot || at <= 0 || host.closest('.page-ghost')) { layer?.remove(); host.classList.remove('wall-foot-held'); return }
+    if (!layer) {
+      layer = document.createElement('div')
+      layer.className = 'wall-lock'
+      layer.setAttribute('aria-hidden', 'true')
+      layer.appendChild(document.createElement('i'))
+      host.appendChild(layer)
+    }
+    host.classList.add('wall-foot-held')
+    box = layer
+    from = 0
+    host.__lockTop = at
+  }
+  box.style.setProperty('--lock-in', `${(host.__lockTop - from).toFixed(1)}px`)
+  box.style.setProperty('--hold-size', `${host.offsetWidth}px ${host.offsetHeight}px`)
+  box.style.setProperty('--hold-at', `0px ${(-host.__lockTop).toFixed(1)}px`)
   // held right to the end: the layer reaches on under the footer below the
   // page, which goes up over it, rather than letting go as the footer came
-  const foot = document.querySelector('.site-footer')
-  const past = foot ? Math.floor(foot.getBoundingClientRect().bottom - zone.getBoundingClientRect().bottom) : 0
-  zone.style.setProperty('--lock-past', `${Math.max(0, past)}px`)
+  const past = foot ? Math.floor(foot.getBoundingClientRect().bottom - host.getBoundingClientRect().bottom) : 0
+  box.style.setProperty('--lock-past', `${Math.max(0, past)}px`)
+}
+// The copies of the wallpaper some parts of a page paint for themselves —
+// the hubs' inverted bands, a pinned panel's stretch — held with the rest
+// as the footer comes up: set back, as it scrolls, by as far as the page has
+// gone on over the held wallpaper (--locked-by, read by index.css). Only
+// while the footer is coming up does it change.
+function holdCopies() {
+  for (const host of document.querySelectorAll('.home-backdrop.wall-foot-held')) {
+    const by = `${lockedBy(host).toFixed(1)}px`
+    if (host.__lockedBy === by) continue
+    host.__lockedBy = by
+    for (const el of host.querySelectorAll('[data-inverted], .wall-hold')) el.style.setProperty('--locked-by', by)
+  }
 }
 // How far the page has scrolled on over the wallpaper held still (px)
 export function lockedBy(host) {
@@ -469,6 +508,7 @@ export function handWallOn(page, way) {
 
 export function watchWallpapers() {
   if (typeof document === 'undefined') return
+  window.addEventListener('scroll', holdCopies, { passive: true })
   const seen = new WeakSet()
   const sizes = new ResizeObserver((entries) => {
     for (const e of entries) e.target.__paint?.()

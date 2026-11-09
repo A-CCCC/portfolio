@@ -33,6 +33,10 @@ export default function CategoryBand({
       const hr = host.getBoundingClientRect(), er = el.getBoundingClientRect()
       el.style.setProperty('--wall-size', `${host.offsetWidth}px ${host.offsetHeight}px`)
       el.style.setProperty('--wall-at', `${hr.left - er.left}px ${hr.top - er.top}px`)
+      // (and each way apart, so the page can set it back as it holds its
+      // wallpaper for the footer: wallpaper.js, --locked-by)
+      el.style.setProperty('--wall-at-x', `${hr.left - er.left}px`)
+      el.style.setProperty('--wall-at-y', `${hr.top - er.top}px`)
     }
     place()
     const watch = new ResizeObserver(place)
