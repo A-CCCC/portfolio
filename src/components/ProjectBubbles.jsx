@@ -215,11 +215,15 @@ const SHARD_COUNT = 14
 // the page dived into still round it. Without them, the page is simply put
 // in under the glow, as before.
 const OPEN_MS = 820
-function openOutOf(r0, go) {
+function openOutOf(r0, go, ex, ey) {
   const html = document.documentElement
   if (!document.startViewTransition) { go(); return }
   const vw = window.innerWidth, vh = window.innerHeight
-  const at = `at ${(vw / 2).toFixed(0)}px ${(vh / 2).toFixed(0)}px`
+  // where the dive brought the bubble: the middle of the screen, or as near
+  // it as a bubble by the edge can come (see the dive, below)
+  const at = `at ${ex.toFixed(0)}px ${ey.toFixed(0)}px`
+  // and out to the furthest corner from there
+  const reach = Math.max(Math.hypot(ex, ey), Math.hypot(vw - ex, ey), Math.hypot(ex, vh - ey), Math.hypot(vw - ex, vh - ey))
   // the first frame cut by the stylesheet, before the animation has it
   html.style.setProperty('--grow-from', `circle(${r0.toFixed(0)}px ${at})`)
   html.classList.add('vt-bubble')
@@ -237,13 +241,13 @@ function openOutOf(r0, go) {
       // just to the corners: grown past them, the rest of its growth — and
       // its slowing at the end — happened off the screen, and the page was
       // all there in a third of the time
-      { clipPath: `circle(${(Math.hypot(vw, vh) / 2 + 2).toFixed(0)}px ${at})` },
+      { clipPath: `circle(${(reach + 2).toFixed(0)}px ${at})` },
     ], { duration: OPEN_MS, easing: 'cubic-bezier(0.45, 0, 0.2, 1)', fill: 'forwards', pseudoElement: '::view-transition-new(root)' })
   }).catch(() => {})
   turn.finished.finally(() => { html.classList.remove('vt-bubble'); html.style.removeProperty('--grow-from') })
 }
 
-function flyThrough(cx, cy, radius, hue) {
+function flyThrough(cx, cy, radius, hue, ex, ey) {
   const vw = window.innerWidth, vh = window.innerHeight
   const box = document.createElement('div')
   box.className = 'pop-shards'
@@ -283,7 +287,7 @@ function flyThrough(cx, cy, radius, hue) {
   // all of it carried to the middle of the screen with the dive
   box.animate([
     { transform: 'none' },
-    { transform: `translate(${(vw / 2 - cx).toFixed(1)}px, ${(vh / 2 - cy).toFixed(1)}px)` },
+    { transform: `translate(${(ex - cx).toFixed(1)}px, ${(ey - cy).toFixed(1)}px)` },
   ], { duration: DIVE_MS, easing: 'cubic-bezier(0.6, 0, 0.2, 1)', fill: 'forwards' })   // the dive's own (.page-diving)
   setTimeout(() => box.remove(), DIVE_MS + 200)
 }
@@ -507,6 +511,7 @@ export default function ProjectBubbles() {
     setSwelling(path)
     let bloomR = 0
     let startR = 0
+    let ex = window.innerWidth / 2, ey = window.innerHeight / 2
     setTimeout(() => {
       setPopping(path)
       // The page dives into the bubble: the page's own root element (the
@@ -524,12 +529,22 @@ export default function ProjectBubbles() {
       page.style.setProperty('--dive-x', `${cx - pr.left}px`)
       page.style.setProperty('--dive-y', `${cy - pr.top}px`)
       // and slides so the bubble ends up in the middle of the screen, so
-      // what grows in it stays in view
-      page.style.setProperty('--dive-dx', `${window.innerWidth / 2 - cx}px`)
-      page.style.setProperty('--dive-dy', `${window.innerHeight / 2 - cy}px`)
+      // what grows in it stays in view — but no further than keeps the
+      // page over the whole screen: from a bubble by the edge, sliding it
+      // all the way to the middle brought the page's own edge in, and the
+      // bare colour past it showed down that side. Each edge of the page,
+      // scaled about the bubble and slid, stays past the screen's (at the
+      // end, and so all the way, the two moving evenly together).
+      const vw = window.innerWidth, vh = window.innerHeight, S = DIVE_SCALE
+      const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
+      const dx = clamp(vw / 2 - cx, vw - cx - S * (pr.right - cx), -cx - S * (pr.left - cx))
+      const dy = clamp(vh / 2 - cy, vh - cy - S * (pr.bottom - cy), -cy - S * (pr.top - cy))
+      ex = cx + dx; ey = cy + dy
+      page.style.setProperty('--dive-dx', `${dx}px`)
+      page.style.setProperty('--dive-dy', `${dy}px`)
       page.classList.add('page-diving')
       document.documentElement.classList.add('diving')
-      flyThrough(cx, cy, r.width / 2, hue)
+      flyThrough(cx, cy, r.width / 2, hue, ex, ey)
     }, SWELL_MS)
     setTimeout(() => {
       document.documentElement.classList.remove('diving')
@@ -543,10 +558,11 @@ export default function ProjectBubbles() {
         // screen where the dive brought the bubble, so the new page arrives
         // under the same spot of colour and not a wash over the whole of it
         after.style.setProperty('--bloom-r', `${bloomR}px`)
+        after.style.setProperty('--bloom-at', `${ex.toFixed(0)}px ${ey.toFixed(0)}px`)
         document.body.appendChild(after)
         setTimeout(() => after.remove(), OPEN_MS + 100)
       }
-      openOutOf(startR, () => { veil(); navigate(path) })
+      openOutOf(startR, () => { veil(); navigate(path) }, ex, ey)
     }, SWELL_MS + DIVE_MS)
   }
 

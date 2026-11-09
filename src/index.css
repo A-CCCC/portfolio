@@ -1091,7 +1091,7 @@ html.diving #root { overflow: clip; }
   position: fixed;
   inset: 0;
   z-index: 40;              /* under the bar, over the page */
-  background: radial-gradient(circle var(--bloom-r, 300px) at 50% 50%,
+  background: radial-gradient(circle var(--bloom-r, 300px) at var(--bloom-at, 50% 50%),
     color-mix(in srgb, var(--pop-hue) 46%, transparent),
     color-mix(in srgb, var(--pop-hue) 24%, transparent) 45%,
     transparent);
