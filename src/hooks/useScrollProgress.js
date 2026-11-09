@@ -1,5 +1,6 @@
 // src/hooks/useScrollProgress.js
 import { useEffect, useRef, useState } from 'react'
+import { settled } from '../components/pin-ease'
 
 // Same runway maths as useScrollFrames, but returns a continuous 0–1 value
 // instead of a frame number — for scrubbing a transform rather than a sprite
@@ -24,7 +25,8 @@ export default function useScrollProgress() {
         return
       }
       const rect = section.getBoundingClientRect()
-      setProgress(Math.max(0, Math.min(1, -rect.top / runway)))
+      // (from where the page settles after easing into the pin: pin-ease.js)
+      setProgress(settled(section) ?? Math.max(0, Math.min(1, -rect.top / runway)))
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })

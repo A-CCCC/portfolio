@@ -62,7 +62,7 @@ export default function ElixirCollector() {
 
       {/* ---- SECTION 2: Scroll-scrubbed animation (left) + text (right) ---- */}
       <div ref={sectionRef} style={{ height: '200vh', position: 'relative' }}>
-        <div className="split" style={{
+        <div data-ease-pin="" className="split" style={{
           position: 'sticky',
           top: 0,
           height: 'var(--screen)',

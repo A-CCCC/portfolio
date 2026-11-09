@@ -182,7 +182,7 @@ export default function WheelchairStorage() {
 
       {/* ---- SECTION 2: Slide-in model, scrubbed by scroll ---- */}
       <div ref={slideRef} style={{ height: SECTION_HEIGHT, marginTop: SECTION_PULL, position: 'relative' }}>
-        <div style={{
+        <div data-ease-pin="" style={{
           position: 'sticky',
           top: 0,
           height: 'var(--screen)',

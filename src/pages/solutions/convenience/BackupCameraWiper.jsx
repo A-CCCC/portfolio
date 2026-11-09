@@ -8,6 +8,7 @@ import ScrubFrames from '../../../components/ScrubFrames'
 import pagePhotos from '../../../data/pagePhotos'
 import asset from '../../../lib-asset'
 import { describe } from '../../../data/site-copy'
+import { settled } from '../../../components/pin-ease'
 
 // One line on what this is. Fill it in and the page reads like the finished
 // ones; the note stays until the page itself is built out.
@@ -191,7 +192,8 @@ function Scrub({ folder, count, aspect, label, hint, title, full }) {
       const vh = window.innerHeight
       const rect = section.getBoundingClientRect()
       const runway = section.offsetHeight - vh
-      const t = runway > 0 ? Math.max(0, Math.min(1, -rect.top / runway)) : 0
+      // (from where the page settles after easing into the pin: pin-ease.js)
+      const t = runway > 0 ? (settled(section) ?? Math.max(0, Math.min(1, -rect.top / runway))) : 0
 
       // The largest rectangle of the footage's own shape that fits the share
       // of the screen it starts at, growing to the whole screen.
@@ -262,7 +264,7 @@ function Scrub({ folder, count, aspect, label, hint, title, full }) {
 
   return (
     <div ref={sectionRef} style={{ height: title ? TITLE_RUNWAY : RUNWAY, position: 'relative' }}>
-      <div style={{
+      <div data-ease-pin="" style={{
         position: 'sticky',
         top: 0,
         height: 'var(--screen)',

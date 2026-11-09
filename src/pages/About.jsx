@@ -61,15 +61,27 @@ export default function About() {
           paragraph above is for anyone, and this is for whoever wants the
           dates. Left-aligned by the component itself — a résumé read down a
           centered column is a poster rather than a document. */}
+      {/* As the home page does from the words about me down, the wallpaper
+          held still once the résumé reaches the top of the screen, and the
+          résumé going on up over it (.wall-lock, wallpaper.js): its part of
+          the page the page's whole width and down to its foot, for the
+          wallpaper held under it to cover */}
       {resume && (
-        <div className="glass glass-vivid nav-glass text-panel" style={{
-          width: '100%',
-          maxWidth: 820,
-          margin: '56px 0 0',
-          opacity: resumeOpacity,
-          transition: 'opacity 1.5s ease',
+        <div className="wall-lock-zone" style={{
+          alignSelf: 'stretch',
+          margin: '0 -24px -80px',
+          padding: '56px 24px 80px',
         }}>
-          <Resume resume={resume} />
+          <div className="wall-lock" aria-hidden="true"><i /></div>
+          <div className="glass glass-vivid nav-glass text-panel" style={{
+            width: '100%',
+            maxWidth: 820,
+            margin: '0 auto',
+            opacity: resumeOpacity,
+            transition: 'opacity 1.5s ease',
+          }}>
+            <Resume resume={resume} />
+          </div>
         </div>
       )}
     </div>

@@ -87,5 +87,4 @@ export const completed = [
 export const current = [
   // No thumbnails yet: the cards say so until there are renders
   { label: 'Lightsaber', path: '/projects/halloween/lightsaber', image: undefined, tint: 4 },
-  { label: 'Scout Trooper Helmet', path: '/projects/halloween/scout-trooper', image: undefined, tint: 6 },
 ]

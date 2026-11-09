@@ -31,7 +31,7 @@ export default function Mortar() {
       {/* ---- Scroll-scrubbed animation, once there are frames to scrub ---- */}
       {FRAME_COUNT > 0 && (
         <div ref={sectionRef} style={{ height: '400vh', position: 'relative' }}>
-          <div className="split" style={{
+          <div data-ease-pin="" className="split" style={{
             position: 'sticky',
             top: 0,
             height: 'var(--screen)',

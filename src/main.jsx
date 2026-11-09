@@ -43,6 +43,9 @@ import('./components/wallpaper').then((m) => m.watchWallpapers()).catch(() => {}
 // Links that point onward (→) sweep the page left and bring the next in from
 // the right. See components/page-sweep.js.
 import('./components/page-sweep').then((m) => m.sweepOnward()).catch(() => {})
+// A pinned animation's page easing to a standstill as the panel pins (see
+// components/pin-ease.js)
+import('./components/pin-ease').then((m) => m.easePins()).catch(() => {})
 // and the titles drawn as lenses of their own letters, where WebGL is (see
 // components/glass-titles.js)
 import('./components/glass-titles').then((m) => m.startGlassTitles()).catch(() => {})

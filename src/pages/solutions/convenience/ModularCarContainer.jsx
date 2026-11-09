@@ -8,6 +8,7 @@ import BuildLog from '../../../components/BuildLog'
 import ScrollHint from '../../../components/ScrollHint'
 import asset from '../../../lib-asset'
 import { describe } from '../../../data/site-copy'
+import { settled } from '../../../components/pin-ease'
 
 // One line on what this is. The note below it clears itself once there are
 // photos in the folder — see src/assets/photos/README.md.
@@ -85,7 +86,8 @@ function Assembly() {
     const place = () => {
       const vh = window.innerHeight
       const runway = section.offsetHeight - vh
-      const t = runway > 0 ? clamp(-section.getBoundingClientRect().top / runway) : 0
+      // (from where the page settles after easing into the pin: pin-ease.js)
+      const t = runway > 0 ? (settled(section) ?? clamp(-section.getBoundingClientRect().top / runway)) : 0
       // up from below the foot of the screen to the middle of it
       const rise = ease(clamp(t / RISES_FOR))
       if (boxRef.current) boxRef.current.style.transform = `translateY(${((1 - rise) * vh * 0.9).toFixed(1)}px)`
@@ -109,7 +111,7 @@ function Assembly() {
 
   return (
     <div ref={sectionRef} style={{ height: RUNWAY, position: 'relative' }}>
-      <div style={{
+      <div data-ease-pin="" style={{
         position: 'sticky',
         top: 0,
         height: 'var(--screen)',

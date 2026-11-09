@@ -10,6 +10,7 @@
 // `progress` is still state, because the scroll hint fades on it, but it is only
 // published when it has moved enough to matter.
 import { useEffect, useRef, useState } from 'react'
+import { settled } from '../components/pin-ease'
 
 const WORTH_A_RENDER = 0.02   // of the way through, so about fifty updates
 
@@ -27,7 +28,8 @@ export default function useScrollFrames(frameCount, startFrame = 1) {
       if (!section) return
       const rect = section.getBoundingClientRect()
       const runway = section.offsetHeight - window.innerHeight
-      const scrolled = runway > 0 ? Math.max(0, Math.min(1, -rect.top / runway)) : 0
+      // (from where the page settles after easing into the pin: pin-ease.js)
+      const scrolled = runway > 0 ? (settled(section) ?? Math.max(0, Math.min(1, -rect.top / runway))) : 0
       const frame = startFrame + Math.floor(scrolled * frameCount)
       frameRef.current = Math.min(frame, startFrame + frameCount - 1)
 

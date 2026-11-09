@@ -3046,6 +3046,42 @@ html.vt-bubble::view-transition-new(root) {
 /* every other page, held for its footer (wallpaper.js): the layer in the
    page itself, under everything in it */
 .home-backdrop.wall-foot-held { position: relative; isolation: isolate; }
+/* and an inverted band on such a page, its own copy of the wallpaper held
+   likewise (wallpaper.js, holdBands): a layer under what is in the band,
+   over the band's own background, cut to the band, pinned to the screen
+   from where the page's is, wearing the same copy laid the same way */
+.wall-foot-held [data-inverted] { position: relative; isolation: isolate; clip-path: inset(0); }
+.band-hold {
+  position: absolute;
+  inset: var(--band-in, 0px) 0 calc(-1 * var(--band-past, 0px));
+  z-index: -1;
+  pointer-events: none;
+}
+.band-hold:not([style]) { display: none; }
+.band-hold > i {
+  display: block;
+  position: sticky;
+  top: 0;
+  height: 100lvh;
+  background-image: var(--home-wall-dark);
+  background-size: var(--wall-size, cover);
+  background-position: var(--wall-at-x, 50%) var(--band-y, 0px);
+  background-repeat: no-repeat;
+}
+/* (on the dark page the bands' copy is a shade lifted, as they are) */
+:root[data-theme='dark'] .band-hold > i {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06)), var(--home-wall-dark);
+  background-size: 100% 100%, var(--wall-size, cover);
+  background-position: 0 0, var(--wall-at-x, 50%) var(--band-y, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='auto'] .band-hold > i,
+  :root:not([data-theme]) .band-hold > i {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06)), var(--home-wall-dark);
+    background-size: 100% 100%, var(--wall-size, cover);
+    background-position: 0 0, var(--wall-at-x, 50%) var(--band-y, 0px);
+  }
+}
 .wall-lock > i {
   display: block;
   position: sticky;
@@ -3320,3 +3356,32 @@ html.theme-snap .glass.nav-glass.theme-orb {
 }
 ::view-transition-old(theme-orb) { display: none; }
 ::view-transition-new(theme-orb) { animation: none; }
+
+/* A pinned animation slows into place rather than stopping dead (the pages
+   whose panel pins at the top of the screen; not the wiper's, which fills
+   it). The whole page goes, the wallpaper with it, so nothing slides against
+   anything: over the stretch of scrolling before the panel pins
+   (pin-ease.js measures it), the page draws a little ahead, then eases to a
+   standstill just as the panel reaches the top — so it arrives at rest,
+   with nothing left moving once the animation plays; and as the panel
+   lets go, the same in reverse (pin-leave). On the page's own
+   scroll, so the compositor runs it; where there are no scroll-driven
+   animations it pins as before. */
+@supports (animation-timeline: scroll()) {
+  /* Drawing out ahead as it lets go, the page shows a strip below the panel
+     before the panel has gone — the inside of its section, whose wallpaper
+     is not the panel's — so the panel reaches on under it: a margin at its
+     foot, more than the glide draws ahead, in its own background, what is
+     in it laid out as before */
+  [data-ease-pin] {
+    height: calc(var(--screen) + 6vh) !important;
+    border-bottom: 6vh solid transparent;
+  }
+  .wall-page .wall-hold[style][data-ease-pin] {
+    height: calc(100lvh + 6vh) !important;
+    border-bottom: calc(100lvh - 100svh + 6vh) solid transparent;
+  }
+  /* (the page's glides themselves, one in and one out for each pinned
+     section on it, are listed on the page by pin-ease.js) */
+}
+/* (its keyframes written by pin-ease.js, in pixels for the screen) */

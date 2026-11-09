@@ -392,9 +392,34 @@ function lockStill(host) {
   // page, which goes up over it, rather than letting go as the footer came
   const past = foot ? Math.floor(foot.getBoundingClientRect().bottom - host.getBoundingClientRect().bottom) : 0
   box.style.setProperty('--lock-past', `${Math.max(0, past)}px`)
+  if (!zone) holdBands(host, foot)
 }
-// The copies of the wallpaper some parts of a page paint for themselves —
-// the hubs' inverted bands, a pinned panel's stretch — held with the rest
+// The hubs' inverted bands paint the wallpaper again for themselves, in the
+// other theme's colours, and that copy has to be held as well. Each gets a
+// layer of its own like the page's: pinned to the screen from the moment
+// the page's is, wearing its copy where the page holds it, cut to the band
+// (.band-hold). Set back from the page's scroll by script instead, a frame
+// behind the scrolling, the copy shook against the wallpaper round it.
+function holdBands(host, foot) {
+  const hr = host.getBoundingClientRect()
+  const end = foot ? foot.getBoundingClientRect().bottom : hr.bottom
+  for (const band of host.querySelectorAll('[data-inverted]')) {
+    let layer = band.querySelector(':scope > .band-hold')
+    if (!layer) {
+      layer = document.createElement('div')
+      layer.className = 'band-hold'
+      layer.setAttribute('aria-hidden', 'true')
+      layer.appendChild(document.createElement('i'))
+      band.appendChild(layer)
+    }
+    const br = band.getBoundingClientRect()
+    layer.style.setProperty('--band-in', `${(hr.top + host.__lockTop - br.top).toFixed(1)}px`)
+    layer.style.setProperty('--band-past', `${Math.max(0, Math.floor(end - br.bottom))}px`)
+    layer.style.setProperty('--band-y', `${(-host.__lockTop).toFixed(1)}px`)
+  }
+}
+// The copy of the wallpaper a pinned panel paints for itself held with the
+// rest
 // as the footer comes up: set back, as it scrolls, by as far as the page has
 // gone on over the held wallpaper (--locked-by, read by index.css). Only
 // while the footer is coming up does it change.
@@ -403,7 +428,7 @@ function holdCopies() {
     const by = `${lockedBy(host).toFixed(1)}px`
     if (host.__lockedBy === by) continue
     host.__lockedBy = by
-    for (const el of host.querySelectorAll('[data-inverted], .wall-hold')) el.style.setProperty('--locked-by', by)
+    for (const el of host.querySelectorAll('.wall-hold')) el.style.setProperty('--locked-by', by)
   }
 }
 // How far the page has scrolled on over the wallpaper held still (px)
@@ -476,6 +501,30 @@ export function wallRegion(host, x, y, w, h, wPx, hPx, dark) {
   if (!host.__pattern || host.__unit === undefined) return null
   const u = host.__unit
   const svg = svgOf(host, dark ? DARK : LIGHT, host.__x + x * u, rowAt(host, y), w * u, h * u, wPx, hPx)
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`
+}
+
+// The same part of it as a panel of glass over it shows it (.about-panel):
+// blurred as the panel's backdrop blurs it, its colour lifted as the panel
+// lifts it, under the panel's wash of the page's own colour — for letters on
+// the panel to take their colour from the panel rather than from the bare
+// wallpaper (glass-titles.js). Drawn a blur's reach past the box on every
+// side, so its edges are not blurred in from nothing.
+const PANEL_BLUR = 7              // px: the panel's blur, with its lens's own
+const PANEL_FILL = 0.62           // the share of the page's colour over it (--lg-fill)
+export function panelRegion(host, x, y, w, h, wPx, hPx, dark) {
+  if (!host.__pattern || host.__unit === undefined) return null
+  const u = host.__unit
+  const b = PANEL_BLUR * u, e = b * 3
+  const X = host.__x + x * u, Y = rowAt(host, y), W = w * u, H = h * u
+  const { defs, body } = scene(host, dark ? DARK : LIGHT, X - e, Y - e, W + 2 * e, H + 2 * e)
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || (dark ? '#0c162a' : '#ffeed8')
+  const glass = `<filter id='panel' filterUnits='userSpaceOnUse' x='${(X - e).toFixed(2)}' y='${(Y - e).toFixed(2)}' width='${(W + 2 * e).toFixed(2)}' height='${(H + 2 * e).toFixed(2)}' color-interpolation-filters='sRGB'>`
+    + `<feGaussianBlur stdDeviation='${b.toFixed(2)}'/><feColorMatrix type='saturate' values='1.6'/>`
+    + `<feComponentTransfer><feFuncR type='linear' slope='1.04'/><feFuncG type='linear' slope='1.04'/><feFuncB type='linear' slope='1.04'/></feComponentTransfer></filter>`
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${Math.round(wPx)}' height='${Math.round(hPx)}' viewBox='${X.toFixed(2)} ${Y.toFixed(2)} ${W.toFixed(2)} ${H.toFixed(2)}' preserveAspectRatio='none'><defs>${defs}${glass}</defs>`
+    + `<g filter='url(#panel)'>${body}</g>`
+    + `<rect x='${(X - e).toFixed(2)}' y='${(Y - e).toFixed(2)}' width='${(W + 2 * e).toFixed(2)}' height='${(H + 2 * e).toFixed(2)}' fill='${bg}' fill-opacity='${PANEL_FILL}'/></svg>`
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 

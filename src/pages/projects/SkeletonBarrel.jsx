@@ -179,7 +179,7 @@ export default function SkeletonBarrel() {
 
       {/* ---- SECTION 2: Scroll-scrubbed animation (right) + text (left) ---- */}
       <div ref={sectionRef} style={{ height: '400vh', position: 'relative' }}>
-        <div style={{
+        <div data-ease-pin="" style={{
           position: 'sticky',
           top: 0,
           height: 'var(--screen)',

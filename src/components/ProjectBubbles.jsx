@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { EggIcon } from './EggCrack'
 import useFadeIn from '../hooks/useFadeIn'
-import { accessibility, clashRoyale, convenience, halloween, misc, bubbleProjects, completed, featured } from '../data/projects'
+import { accessibility, clashRoyale, convenience, halloween, misc, bubbleProjects, completed } from '../data/projects'
 import useIsPhone, { useIsShort } from '../hooks/useIsPhone'
 
 // Hand-placed as two arcs — one above the hero title, one below — plus a pair
@@ -194,12 +194,13 @@ const ALWAYS_PATHS = ['/solutions/convenience/backup-camera-wiper']
 
 // Shy: the bubble of a project whose page is not finished yet runs from the
 // pointer, so it cannot be caught and clicked. Finished means on the home
-// page's list of finished pages, or the featured project. It runs only as
+// page's list of finished pages (the featured project, Darth Vader, is not
+// finished yet, so it runs too). It runs only as
 // far as it needs to clear the pointer, and only to where nothing else is —
 // inside the opening screen, off the title and its link, and clear of every
 // other bubble and the reach of its drift — so the finished ones are never
 // pushed about; and once the pointer is well away it comes back home.
-const FINISHED = new Set([featured, ...completed].map((p) => p.path))
+const FINISHED = new Set(completed.map((p) => p.path))
 const isShy = (project) => !project.icon && !FINISHED.has(project.path)
 const SHY_NEAR = 70        // how close the pointer may come to its rim (px)
 const SHY_CLEAR = 110      // and how far off the rim it goes when it runs

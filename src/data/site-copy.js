@@ -33,7 +33,7 @@ const published = {
   'modular-car-container': 'A modular container to make an awkward car compartment usable.',
   // Shown on the home page, so they have to be here rather than in the private copy
   'darth-vader': 'A wearable cardboard Darth Vader helmet, built from scratch for Halloween.',
-  lightsaber: 'A working lightsaber, hopefully built in time for Halloween.',
+  lightsaber: 'A working lightsaber.',
 }
 
 // A page's line under its title. One of the published ones, or — for a project
