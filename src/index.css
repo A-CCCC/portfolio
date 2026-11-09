@@ -3374,11 +3374,24 @@ html.theme-snap .glass.nav-glass.theme-orb {
      foot, more than the glide draws ahead, in its own background, what is
      in it laid out as before */
   [data-ease-pin] {
-    height: calc(var(--screen) + 6vh) !important;
+    height: calc(var(--screen) + 12vh) !important;
     border-bottom: 6vh solid transparent;
+    /* and at its head the same, for the glide in: settling as it pins, the
+       panel sits a little below the top of the screen, and the strip above
+       it was the inside of its section. Reached up over the section before
+       it — the panel's own wallpaper there being that section's own, so
+       it is not seen — and pinned that much higher, so what is in it
+       pins where it did. (Its wallpaper is laid from inside the margins, so
+       it carries on up into this one as it carries on down.) */
+    border-top: 6vh solid transparent;
+    margin-top: -6vh;
+    top: -6vh !important;
   }
+  /* (its section kept where it was: the panel's margin reaching up out of
+     it, not merging with the section's own and taking it up too) */
+  :has(> [data-ease-pin]) { display: flow-root; }
   .wall-page .wall-hold[style][data-ease-pin] {
-    height: calc(100lvh + 6vh) !important;
+    height: calc(100lvh + 12vh) !important;
     border-bottom: calc(100lvh - 100svh + 6vh) solid transparent;
   }
   /* (the page's glides themselves, one in and one out for each pinned

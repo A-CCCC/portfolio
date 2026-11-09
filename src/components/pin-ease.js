@@ -39,6 +39,10 @@ function writeKeys(d) {
 // (the wiper's page has two): a list of animations on the page, each on the
 // page's scroll over its own stretch of it
 const glides = CSS.supports?.('animation-timeline: scroll()')
+// How much of its section a pinned panel takes, as the pinning counts it:
+// its own height, less the margin it reaches up over the section before
+export const pinnedHeight = (panel) => panel.offsetHeight + (parseFloat(getComputedStyle(panel).marginTop) || 0)
+
 function place(page) {
   const d = Math.round(window.innerHeight * SHARE)
   writeKeys(d)
@@ -48,7 +52,7 @@ function place(page) {
     let y = 0
     for (let e = section; e; e = e.offsetParent) y += e.offsetTop
     // where it lets go: the section's foot reaching the panel's
-    const go = y + section.offsetHeight - panel.offsetHeight
+    const go = y + section.offsetHeight - pinnedHeight(panel)
     names.push('pin-glide', 'pin-leave')
     ranges.push(`${Math.max(0, y - d)}px ${y + d}px`, `${go - d}px ${go + d}px`)
     section.dataset.settle = String(d)
@@ -71,7 +75,7 @@ export function settled(section) {
   const settle = parseFloat(section.dataset.settle) || 0
   // (to where the panel lets go, its margin at the foot and all)
   const panel = section.querySelector(':scope > [data-ease-pin]')
-  const runway = section.offsetHeight - (panel ? panel.offsetHeight : window.innerHeight) - 2 * settle
+  const runway = section.offsetHeight - (panel ? pinnedHeight(panel) : window.innerHeight) - 2 * settle
   if (runway <= 0) return null
   return Math.max(0, Math.min(1, (-section.getBoundingClientRect().top - settle) / runway))
 }

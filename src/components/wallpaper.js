@@ -197,9 +197,12 @@ function measureHolds(host) {
   for (const panel of host.querySelectorAll('[style*="position: sticky"]')) {
     const box = panel.parentElement
     const br = box.getBoundingClientRect()
-    const runway = br.height - panel.offsetHeight
+    // (its height as the pinning counts it: less any margin it reaches up
+    // over the section before, pin-ease.js)
+    const ph = panel.offsetHeight + (parseFloat(getComputedStyle(panel).marginTop) || 0)
+    const runway = br.height - ph
     if (runway < 10) continue
-    out.push({ panel, top: br.top - hr.top, bottom: br.bottom - hr.top, h: panel.offsetHeight, left: br.left - hr.left })
+    out.push({ panel, top: br.top - hr.top, bottom: br.bottom - hr.top, h: ph, left: br.left - hr.left })
   }
   return out.sort((a, b) => a.top - b.top)
 }
@@ -368,11 +371,12 @@ function lockStill(host) {
     const last = after ? Math.max(0, ...[...host.querySelectorAll(after)].map((e) => e.getBoundingClientRect().bottom - top)) : 0
     host.__lockTop = last ? last + 0.025 * window.innerHeight : from
   } else {
-    // (a page with no footer, or no more than a screen of itself, has
-    // nothing to hold it for)
+    // (a page with no footer, or less than a screen of itself, has nothing
+    // to hold it for; one of exactly a screen — the games, the loading
+    // page — holds it from the first of the scrolling)
     const at = host.offsetHeight - window.innerHeight
     let layer = host.querySelector(':scope > .wall-lock')
-    if (!foot || at <= 0 || host.closest('.page-ghost')) { layer?.remove(); host.classList.remove('wall-foot-held'); return }
+    if (!foot || at < -1 || host.closest('.page-ghost')) { layer?.remove(); host.classList.remove('wall-foot-held'); return }
     if (!layer) {
       layer = document.createElement('div')
       layer.className = 'wall-lock'
@@ -383,7 +387,7 @@ function lockStill(host) {
     host.classList.add('wall-foot-held')
     box = layer
     from = 0
-    host.__lockTop = at
+    host.__lockTop = Math.max(0, at)
   }
   box.style.setProperty('--lock-in', `${(host.__lockTop - from).toFixed(1)}px`)
   box.style.setProperty('--hold-size', `${host.offsetWidth}px ${host.offsetHeight}px`)
