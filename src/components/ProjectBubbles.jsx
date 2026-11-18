@@ -1,7 +1,12 @@
 // src/components/ProjectBubbles.jsx
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import { EggIcon } from './EggCrack'
+import { tossBubbles } from './bubble-toss'
+
+// The easter egg: a game of pool on the bubbles, fetched only when taken up
+const PoolGame = lazy(() => import('./PoolGame'))
 import useFadeIn from '../hooks/useFadeIn'
 import { accessibility, clashRoyale, convenience, halloween, misc, bubbleProjects } from '../data/projects'
 import useIsPhone, { useIsShort } from '../hooks/useIsPhone'
@@ -492,13 +497,70 @@ export default function ProjectBubbles() {
       const m = new DOMMatrixReadOnly(getComputedStyle(el).transform)
       el.parentElement.style.transformOrigin = `calc(50% + ${m.e.toFixed(1)}px) calc(50% + ${m.f.toFixed(1)}px)`
     })
-    el.addEventListener('mouseleave', () => { drift.play(); breath.play() })
+    // (not while it is flying, thrown or knocked: bubble-toss.js plays it
+    // again once it has come to rest)
+    el.addEventListener('mouseleave', () => { if (!el.__moving) { drift.play(); breath.play() } })
+    el.__float = [drift, breath]
+  }
+
+  // Picked up and thrown: a bubble pressed and moved follows the pointer,
+  // and let go flies on, knocking the others about (bubble-toss.js)
+  // ...and one knocked into another asks whether the reader would like a
+  // game of pool (PoolGame.jsx): once, unless a game was played since — a
+  // "not now" is kept to until the page is opened again
+  const [pool, setPool] = useState(null)       // null, 'ask' or the bubbles as they were
+  const poolAsked = useRef(false)
+  const thrower = useRef(null)
+  useEffect(() => tossBubbles(layerRef.current, {
+    onKnock: (el) => {
+      if (poolAsked.current) return
+      poolAsked.current = true
+      thrower.current = el
+      setPool('ask')
+    },
+  }), [cast])
+  useEffect(() => {
+    if (pool !== 'ask') return undefined
+    const t = setTimeout(() => setPool((p) => (p === 'ask' ? null : p)), 9000)
+    return () => clearTimeout(t)
+  }, [pool])
+  const playPool = () => {
+    const layer = layerRef.current
+    if (!layer) return
+    // each bubble as it is: where, how big, its picture, its colour, its name
+    const bubbles = [...layer.querySelectorAll('.bubble')].map((el) => {
+      const r = el.getBoundingClientRect()
+      return {
+        x: r.left + r.width / 2, y: r.top + r.height / 2, r: r.width / 2,
+        src: el.querySelector('img')?.currentSrc || null,
+        hue: getComputedStyle(el).getPropertyValue('--lg-hue').trim(),
+        label: el.getAttribute('aria-label'),
+        thrown: el === thrower.current,
+      }
+    }).filter((b) => b.r > 0)
+    // and more of the site's projects, as bubbles, to make up the rack
+    const root = getComputedStyle(document.documentElement)
+    const onScreen = new Set(bubbles.map((b) => b.label))
+    const seen = new Set()
+    const extras = shuffled(shown([...bubbleProjects, ...accessibility, ...clashRoyale, ...convenience, ...halloween, ...misc]))
+      .filter((p) => !onScreen.has(p.label) && !seen.has(p.path) && seen.add(p.path))
+      .map((p, k) => ({ src: p.image.replace('.webp', '-small.webp'), label: p.label, hue: root.getPropertyValue(`--hue-${(k % HUES.length) + 1}`).trim() }))
+    layer.classList.add('bubble-layer-pooled')
+    setPool({ bubbles, extras })
+  }
+  const endPool = () => {
+    layerRef.current?.classList.remove('bubble-layer-pooled')
+    poolAsked.current = false
+    setPool(null)
   }
 
   const navigate = useNavigate()
   const [swelling, setSwelling] = useState(null)
   const [popping, setPopping] = useState(null)
   const pop = (e, path, hue) => {
+    // (the click a bubble's release makes after it was dragged: no pop, and
+    // no following its link either)
+    if (e.currentTarget.__tossed) { e.preventDefault(); return }
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     e.preventDefault()
@@ -652,6 +714,7 @@ export default function ProjectBubbles() {
               // page a visitor sees first. See scripts/make-thumbnail.py.
               src={project.image.replace('.webp', '-small.webp')}
                     alt=""
+                    draggable={false}
                     style={{
                       width: '100%',
                       height: '100%',
@@ -680,6 +743,18 @@ export default function ProjectBubbles() {
         )
       })}
     </div>
+    {pool === 'ask' && createPortal(
+      <div className="pool-ask glass nav-glass" role="dialog" aria-label="Play pool?">
+        <span>Want to play pool?</span>
+        <button type="button" className="pool-button pool-button-go" onClick={playPool}>Play</button>
+        <button type="button" className="pool-button" onClick={() => setPool(null)}>No thanks</button>
+      </div>,
+      document.body,
+    )}
+    {pool && pool !== 'ask' && createPortal(
+      <Suspense fallback={null}><PoolGame bubbles={pool.bubbles} extras={pool.extras} onClose={endPool} /></Suspense>,
+      document.body,
+    )}
     </>
   )
 }

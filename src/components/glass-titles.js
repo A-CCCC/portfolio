@@ -88,6 +88,13 @@ export function startGlassTitles() {
       // Services' shop): clear glass — the wallpaper behind it seen through
       // it, bent at its rim, as the bubbles see it — in its own colour
       const host = el.classList.contains('panel-bright') && el.closest('.home-backdrop')
+      // (where the browser can bend the page behind a surface itself —
+      // Chromium, main.jsx — such a card is that glass instead, as the home
+      // page's cards are (index.css): drawn here, a card going over the
+      // wallpaper while it is held still (the footer coming up) or dragged
+      // along its carousel was drawn again every frame, a frame behind, and
+      // the wallpaper through it trailed)
+      if (host && document.documentElement.hasAttribute('data-lens')) continue
       const behind = host ? {
         wall: () => {
           if (!host.__pattern) return null

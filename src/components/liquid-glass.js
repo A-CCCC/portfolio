@@ -1236,6 +1236,18 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       // as most things scroll, nothing is drawn at all.
       const cx = r.left + r.width / 2, cy = r.top + r.height / 2
       const ang = Math.round(Math.atan2(cy - lightNow.y, cx - lightNow.x) * 57.3 * 4)    // quarter degrees
+      // Where a surface over the wallpaper is on it, not on the screen: the
+      // page carries the wallpaper and the surface up together as it
+      // scrolls, so what shows through does not change, and a card redrawn
+      // for every pixel it moved up the screen — and copied into itself
+      // each time — made the scrolling lag. (Held still, the wallpaper is
+      // where the screen has it: the shift its wall reports, below.)
+      const wallAt = (s, r) => {
+        const w = s.wall(s.el)
+        if (!w) return ''
+        const hr = w.host.getBoundingClientRect(), sh = w.shift ? w.shift() : 0
+        return `${Math.round((r.left - hr.left) * dpr)},${Math.round((r.top - hr.top - sh) * dpr)}`
+      }
       const flashing = now - (s.el.__flashAt ?? -1e9) < 1450
       const silkFade = s.silkNow ? Math.min(1, (now - (s.silkAt ?? -1e9)) / FADE) : -1
       // the lens easing in or out: most of the way in about half a second
@@ -1248,8 +1260,13 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       }
       if (flashing || (silkFade >= 0 && silkFade < 1)) hotUntil = now + 120
       const pic = s.image ? !!(s.image(s.el)?.complete) : 0
-      const key = `${ang}|${Math.round(Math.log(cw) * 50)}|${Math.round(Math.log(ch) * 50)}|${dark.toFixed(2)}|${silkFade.toFixed(2)}|${s.silkNow?.tex ? 1 : 0}|${flashing ? now : 0}|${pic}|${dpr}|${s.skip ? s.skip(s.el) : 0}|${s.lens.toFixed(3)}|${s.wall ? `${Math.round(r.left * dpr)},${Math.round(r.top * dpr)}` : ''}|${s.behindKey || ''}|${s.behindUrl && urlTexture(s.behindUrl) ? 1 : 0}|${s.stripKey || ''}|${s.stripUrl && urlTexture(s.stripUrl) ? 1 : 0}`
-      if (key === s.drawn) continue
+      const rest = `${Math.round(Math.log(cw) * 50)}|${Math.round(Math.log(ch) * 50)}|${dark.toFixed(2)}|${silkFade.toFixed(2)}|${s.silkNow?.tex ? 1 : 0}|${flashing ? now : 0}|${pic}|${dpr}|${s.skip ? s.skip(s.el) : 0}|${s.lens.toFixed(3)}|${s.wall ? wallAt(s, r) : ''}|${s.behindKey || ''}|${s.behindUrl && urlTexture(s.behindUrl) ? 1 : 0}|${s.stripKey || ''}|${s.stripUrl && urlTexture(s.stripUrl) ? 1 : 0}`
+      // The light's direction to it matters only once it has turned by a
+      // couple of degrees: in quarter degrees, a card going up the screen
+      // was drawn again a few hundred times on the way
+      const turned = s.drawnAng === undefined || Math.abs(ang - s.drawnAng) >= 8
+      const key = rest
+      if (key === s.drawn && !turned) continue
       // A surface's first drawing lays out its letters (and in Safari blurs
       // them by hand) — a page arriving with a dozen of them did all of it
       // in one frame, and its transition stalled. Past a few milliseconds'
@@ -1268,7 +1285,7 @@ export function mountLiquidGlass({ backdropOf, live = false }) {
       ctx.clearRect(0, 0, cw, ch)
       s.draws = (s.draws || 0) + 1
       if (draw(s)) {
-        ctx.drawImage(canvas, 0, 0, cw, ch, 0, 0, cw, ch); s.drawn = key
+        ctx.drawImage(canvas, 0, 0, cw, ch, 0, 0, cw, ch); s.drawn = key; s.drawnAng = ang
         // drawn at last: the CSS glass it stood in for can stand down now
         // (index.css, .lg-drawn), not before — a title marked as WebGL glass
         // the moment it was taken up hid its CSS letters at once, and until
