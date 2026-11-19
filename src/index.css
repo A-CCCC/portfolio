@@ -3642,7 +3642,6 @@ html.theme-snap .glass.nav-glass.theme-orb {
 .tanks-kinds { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; font-size: 14px; }
 .tanks-kinds > span { display: inline-flex; align-items: center; gap: 6px; }
 .tanks-kinds i { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.8); }
-.tanks-arena { box-shadow: 0 18px 40px -22px var(--lg-shade, rgba(0, 0, 0, 0.4)); }
 .tanks-stick {
   position: fixed;
   z-index: 30;

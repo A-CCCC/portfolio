@@ -24,7 +24,21 @@ import { useIsTouch, useIsShort } from '../hooks/useIsPhone'
 import * as R from './tanks-rules'
 
 const S = 40                          // px a square, before the screen's own scaling
-const W = R.COLS * S, H = R.ROWS * S
+// The arena seen as Wii Play's is, from above and in front, the camera
+// tipped forward: the floor foreshortened (by TILT_C), and anything with
+// height rising up the screen (by TILT_S for each square of height). The
+// blocks stand BLOCK_H squares high, and a wall of them BORDER thick goes
+// round the arena.
+const TILT_C = 0.8
+const TILT_S = 0.6
+const BLOCK_H = 0.8
+const BORDER = 0.6
+// the canvas, in px before scaling, lying down or stood on end
+const viewOf = (up) => {
+  const across = (up ? R.ROWS : R.COLS) + BORDER * 2, along = (up ? R.COLS : R.ROWS) + BORDER * 2
+  return { w: across * S, h: (along * TILT_C + BLOCK_H * TILT_S) * S, across: up ? R.ROWS : R.COLS, along: up ? R.COLS : R.ROWS }
+}
+const VIEW = { flat: viewOf(false), up: viewOf(true) }
 const BEST_KEY = 'tanks-best'
 const SOUND_KEY = 'tanks-sound'
 // A screen taller than it is wide has the arena stood on end, you at the
@@ -105,6 +119,7 @@ function makeSounds() {
 }
 
 const AIM_REACH = 6                   // squares: how far from your tank the crosshair goes
+const AIM_DOTS = 12                   // the dots from the barrel to the crosshair
 const STICK = 52                     // px: how far a thumb pushes a stick to its full
 const AIMED = 16                      // px the aiming thumb moves before it is aiming, not tapping
 
@@ -202,14 +217,16 @@ export default function TanksGame() {
         },
       }
     }
+    let dpr = 1
     const fit = () => {
       const up = uprightRef.current
       // drawn at the size it is shown (bigger in full screen), at the
       // screen's own pixel density
-      const shown = canvas.getBoundingClientRect().width || (up ? H : W)
-      const r = Math.min(3, (window.devicePixelRatio || 1) * Math.max(1, shown / (up ? H : W)))
-      canvas.width = (up ? H : W) * r; canvas.height = (up ? W : H) * r
-      ctx.setTransform(r, 0, 0, r, 0, 0)
+      const v = up ? VIEW.up : VIEW.flat
+      const shown = canvas.getBoundingClientRect().width || v.w
+      const r = Math.min(3, (window.devicePixelRatio || 1) * Math.max(1, shown / v.w))
+      canvas.width = Math.round(v.w * r); canvas.height = Math.round(v.h * r)
+      dpr = r
       pal = palette()
     }
     fit()
@@ -260,10 +277,37 @@ export default function TanksGame() {
       else if (!on && G.phase === 'paused') { G.phase = G.was; show() }
     }
 
+    // --- the camera ---
+    // the arena's squares as seen: across the screen and down it (stood on
+    // end, the arena's length runs up the screen, you at the bottom)
+    const view = () => (uprightRef.current ? VIEW.up : VIEW.flat)
+    const toView = (x, y) => (uprightRef.current ? { x: y, y: R.COLS - x } : { x, y })
+    const fromView = (vx, vy) => (uprightRef.current ? { x: R.COLS - vy, y: vx } : { x: vx, y: vy })
+    const TOP = BLOCK_H * TILT_S + BORDER * TILT_C        // where the arena's far edge is on the canvas, in squares
+    // a point seen (across, down, at a height) to the canvas, in squares
+    const proj = (vx, vy, z = 0) => ({ x: BORDER + vx, y: TOP + vy * TILT_C - z * TILT_S })
+    // drawn in the canvas's own squares (for faces that rise)
+    const flat = () => ctx.setTransform(dpr * S, 0, 0, dpr * S, 0, 0)
+    // drawn on the floor, or on a level that high above it, in the arena's
+    // own squares: everything there tipped as the floor is
+    const plane = (z = 0) => {
+      ctx.setTransform(dpr * S, 0, 0, dpr * S, 0, 0)
+      ctx.translate(BORDER, TOP - z * TILT_S)
+      ctx.scale(1, TILT_C)
+      if (uprightRef.current) { ctx.translate(0, R.COLS); ctx.rotate(-Math.PI / 2) }
+    }
+    // (for trying it out while working on it: where a point of the floor is on the screen)
+    if (import.meta.env.DEV) {
+      G.screenOf = (x, y) => {
+        const r = canvas.getBoundingClientRect(), v = view(), q = toView(x, y), c = proj(q.x, q.y, 0)
+        return { x: r.left + (c.x * S / v.w) * r.width, y: r.top + (c.y * S / v.h) * r.height }
+      }
+    }
+    // the floor under a point on the screen
     const toWorld = (p) => {
-      const r = canvas.getBoundingClientRect()
-      const u = (p.x - r.left) / r.width, v = (p.y - r.top) / r.height
-      return uprightRef.current ? { x: R.COLS - v * R.COLS, y: u * R.ROWS } : { x: u * R.COLS, y: v * R.ROWS }
+      const r = canvas.getBoundingClientRect(), v = view()
+      const X = ((p.x - r.left) / r.width) * (v.w / S), Y = ((p.y - r.top) / r.height) * (v.h / S)
+      return fromView(X - BORDER, (Y - TOP) / TILT_C)
     }
     const readInput = () => {
       const I = input.current, k = I.keys
@@ -321,18 +365,16 @@ export default function TanksGame() {
     const fall = (k) => (uprightRef.current ? { x: -0.18 * k, y: 0.12 * k } : { x: 0.12 * k, y: 0.18 * k })
 
     // --- drawing ---
+    // The floor: the page's colour, warmed by the bright one, a dot at each
+    // corner of the squares; the tread marks and where tanks were hit
     const drawFloor = (w) => {
+      plane(0)
       ctx.fillStyle = pal.bg
       ctx.fillRect(0, 0, R.COLS, R.ROWS)
       ctx.fillStyle = rgba(pal.a, pal.dark ? 0.07 : 0.16)
       ctx.fillRect(0, 0, R.COLS, R.ROWS)
-      // its edge, a line of the bright colour inside the rounded corners
-      // (its edge a wall too: drawn in the blocks' rim)
-      ctx.strokeStyle = rim(); ctx.lineWidth = 0.09
-      ctx.beginPath(); ctx.roundRect(0.045, 0.045, R.COLS - 0.09, R.ROWS - 0.09, 0.32); ctx.stroke()
       ctx.fillStyle = rgba(pal.text, 0.07)
       for (let y = 1; y < R.ROWS; y += 1) for (let x = 1; x < R.COLS; x += 1) ctx.fillRect(x - 0.03, y - 0.03, 0.06, 0.06)
-      // tread marks, fading
       for (const m of w.marks) {
         const k = 1 - (w.t - m.t) / 12
         if (k <= 0) continue
@@ -342,7 +384,6 @@ export default function TanksGame() {
         ctx.fillRect(-0.05, -0.36, 0.1, 0.09); ctx.fillRect(-0.05, 0.27, 0.1, 0.09)
         ctx.restore()
       }
-      // where tanks were hit
       for (const s of w.scorch) {
         const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r)
         g.addColorStop(0, rgba(pal.shadow, pal.dark ? 0.5 : 0.3)); g.addColorStop(1, rgba(pal.shadow, 0))
@@ -352,14 +393,10 @@ export default function TanksGame() {
         ctx.beginPath(); ctx.moveTo(s.x - 0.18, s.y - 0.18); ctx.lineTo(s.x + 0.18, s.y + 0.18)
         ctx.moveTo(s.x + 0.18, s.y - 0.18); ctx.lineTo(s.x - 0.18, s.y + 0.18); ctx.stroke()
       }
-    }
-    const drawBlocks = (w) => {
-      const g = w.grid
-      const at = (x, y) => R.cellAt(g, x, y)
-      // holes: pits in the floor
+      // holes: pits in the floor (shells fly over them)
       for (let y = 0; y < R.ROWS; y += 1) {
         for (let x = 0; x < R.COLS; x += 1) {
-          if (g[y][x] !== R.HOLE) continue
+          if (w.grid[y][x] !== R.HOLE) continue
           const pit = ctx.createRadialGradient(x + 0.45, y + 0.4, 0.05, x + 0.5, y + 0.5, 0.6)
           pit.addColorStop(0, pal.dark ? '#01040c' : '#2a1208'); pit.addColorStop(1, pal.dark ? '#13234a' : '#7a3a1c')
           ctx.fillStyle = pit
@@ -368,106 +405,145 @@ export default function TanksGame() {
           ctx.beginPath(); ctx.roundRect(x + 0.1, y + 0.1, 0.8, 0.8, 0.26); ctx.stroke()
         }
       }
-      // The blocks. A shell turns back exactly at a block's edge where it
-      // meets the floor, so that edge is drawn as a crisp rim, all the way
-      // round each run of blocks; each block raised by a bevel (lit on the
-      // side towards the light on the screen) with a faint seam between
-      // neighbours, so the squares, and their corners, can be counted
-      const solid = (x, y) => { const c = at(x, y); return c === R.WALL || c === R.SOFT }
-      const SIDES = [[0, -1], [-1, 0], [0, 1], [1, 0]]
-      const lit = ([dx, dy]) => { const [sx, sy] = uprightRef.current ? [dy, -dx] : [dx, dy]; return sx < 0 || sy < 0 }
-      // a strip along one side of a square, `inset` in from its edge
-      const strip = (x, y, [dx, dy], inset, width) => {
-        if (dx === 0) ctx.fillRect(x, dy < 0 ? y + inset : y + 1 - inset - width, 1, width)
-        else ctx.fillRect(dx < 0 ? x + inset : x + 1 - inset - width, y, width, 1)
-      }
-      ctx.fillStyle = rgba(pal.shadow, pal.dark ? 0.45 : 0.2)
+      // the blocks' shadows on it
       const f = fall(1)
-      for (let y = 0; y < R.ROWS; y += 1) for (let x = 0; x < R.COLS; x += 1) if (solid(x, y)) ctx.fillRect(x + f.x, y + f.y, 1, 1)
-      const glass = ctx.createLinearGradient(0, 0, R.COLS, R.ROWS)
-      glass.addColorStop(0, rgba(pal.a, 0.95)); glass.addColorStop(1, rgba(pal.b, 0.95))
-      for (let y = 0; y < R.ROWS; y += 1) {
-        for (let x = 0; x < R.COLS; x += 1) {
-          const c = g[y][x]
-          if (c !== R.WALL && c !== R.SOFT) continue
-          if (c === R.WALL) {
-            ctx.fillStyle = glass
-            ctx.fillRect(x, y, 1, 1)
-          } else {
-            // a soft block (a mine clears it): frosted, finely lined
-            ctx.fillStyle = pal.dark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0.82)'
-            ctx.fillRect(x, y, 1, 1)
-            ctx.fillStyle = rgba(pal.b, pal.dark ? 0.22 : 0.16)
-            ctx.fillRect(x, y, 1, 1)
-            ctx.save()
-            ctx.beginPath(); ctx.rect(x, y, 1, 1); ctx.clip()
-            ctx.strokeStyle = rgba(pal.b, pal.dark ? 0.5 : 0.4); ctx.lineWidth = 0.03
-            ctx.beginPath()
-            for (let k = -1; k < 2; k += 0.2) { ctx.moveTo(x + k, y + 1); ctx.lineTo(x + k + 1, y) }
-            ctx.stroke()
-            ctx.restore()
-          }
-          for (const side of SIDES) {
-            if (solid(x + side[0], y + side[1])) continue
-            ctx.fillStyle = lit(side) ? 'rgba(255, 255, 255, 0.6)' : rgba(pal.shadow, pal.dark ? 0.4 : 0.22)
-            strip(x, y, side, 0.04, 0.1)
-          }
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.35)'
-          if (solid(x + 1, y) && x + 1 < R.COLS) ctx.fillRect(x + 1 - 0.015, y + 0.14, 0.03, 0.72)
-          if (solid(x, y + 1) && y + 1 < R.ROWS) ctx.fillRect(x + 0.14, y + 1 - 0.015, 0.72, 0.03)
-        }
-      }
-      // the rims: the edges a shell bounces off
-      ctx.lineWidth = 0.075
-      ctx.lineCap = 'square'
-      for (const kind of [R.WALL, R.SOFT]) {
-        ctx.strokeStyle = kind === R.WALL ? rim() : (pal.dark ? rgba(pal.b, 0.95) : shade(pal.b, -0.35))
-        ctx.beginPath()
-        for (let y = 0; y < R.ROWS; y += 1) {
-          for (let x = 0; x < R.COLS; x += 1) {
-            if (g[y][x] !== kind) continue
-            if (!solid(x, y - 1)) { ctx.moveTo(x, y); ctx.lineTo(x + 1, y) }
-            if (!solid(x, y + 1)) { ctx.moveTo(x, y + 1); ctx.lineTo(x + 1, y + 1) }
-            if (!solid(x - 1, y)) { ctx.moveTo(x, y); ctx.lineTo(x, y + 1) }
-            if (!solid(x + 1, y)) { ctx.moveTo(x + 1, y); ctx.lineTo(x + 1, y + 1) }
-          }
-        }
-        ctx.stroke()
+      ctx.fillStyle = rgba(pal.shadow, pal.dark ? 0.45 : 0.18)
+      for (let y = 0; y < R.ROWS; y += 1) for (let x = 0; x < R.COLS; x += 1) if (solidAt(w, x, y)) ctx.fillRect(x + f.x * 0.6, y + f.y * 0.6, 1, 1)
+    }
+    const solidAt = (w, x, y) => { const c = R.cellAt(w.grid, x, y); return c === R.WALL || c === R.SOFT }
+
+    // A block (or a run of the wall round the arena), seen: its front, the
+    // face towards the camera, darker, and its top, lit, with a crisp rim
+    // round the top's open edges and along the foot of its front, the line
+    // a shell turns back at. `open` says which of its sides face open floor.
+    const looks = () => {
+      const top = ctx.createLinearGradient(0, 0, view().w / S, view().h / S)
+      top.addColorStop(0, rgba(pal.a, 0.97)); top.addColorStop(1, rgba(pal.b, 0.97))
+      const front = ctx.createLinearGradient(0, 0, view().w / S, view().h / S)
+      front.addColorStop(0, shade(pal.a, -0.28)); front.addColorStop(1, shade(pal.b, -0.28))
+      return {
+        wall: { top, front, rim: rim() },
+        soft: {
+          top: pal.dark ? 'rgba(170, 190, 225, 0.55)' : 'rgba(255, 250, 244, 0.97)',
+          front: pal.dark ? 'rgba(110, 128, 165, 0.75)' : shade(pal.b, -0.1),
+          hatch: rgba(pal.b, pal.dark ? 0.55 : 0.45),
+          rim: pal.dark ? rgba(pal.b, 0.95) : shade(pal.b, -0.35),
+        },
       }
     }
+    const drawBox = (vx0, vy0, vx1, vy1, look, open) => {
+      flat()
+      const h = BLOCK_H
+      if (open.near) {
+        const a = proj(vx0, vy1, 0), b = proj(vx1, vy1, 0), c = proj(vx1, vy1, h), d = proj(vx0, vy1, h)
+        ctx.fillStyle = look.front
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c.x, c.y); ctx.lineTo(d.x, d.y); ctx.closePath(); ctx.fill()
+        // a little light down its face, and its foot on the floor
+        const sheen = ctx.createLinearGradient(0, d.y, 0, a.y)
+        sheen.addColorStop(0, 'rgba(255, 255, 255, 0.28)'); sheen.addColorStop(1, 'rgba(255, 255, 255, 0)')
+        ctx.fillStyle = sheen
+        ctx.fill()
+        ctx.strokeStyle = look.rim; ctx.lineWidth = 0.06; ctx.lineCap = 'square'
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke()
+      }
+      const p0 = proj(vx0, vy0, h), p1 = proj(vx1, vy1, h)
+      ctx.fillStyle = look.top
+      ctx.fillRect(p0.x, p0.y, p1.x - p0.x, p1.y - p0.y)
+      if (look.hatch) {
+        ctx.save()
+        ctx.beginPath(); ctx.rect(p0.x, p0.y, p1.x - p0.x, p1.y - p0.y); ctx.clip()
+        ctx.strokeStyle = look.hatch; ctx.lineWidth = 0.03
+        ctx.beginPath()
+        for (let k = -1; k < 2; k += 0.2) { ctx.moveTo(p0.x + k, p1.y); ctx.lineTo(p0.x + k + (p1.y - p0.y), p0.y) }
+        ctx.stroke()
+        ctx.restore()
+      }
+      // lit along its far and left edges where they are open
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.55)'
+      if (open.far) ctx.fillRect(p0.x, p0.y, p1.x - p0.x, 0.07)
+      if (open.left) ctx.fillRect(p0.x, p0.y, 0.07, p1.y - p0.y)
+      // a faint seam where it meets the next block along
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'
+      if (!open.right && open.seamRight) ctx.fillRect(p1.x - 0.015, p0.y + 0.1, 0.03, p1.y - p0.y - 0.2)
+      if (!open.near && open.seamNear) ctx.fillRect(p0.x + 0.1, p1.y - 0.015, p1.x - p0.x - 0.2, 0.03)
+      ctx.strokeStyle = look.rim; ctx.lineWidth = 0.06; ctx.lineCap = 'square'
+      ctx.beginPath()
+      if (open.far) { ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p0.y) }
+      if (open.near) { ctx.moveTo(p0.x, p1.y); ctx.lineTo(p1.x, p1.y) }
+      if (open.left) { ctx.moveTo(p0.x, p0.y); ctx.lineTo(p0.x, p1.y) }
+      if (open.right) { ctx.moveTo(p1.x, p0.y); ctx.lineTo(p1.x, p1.y) }
+      ctx.stroke()
+    }
+    // a block of the arena's, by its square: which of its sides, as seen,
+    // face open floor
+    const drawBlock = (w, x, y, L) => {
+      const up = uprightRef.current
+      // the square beside it, as seen: further, nearer, left and right
+      const by = up
+        ? { far: [x + 1, y], near: [x - 1, y], left: [x, y - 1], right: [x, y + 1] }
+        : { far: [x, y - 1], near: [x, y + 1], left: [x - 1, y], right: [x + 1, y] }
+      const inside = ([a, b]) => a >= 0 && b >= 0 && a < R.COLS && b < R.ROWS
+      const open = {}
+      for (const side of ['far', 'near', 'left', 'right']) open[side] = inside(by[side]) && !solidAt(w, ...by[side])
+      open.seamRight = inside(by.right); open.seamNear = inside(by.near)
+      const v = toView(x, y), v2 = toView(x + 1, y + 1)
+      drawBox(Math.min(v.x, v2.x), Math.min(v.y, v2.y), Math.max(v.x, v2.x), Math.max(v.y, v2.y), w.grid[y][x] === R.SOFT ? L.soft : L.wall, open)
+    }
+    // the wall round the arena: the far side and the two ends behind
+    // everything, the near side in front of it all
+    const drawBorder = (L, part) => {
+      const { across: A, along: D } = view(), B = BORDER
+      const all = { far: true, near: true, left: true, right: true }
+      if (part === 'back') {
+        drawBox(-B, -B, A + B, 0, L.wall, { ...all })
+        drawBox(-B, 0, 0, D, L.wall, { ...all, far: false, near: false, left: false })
+        drawBox(A, 0, A + B, D, L.wall, { ...all, far: false, near: false, right: false })
+      } else drawBox(-B, D, A + B, D + B, L.wall, { ...all, far: true })
+    }
+
+    // A tank, built up in layers as it is seen from above and in front:
+    // its treads, its hull on them, its turret and barrel on top
     const drawTank = (t) => {
       const hue = pal.resolve(t.kind.hue)
-      ctx.save()
-      ctx.translate(t.x, t.y)
+      plane(0)
       ctx.fillStyle = rgba(pal.shadow, pal.dark ? 0.45 : 0.22)
-      const f = fall(0.66)
-      ctx.beginPath(); ctx.ellipse(f.x, f.y, 0.46, 0.4, 0, 0, Math.PI * 2); ctx.fill()
-      ctx.save()
-      ctx.rotate(t.body)
-      // treads, their links moving as it drives
-      const tread = shade(hue, -0.55)
-      for (const side of [-1, 1]) {
-        ctx.fillStyle = tread
-        ctx.beginPath(); ctx.roundRect(-0.43, side > 0 ? 0.22 : -0.4, 0.86, 0.18, 0.06); ctx.fill()
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)'; ctx.lineWidth = 0.03
-        ctx.beginPath()
-        const off = (t.travel * 1.6) % 0.14
-        for (let x = -0.43 + off; x < 0.43; x += 0.14) { ctx.moveTo(x, side > 0 ? 0.23 : -0.39); ctx.lineTo(x, side > 0 ? 0.39 : -0.23) }
-        ctx.stroke()
+      const f = fall(0.5)
+      ctx.beginPath(); ctx.ellipse(t.x + f.x, t.y + f.y, 0.48, 0.42, 0, 0, Math.PI * 2); ctx.fill()
+      const at = (z, rot) => { plane(z); ctx.translate(t.x, t.y); ctx.rotate(rot) }
+      const tread = shade(hue, -0.6)
+      const treads = (links) => {
+        for (const side of [-1, 1]) {
+          ctx.fillStyle = tread
+          ctx.beginPath(); ctx.roundRect(-0.44, side > 0 ? 0.21 : -0.41, 0.88, 0.2, 0.07); ctx.fill()
+          if (!links) continue
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.lineWidth = 0.03
+          ctx.beginPath()
+          const off = (t.travel * 1.6) % 0.14
+          for (let x = -0.44 + off; x < 0.44; x += 0.14) { ctx.moveTo(x, side > 0 ? 0.22 : -0.4); ctx.lineTo(x, side > 0 ? 0.4 : -0.22) }
+          ctx.stroke()
+        }
       }
-      const body = ctx.createLinearGradient(0, -0.28, 0, 0.28)
-      body.addColorStop(0, shade(hue, 0.25)); body.addColorStop(1, shade(hue, -0.15))
-      ctx.fillStyle = body
-      ctx.beginPath(); ctx.roundRect(-0.37, -0.26, 0.74, 0.52, 0.1); ctx.fill()
+      for (const z of [0, 0.05, 0.1]) { at(z, t.body); treads(false) }
+      at(0.13, t.body); treads(true)
+      // the hull: its sides, then its deck
+      const hull = () => { ctx.beginPath(); ctx.roundRect(-0.37, -0.26, 0.74, 0.52, 0.1) }
+      ctx.fillStyle = shade(hue, -0.38)
+      for (const z of [0.13, 0.17, 0.21, 0.25]) { at(z, t.body); hull(); ctx.fill() }
+      at(0.29, t.body)
+      const deck = ctx.createLinearGradient(0, -0.28, 0, 0.28)
+      deck.addColorStop(0, shade(hue, 0.28)); deck.addColorStop(1, shade(hue, -0.12))
+      ctx.fillStyle = deck; hull(); ctx.fill()
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)'; ctx.lineWidth = 0.035
       ctx.beginPath(); ctx.roundRect(-0.35, -0.24, 0.7, 0.48, 0.09); ctx.stroke()
-      ctx.restore()
-      // the turret and its barrel
-      ctx.rotate(t.turret)
+      // the turret: its side, the barrel at its height, its top
       ctx.fillStyle = shade(hue, -0.3)
-      ctx.beginPath(); ctx.roundRect(0, -0.07, 0.56, 0.14, 0.04); ctx.fill()
-      ctx.fillStyle = shade(hue, -0.45)
-      ctx.fillRect(0.48, -0.085, 0.09, 0.17)
+      for (const z of [0.29, 0.33, 0.37]) { at(z, t.turret); ctx.beginPath(); ctx.arc(0, 0, 0.21, 0, Math.PI * 2); ctx.fill() }
+      at(0.38, t.turret)
+      ctx.fillStyle = shade(hue, -0.4)
+      ctx.beginPath(); ctx.roundRect(0, -0.07, 0.58, 0.14, 0.04); ctx.fill()
+      ctx.fillStyle = shade(hue, -0.55)
+      ctx.fillRect(0.5, -0.085, 0.09, 0.17)
+      at(0.41, t.turret)
       const top = ctx.createRadialGradient(-0.06, -0.07, 0.02, 0, 0, 0.22)
       top.addColorStop(0, shade(hue, 0.45)); top.addColorStop(1, shade(hue, -0.05))
       ctx.fillStyle = top
@@ -475,7 +551,6 @@ export default function TanksGame() {
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'; ctx.lineWidth = 0.03
       ctx.stroke()
       if (t.player) { ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(0, 0, 0.065, 0, Math.PI * 2); ctx.fill() }
-      ctx.restore()
     }
     // Your shots ready, under your tank: five pips, one emptied for each of
     // your shells still out, filled again as each one goes (and the mines
@@ -483,13 +558,14 @@ export default function TanksGame() {
     const drawReady = (w) => {
       const P = R.playerOf(w)
       if (!P?.alive || (G.phase !== 'play' && G.phase !== 'intro' && G.phase !== 'paused')) return
+      plane(0)
       const out = w.shells.filter((s) => s.owner === P.id).length
       const mines = w.mines.filter((m) => m.owner === P.id).length
       // (below the tank on the screen, however the arena is turned)
       const at = (sx, sy) => (uprightRef.current ? { x: P.x - sy, y: P.y + sx } : { x: P.x + sx, y: P.y + sy })
       const n = P.kind.maxShells, gap = 0.21
       for (let i = 0; i < n; i += 1) {
-        const q = at((i - (n - 1) / 2) * gap, 0.7)
+        const q = at((i - (n - 1) / 2) * gap, 0.72)
         const ready = i < n - out
         ctx.beginPath(); ctx.arc(q.x, q.y, 0.075, 0, Math.PI * 2)
         ctx.fillStyle = ready ? (pal.dark ? '#ffffff' : pal.resolve(P.kind.hue)) : rgba(pal.text, 0.15)
@@ -497,23 +573,28 @@ export default function TanksGame() {
         if (ready) { ctx.strokeStyle = pal.dark ? rgba(pal.resolve(P.kind.hue), 0.9) : 'rgba(255, 255, 255, 0.9)'; ctx.lineWidth = 0.03; ctx.stroke() }
       }
       for (let i = 0; i < P.kind.mines; i += 1) {
-        const q = at(((n - 1) / 2) * gap + 0.3 + i * 0.2, 0.7)
+        const q = at(((n - 1) / 2) * gap + 0.3 + i * 0.2, 0.72)
         ctx.beginPath(); ctx.arc(q.x, q.y, 0.065, 0, Math.PI * 2)
         ctx.fillStyle = i < P.kind.mines - mines ? (pal.dark ? '#ffe27a' : '#c98a00') : rgba(pal.text, 0.15)
         ctx.fill()
       }
     }
+    // A mine: a dome on the floor, its light blinking faster as it nears going off
     const drawMine = (m) => {
       const left = R.mineFuse - m.age
       const blink = left < 3 ? 7 : 1.6
       const on = (m.age * blink) % 1 < 0.5
+      plane(0)
       ctx.fillStyle = rgba(pal.shadow, 0.25)
-      const f = fall(0.33)
-      ctx.beginPath(); ctx.arc(m.x + f.x, m.y + f.y, 0.24, 0, Math.PI * 2); ctx.fill()
+      const f = fall(0.3)
+      ctx.beginPath(); ctx.arc(m.x + f.x, m.y + f.y, 0.25, 0, Math.PI * 2); ctx.fill()
+      ctx.fillStyle = pal.dark ? '#1c2440' : '#3a3029'
+      ctx.beginPath(); ctx.arc(m.x, m.y, 0.23, 0, Math.PI * 2); ctx.fill()
+      plane(0.08)
       ctx.fillStyle = pal.dark ? '#2a3350' : '#4a4038'
-      ctx.beginPath(); ctx.arc(m.x, m.y, 0.22, 0, Math.PI * 2); ctx.fill()
+      ctx.beginPath(); ctx.arc(m.x, m.y, 0.21, 0, Math.PI * 2); ctx.fill()
       ctx.strokeStyle = pal.resolve(m.hue); ctx.lineWidth = 0.06
-      ctx.beginPath(); ctx.arc(m.x, m.y, 0.19, 0, Math.PI * 2); ctx.stroke()
+      ctx.beginPath(); ctx.arc(m.x, m.y, 0.18, 0, Math.PI * 2); ctx.stroke()
       if (on) {
         const glow = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, 0.3)
         glow.addColorStop(0, left < 3 ? '#ff5b4a' : '#ffe27a'); glow.addColorStop(1, 'rgba(255, 200, 80, 0)')
@@ -521,34 +602,37 @@ export default function TanksGame() {
         ctx.beginPath(); ctx.arc(m.x, m.y, 0.3, 0, Math.PI * 2); ctx.fill()
       }
     }
-    const drawShells = (w) => {
+    // A shell, flying at the height of the barrels, its shadow on the floor
+    const SHELL_Z = 0.38
+    const drawShell = (s) => {
+      const a = Math.atan2(s.vy, s.vx)
+      plane(0)
+      ctx.fillStyle = rgba(pal.shadow, 0.28)
+      ctx.beginPath(); ctx.ellipse(s.x + 0.06, s.y + 0.1, 0.15, 0.07, a, 0, Math.PI * 2); ctx.fill()
+      plane(SHELL_Z)
+      ctx.translate(s.x, s.y); ctx.rotate(a)
+      if (s.fast) {
+        // a rocket's flame behind it
+        const fl = ctx.createLinearGradient(-0.45, 0, -0.1, 0)
+        fl.addColorStop(0, 'rgba(255, 140, 60, 0)'); fl.addColorStop(1, 'rgba(255, 220, 120, 0.9)')
+        ctx.fillStyle = fl
+        ctx.beginPath(); ctx.moveTo(-0.45, 0); ctx.lineTo(-0.1, -0.06); ctx.lineTo(-0.1, 0.06); ctx.fill()
+      }
+      ctx.fillStyle = '#ffffff'
+      ctx.beginPath(); ctx.roundRect(-0.14, -0.065, 0.28, 0.13, 0.065); ctx.fill()
+      ctx.fillStyle = pal.resolve(s.hue)
+      ctx.beginPath(); ctx.roundRect(-0.14, -0.065, 0.1, 0.13, [0.065, 0, 0, 0.065]); ctx.fill()
+    }
+    const drawSmoke = (w) => {
+      plane(SHELL_Z)
       for (const p of w.smoke) {
         const k = p.age / 0.45
         ctx.fillStyle = pal.dark ? `rgba(200, 215, 255, ${0.28 * (1 - k)})` : `rgba(255, 255, 255, ${0.6 * (1 - k)})`
         ctx.beginPath(); ctx.arc(p.x, p.y, 0.05 + k * 0.12, 0, Math.PI * 2); ctx.fill()
       }
-      for (const s of w.shells) {
-        const a = Math.atan2(s.vy, s.vx)
-        const f = fall(0.35)
-        ctx.fillStyle = rgba(pal.shadow, 0.25)
-        ctx.beginPath(); ctx.ellipse(s.x + f.x, s.y + f.y, 0.15, 0.07, a, 0, Math.PI * 2); ctx.fill()
-        ctx.save()
-        ctx.translate(s.x, s.y); ctx.rotate(a)
-        if (s.fast) {
-          // a rocket's flame behind it
-          const f = ctx.createLinearGradient(-0.45, 0, -0.1, 0)
-          f.addColorStop(0, 'rgba(255, 140, 60, 0)'); f.addColorStop(1, 'rgba(255, 220, 120, 0.9)')
-          ctx.fillStyle = f
-          ctx.beginPath(); ctx.moveTo(-0.45, 0); ctx.lineTo(-0.1, -0.06); ctx.lineTo(-0.1, 0.06); ctx.fill()
-        }
-        ctx.fillStyle = '#ffffff'
-        ctx.beginPath(); ctx.roundRect(-0.14, -0.065, 0.28, 0.13, 0.065); ctx.fill()
-        ctx.fillStyle = pal.resolve(s.hue)
-        ctx.beginPath(); ctx.roundRect(-0.14, -0.065, 0.1, 0.13, [0.065, 0, 0, 0.065]); ctx.fill()
-        ctx.restore()
-      }
     }
     const drawAir = (w) => {
+      plane(0.3)
       for (const b of w.bits) {
         const k = b.age / b.life
         ctx.fillStyle = b.hot ? `rgba(255, ${Math.round(220 - k * 140)}, 90, ${1 - k})` : rgba(pal.text, 0.35 * (1 - k))
@@ -571,6 +655,7 @@ export default function TanksGame() {
       const I = input.current
       const P = R.playerOf(w)
       if (!P?.alive || G.phase !== 'play') return
+      plane(0)
       // the aiming thumb: where the shot would go, off the walls and all
       if (I.aim?.aiming) {
         const path = R.traceShot(w, P, P.turret, P.kind.bounces, 30).path
@@ -598,7 +683,12 @@ export default function TanksGame() {
       to = { x: P.x + dx * Math.max(0, k), y: P.y + dy * Math.max(0, k) }
       const d = Math.hypot(to.x - P.x, to.y - P.y)
       ctx.fillStyle = rgba(pal.text, 0.35)
-      for (let s = 0.75; s < d - 0.2; s += 0.38) {
+      // (always the same dots, spread evenly from the barrel to the
+      // crosshair: drawn closer together or further apart as it moves,
+      // rather than more of them or fewer)
+      const from = 0.7, upTo = Math.max(from, d - 0.3)
+      for (let i = 0; i < AIM_DOTS; i += 1) {
+        const s = from + ((upTo - from) * i) / (AIM_DOTS - 1)
         ctx.beginPath(); ctx.arc(P.x + Math.cos(P.turret) * s, P.y + Math.sin(P.turret) * s, 0.045, 0, Math.PI * 2); ctx.fill()
       }
       ctx.strokeStyle = rgba(pal.text, 0.7); ctx.lineWidth = 0.05
@@ -615,20 +705,34 @@ export default function TanksGame() {
         ctx.beginPath(); ctx.arc(mx, my, 0.11, 0, Math.PI * 2); ctx.fill()
       }
     }
+    // Everything, back to front: the floor; the far wall; the blocks, tanks
+    // and shells in order of how near they are, so a block hides what is
+    // behind it; the near wall; then what is in the air, and the aim
     const draw = () => {
       const w = G.world
-      ctx.save()
-      ctx.scale(S, S)
-      if (uprightRef.current) { ctx.translate(0, R.COLS); ctx.rotate(-Math.PI / 2) }
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
       drawFloor(w)
-      drawBlocks(w)
       for (const m of w.mines) drawMine(m)
-      for (const t of w.tanks) if (t.alive) drawTank(t)
+      const L = looks()
+      drawBorder(L, 'back')
+      const items = []
+      for (let y = 0; y < R.ROWS; y += 1) {
+        for (let x = 0; x < R.COLS; x += 1) {
+          if (!solidAt(w, x, y)) continue
+          const a = toView(x, y), b = toView(x + 1, y + 1)
+          items.push({ near: Math.max(a.y, b.y), draw: () => drawBlock(w, x, y, L) })
+        }
+      }
+      for (const t of w.tanks) if (t.alive) items.push({ near: toView(t.x, t.y).y + 0.45, draw: () => drawTank(t) })
+      for (const sh of w.shells) items.push({ near: toView(sh.x, sh.y).y + 0.1, draw: () => drawShell(sh) })
+      items.sort((p, q) => p.near - q.near)
+      for (const it of items) it.draw()
+      drawSmoke(w)
+      drawBorder(L, 'front')
       drawReady(w)
-      drawShells(w)
       drawAir(w)
       drawAim(w)
-      ctx.restore()
     }
 
     // --- the loop ---
@@ -841,7 +945,7 @@ export default function TanksGame() {
   // (turned: the canvas sized again, and drawn the new way round)
   useEffect(() => { uprightRef.current = upright; fullRef.current = full; game.current?.refit() }, [upright, full])
 
-  const AW = upright ? H : W, AH = upright ? W : H
+  const AW = Math.round((upright ? VIEW.up : VIEW.flat).w), AH = Math.round((upright ? VIEW.up : VIEW.flat).h)
   const tap = touch ? 'Tap' : 'Click'
   const tanks = (n) => `${n} enemy ${n === 1 ? 'tank' : 'tanks'}`
   const banner = {
@@ -905,7 +1009,7 @@ export default function TanksGame() {
             className="tanks-arena"
             style={{
               width: '100%', height: 'auto', aspectRatio: `${AW} / ${AH}`, display: 'block',
-              borderRadius: 14, touchAction: 'none', outline: 'none',
+              touchAction: 'none', outline: 'none',
               cursor: hud.phase === 'play' && !touch ? 'none' : 'pointer',
             }}
           />
