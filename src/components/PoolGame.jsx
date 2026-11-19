@@ -612,8 +612,39 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       const c = cue(), dx = c.x - p.x, dy = c.y - p.y, d = Math.hypot(dx, dy)
       if (d > 0.3) g.aim = { x: dx / d, y: dy / d }
     }
+    // While the cue is drawn back, the pointer is followed by how far the
+    // mouse moves rather than where the cursor is, so it can be drawn on
+    // past the edge of the screen: the cursor stops there, the mouse does
+    // not. The browser only reports the mouse's movement past that point
+    // with the pointer locked, so it is locked when the cursor reaches the
+    // edge mid-stroke (the cursor hidden, the cue showing where it is), and
+    // let go with the shot.
+    const atEdge = (e) => {
+      const s = window.screen, l = s.availLeft ?? 0, t = s.availTop ?? 0
+      return e.screenX <= l + 1 || e.screenX >= l + s.width - 2 || e.screenY <= t + 1 || e.screenY >= t + s.height - 2
+    }
+    const unlock = () => { if (document.pointerLockElement === canvas) document.exitPointerLock?.() }
     const onMove = (e) => {
-      const p = at(e)
+      const locked = document.pointerLockElement === canvas
+      let p
+      if (g.state === 'stroke' && g.drag) {
+        // the cursor's own movement while it can move, the mouse's once it
+        // cannot (locked, or held against the edge)
+        const d = g.drag
+        const mx = e.movementX || 0, my = e.movementY || 0
+        const dx = locked || e.clientX === d.cx ? mx : e.clientX - d.cx
+        const dy = locked || e.clientY === d.cy ? my : e.clientY - d.cy
+        d.x += dx; d.y += dy
+        if (!locked) { d.cx = e.clientX; d.cy = e.clientY }
+        p = toTable(d.x, d.y)
+        if (!locked && !d.asked && e.pointerType === 'mouse' && atEdge(e) && canvas.requestPointerLock) {
+          d.asked = true
+          try { canvas.requestPointerLock()?.catch?.(() => {}) } catch { /* not allowed: the edge holds */ }
+        }
+      } else {
+        if (locked) return
+        p = at(e)
+      }
       if (g.nudged && g.pointer && Math.hypot(p.x - g.pointer.x, p.y - g.pointer.y) > 0.8) g.nudged = false
       if (!g.nudged || !g.pointer) g.pointer = p
       if (g.state !== 'stroke') return
@@ -629,11 +660,14 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       const c = cue()
       g.pointer = p
       g.nudged = false
+      g.drag = { x: e.clientX, y: e.clientY, cx: e.clientX, cy: e.clientY }
       aimFrom(p)
       g.stroke = { base: Math.max(R, Math.hypot(p.x - c.x, p.y - c.y)), pull: 0 }
       g.state = 'stroke'
     }
     const onUp = () => {
+      unlock()
+      g.drag = null
       if (g.state !== 'stroke') return
       // hardly drawn back at all: no shot, the cue back at rest
       if (g.stroke.pull < 0.8) { g.stroke = null; g.state = 'aim'; return }
@@ -649,10 +683,12 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       g.aim = { x: x * Math.cos(turn) - y * Math.sin(turn), y: x * Math.sin(turn) + y * Math.cos(turn) }
       g.nudged = true
     }
-    canvas.addEventListener('pointermove', onMove)
+    // (the move and the let-go on the window: once the pointer is locked,
+    // or the lock is given up with Escape, the canvas no longer holds it)
+    window.addEventListener('pointermove', onMove)
     canvas.addEventListener('pointerdown', onDown)
-    canvas.addEventListener('pointerup', onUp)
-    canvas.addEventListener('pointercancel', onUp)
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onUp)
     window.addEventListener('keydown', onKey)
     window.addEventListener('resize', layout)
     g.rerack = () => {
@@ -664,10 +700,11 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       cancelAnimationFrame(raf)
       lensOff.forEach((off) => off())
       holder.replaceChildren()
-      canvas.removeEventListener('pointermove', onMove)
+      unlock()
+      window.removeEventListener('pointermove', onMove)
       canvas.removeEventListener('pointerdown', onDown)
-      canvas.removeEventListener('pointerup', onUp)
-      canvas.removeEventListener('pointercancel', onUp)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('resize', layout)
     }
@@ -685,7 +722,8 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
 
   // Escape leaves; the page does not scroll under the table
   useEffect(() => {
-    const key = (e) => { if (e.key === 'Escape') leave() }
+    // (not the Escape that gives up a locked pointer mid-stroke)
+    const key = (e) => { if (e.key === 'Escape' && !document.pointerLockElement) leave() }
     window.addEventListener('keydown', key)
     const root = document.documentElement
     const was = root.style.overflow
