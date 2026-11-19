@@ -524,7 +524,7 @@ export default function ProjectBubbles() {
     const t = setTimeout(() => setPool((p) => (p === 'ask' ? null : p)), 9000)
     return () => clearTimeout(t)
   }, [pool])
-  const playPool = () => {
+  const playPool = (mode) => {
     const layer = layerRef.current
     if (!layer) return
     // each bubble as it is: where, how big, its picture, its colour, its name
@@ -545,8 +545,11 @@ export default function ProjectBubbles() {
     const extras = shuffled(shown([...bubbleProjects, ...accessibility, ...clashRoyale, ...convenience, ...halloween, ...misc]))
       .filter((p) => !onScreen.has(p.label) && !seen.has(p.path) && seen.add(p.path))
       .map((p, k) => ({ src: p.image.replace('.webp', '-small.webp'), label: p.label, hue: root.getPropertyValue(`--hue-${(k % HUES.length) + 1}`).trim() }))
+    // (the 8-ball, in a game of 8-ball: the Darth Vader helmet)
+    const vader = halloween.find((p) => p.path.endsWith('/darth-vader') && p.image)
+    const eight = vader ? { src: vader.image.replace('.webp', '-small.webp'), label: vader.label } : null
     layer.classList.add('bubble-layer-pooled')
-    setPool({ bubbles, extras })
+    setPool({ bubbles, extras, mode, eight })
   }
   const endPool = () => {
     layerRef.current?.classList.remove('bubble-layer-pooled')
@@ -746,13 +749,14 @@ export default function ProjectBubbles() {
     {pool === 'ask' && createPortal(
       <div className="pool-ask glass nav-glass" role="dialog" aria-label="Play pool?">
         <span>Want to play pool?</span>
-        <button type="button" className="pool-button pool-button-go" onClick={playPool}>Play</button>
+        <button type="button" className="pool-button pool-button-go" onClick={() => playPool('solo')}>Solo</button>
+        <button type="button" className="pool-button pool-button-go" onClick={() => playPool('eight')}>2 players</button>
         <button type="button" className="pool-button" onClick={() => setPool(null)}>No thanks</button>
       </div>,
       document.body,
     )}
     {pool && pool !== 'ask' && createPortal(
-      <Suspense fallback={null}><PoolGame bubbles={pool.bubbles} extras={pool.extras} onClose={endPool} /></Suspense>,
+      <Suspense fallback={null}><PoolGame bubbles={pool.bubbles} extras={pool.extras} mode={pool.mode} eight={pool.eight} onClose={endPool} /></Suspense>,
       document.body,
     )}
     </>

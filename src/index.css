@@ -3589,6 +3589,9 @@ html.theme-snap .glass.nav-glass.theme-orb {
 .pool-hud > * { pointer-events: auto; }
 .pool-score { white-space: nowrap; }
 .pool-score b { font-variant-numeric: tabular-nums; }
+.pool-players { display: flex; gap: 6px; }
+.pool-player { padding: 5px 12px; border-radius: 999px; transition: background 0.3s ease; }
+.pool-player-up { background: color-mix(in srgb, var(--vivid-a) 55%, transparent); font-weight: 600; text-shadow: none; }
 .pool-note { flex: 1; text-align: center; opacity: 0.85; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pool-buttons { display: flex; gap: 8px; justify-content: center; }
 @media (max-width: 620px) {
@@ -3610,3 +3613,4 @@ html.theme-snap .glass.nav-glass.theme-orb {
 }
 .pool-won h2 { margin: 0 0 6px; font-size: 28px; }
 .pool-won p { margin: 0 0 18px; opacity: 0.8; }
+.pool-won .pool-buttons { flex-wrap: wrap; }

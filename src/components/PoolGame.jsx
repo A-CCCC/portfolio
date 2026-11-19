@@ -20,6 +20,14 @@
 // and put on the screen however it fits best: lying down on a wide screen,
 // stood on end on a tall one. The table and the balls are drawn upright on
 // the screen either way; the cue and the guide in the table's own units.
+//
+// Two games: on your own, clearing ten balls in as few shots as you can;
+// or 8-ball for two players taking turns, fifteen balls, seven solid and
+// seven striped (a band of the ball's colour behind its project), the
+// 8-ball black, the Darth Vader helmet on it where the 8 would be. The
+// first to sink one of a kind has that kind; clear yours, then sink the
+// 8-ball to win. A foul (the white ball in, the wrong ball hit first, or
+// nothing hit) gives the other player the white ball, to put down anywhere.
 import { useEffect, useRef, useState } from 'react'
 
 const TW = 200, TH = 100              // the bed
@@ -40,13 +48,14 @@ const STRIKE_MS = 90                  // the cue going through, once let go
 const DECEL = 26                      // rolling friction, units a second a second
 const DRAG = 0.35                     // and a little more at speed
 const E_BALL = 0.95, E_RAIL = 0.72
-const BALLS = 10
+const BALLS = 10                      // on your own
+const EIGHT_HUE = '#26262d'           // the 8-ball's glass
 const GUIDE_KEY = 'pool-guide'
 
-// the rack: a triangle of four rows, its apex towards the head
-function rack() {
+// the rack: a triangle of four rows (five for 8-ball), its apex towards the head
+function rack(rows = 4) {
   const spots = []
-  for (let row = 0; row < 4; row += 1) {
+  for (let row = 0; row < rows; row += 1) {
     for (let j = 0; j <= row; j += 1) {
       spots.push({ x: FOOT.x + row * R * Math.sqrt(3) * 1.01, y: FOOT.y + (j - row / 2) * R * 2.02 })
     }
@@ -81,13 +90,72 @@ const touchFirst = () => typeof window !== 'undefined' && matchMedia('(pointer: 
 const HINT = touchFirst()
   ? 'Touch the white ball where you want to hit it, pull back, then let go.'
   : 'Click the white ball where you want to hit it, pull back, then let go.'
+const PLACE = touchFirst() ? 'tap where it goes' : 'click where it goes'
 
-export default function PoolGame({ bubbles, extras = [], onClose }) {
+// 8-ball: which kind a ball is, by its number (0 the white ball)
+const kindOf = (n) => (n === 0 ? 'cue' : n === 8 ? 'eight' : n < 8 ? 'solids' : 'stripes')
+const player = (p) => `Player ${p + 1}`
+const freshHud = (mode, note = HINT) => ({
+  shots: 0, potted: 0, note, won: false,
+  turn: 0, groups: [null, null], left: [null, null], winner: '', why: '', mode,
+})
+
+// A striped ball's picture (a band of its colour across it, the project in
+// front), or the 8-ball's (black, its picture on a white disc), drawn once
+// and handed to the glass as its image, so the glass bends it as it bends
+// the others'
+function paintBall(look, done) {
+  const pic = new Image()
+  const paint = (ok) => {
+    const n = 320, cv = document.createElement('canvas')
+    cv.width = n; cv.height = n
+    const x = cv.getContext('2d')
+    if (look.kind === 'eight') {
+      x.fillStyle = '#141419'; x.fillRect(0, 0, n, n)
+      const sheen = x.createRadialGradient(n * 0.35, n * 0.3, 0, n * 0.35, n * 0.3, n * 0.6)
+      sheen.addColorStop(0, 'rgba(255, 255, 255, 0.16)'); sheen.addColorStop(1, 'rgba(255, 255, 255, 0)')
+      x.fillStyle = sheen; x.fillRect(0, 0, n, n)
+      x.fillStyle = '#ffffff'
+      x.beginPath(); x.arc(n / 2, n / 2, n * 0.31, 0, Math.PI * 2); x.fill()
+      x.save()
+      x.beginPath(); x.arc(n / 2, n / 2, n * 0.31, 0, Math.PI * 2); x.clip()
+      if (ok) x.drawImage(pic, n * 0.19, n * 0.2, n * 0.62, n * 0.62)
+      else {
+        x.fillStyle = '#141419'; x.font = `bold ${n * 0.36}px system-ui`; x.textAlign = 'center'; x.textBaseline = 'middle'
+        x.fillText('8', n / 2, n / 2 + n * 0.02)
+      }
+      x.restore()
+    } else {
+      // the band, a little lighter along its top edge, white at its edges
+      const top = n * 0.24, h = n * 0.52
+      const band = x.createLinearGradient(0, top, 0, top + h)
+      band.addColorStop(0, look.hue); band.addColorStop(0.5, look.hue); band.addColorStop(1, look.hue)
+      x.globalAlpha = 0.88
+      x.fillStyle = band; x.fillRect(0, top, n, h)
+      x.globalAlpha = 1
+      const lit = x.createLinearGradient(0, top, 0, top + h)
+      lit.addColorStop(0, 'rgba(255, 255, 255, 0.35)'); lit.addColorStop(0.35, 'rgba(255, 255, 255, 0)')
+      lit.addColorStop(0.8, 'rgba(0, 0, 0, 0)'); lit.addColorStop(1, 'rgba(0, 0, 0, 0.14)')
+      x.fillStyle = lit; x.fillRect(0, top, n, h)
+      x.fillStyle = 'rgba(255, 255, 255, 0.85)'
+      x.fillRect(0, top - n * 0.012, n, n * 0.012); x.fillRect(0, top + h, n, n * 0.012)
+      if (ok) x.drawImage(pic, 0, 0, n, n)
+    }
+    done(cv.toDataURL('image/png'))
+  }
+  if (!look.src) { paint(false); return }
+  pic.onload = () => paint(true)
+  pic.onerror = () => paint(false)
+  pic.src = look.src
+}
+
+export default function PoolGame({ bubbles, extras = [], mode: startMode = 'solo', eight = null, onClose }) {
   const canvasRef = useRef(null)
   const underRef = useRef(null)
   const ballsRef = useRef(null)
   const railRefs = useRef([])
-  const [hud, setHud] = useState({ shots: 0, potted: 0, note: HINT, won: false })
+  const [mode, setMode] = useState(startMode)
+  const [hud, setHud] = useState(() => freshHud(startMode))
   const [closing, setClosing] = useState(false)
   const [guide, setGuide] = useState(() => { try { return localStorage.getItem(GUIDE_KEY) === 'on' } catch { return false } })
   const game = useRef(null)
@@ -106,6 +174,11 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
     return !on
   })
   useEffect(() => { if (game.current) game.current.guide = guide }, [guide])
+  const switchMode = () => {
+    const next = mode === 'eight' ? 'solo' : 'eight'
+    setHud(freshHud(next))
+    setMode(next)
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -113,12 +186,15 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
     const bg = underRef.current                     // the table's cushions, sights and pockets, under the balls
     const bx = bg.getContext('2d')
     const holder = ballsRef.current                 // the balls
+    const eightBall = mode === 'eight'
     const g = {
       balls: [], state: 'intro', t0: performance.now(), shots: 0,
+      turn: 0, groups: [null, null], breakShot: true, firstHit: null, target: 'open',
       aim: { x: 1, y: 0 }, pointer: null, view: null, pottedThisShot: [],
       stroke: null, follow: null, speed: 0, guide: false,
     }
     game.current = g
+    if (import.meta.env.DEV) window.__pool = g      // (for trying shots out by hand while working on it)
     g.guide = (() => { try { return localStorage.getItem(GUIDE_KEY) === 'on' } catch { return false } })()
 
     // The site's colours, for the theme it is in
@@ -135,14 +211,34 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
     // What each ball is: the cue ball clear glass; the rest the projects on
     // the screen's bubbles, then others from the site to make up the rack
     const cueFrom = bubbles.findIndex((b) => b.thrown)
-    const objects = [
-      ...bubbles.map((b, i) => ({ ...b, i })).filter((b) => b.i !== cueFrom && (b.src || b.label)),
-      ...extras,
-    ].slice(0, BALLS)
+    // (for 8-ball, the Darth Vader helmet the 8: its bubble, if one of the
+    // screen's, and not one of the others)
+    const eightFrom = eightBall && eight ? bubbles.findIndex((b, i) => i !== cueFrom && b.label === eight.label) : -1
+    const pool = [
+      ...bubbles.map((b, i) => ({ ...b, i })).filter((b) => b.i !== cueFrom && b.i !== eightFrom && (b.src || b.label)),
+      ...extras.filter((x) => !eightBall || !eight || x.label !== eight.label),
+      // (8-ball wants fourteen: the thrown bubble's project, too, as a ball
+      // of its own, before any come round again)
+      ...(eightBall && cueFrom >= 0 && bubbles[cueFrom].label !== eight?.label ? [{ ...bubbles[cueFrom], thrown: false }] : []),
+    ]
+    let objects
+    if (eightBall) {
+      // seven solid and seven striped; with fewer than fourteen projects,
+      // some come round again (as the other kind)
+      const others = []
+      for (let k = 0; k < 14 && pool.length; k += 1) others.push(k < pool.length ? pool[k] : { ...pool[k % pool.length], i: undefined })
+      const theEight = eightFrom >= 0 ? { ...bubbles[eightFrom], i: eightFrom } : { src: eight?.src, label: eight?.label || 'the 8-ball' }
+      objects = [
+        ...others.slice(0, 7).map((o) => ({ ...o, kind: 'solids' })),
+        { ...theEight, kind: 'eight', hue: EIGHT_HUE },
+        ...others.slice(7).map((o) => ({ ...o, kind: 'stripes' })),
+      ]
+    } else objects = pool.slice(0, BALLS)
     const looks = [
       { cue: true, hue: dark ? '#cfe0ff' : '#ffffff', label: 'the white ball', i: cueFrom },
-      ...objects.map((o) => ({ src: o.src, hue: o.hue || theme.a, label: o.label, i: o.i })),
+      ...objects.map((o) => ({ src: o.src, hue: o.hue || theme.a, label: o.label, i: o.i, kind: o.kind })),
     ]
+    const eightName = eightBall ? looks[8]?.label || 'the 8-ball' : ''
     // The cloth is the home page itself, its wallpaper left showing; the
     // balls see it through them, as the home page's bubbles do
     const host = document.querySelector('.home-backdrop')
@@ -282,7 +378,13 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       el.className = 'glass bubble pool-ball'
       el.style.setProperty('--lg-hue', look.hue)
       el.style.opacity = '0'
-      if (look.src) {
+      if (look.kind === 'stripes' || look.kind === 'eight') {
+        el.classList.add(`pool-ball-${look.kind}`)
+        const img = document.createElement('img')
+        img.alt = ''; img.draggable = false
+        el.appendChild(img)
+        paintBall(look, (url) => { img.src = url })
+      } else if (look.src) {
         const img = document.createElement('img')
         img.src = look.src; img.alt = ''; img.draggable = false
         el.appendChild(img)
@@ -311,20 +413,37 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
 
     // The balls, each from where its bubble was: the thrown one the cue
     // ball, the others in the rack; more than the screen had come up in it
+    const shuffle = (a) => a.sort(() => Math.random() - 0.5)
     const setUp = (fromBubbles) => {
-      const spots = rack().sort(() => Math.random() - 0.5)
+      // where each ball goes in the rack: for 8-ball, the 8 in the middle
+      // of the third row, a solid and a stripe in the back corners
+      let spot
+      if (eightBall) {
+        const spots = rack(5)
+        const solids = shuffle([1, 2, 3, 4, 5, 6, 7]), stripes = shuffle([9, 10, 11, 12, 13, 14, 15])
+        const order = new Array(15).fill(null)
+        order[4] = 8
+        const flip = Math.random() < 0.5
+        order[10] = (flip ? solids : stripes).pop()
+        order[14] = (flip ? stripes : solids).pop()
+        const rest = shuffle([...solids, ...stripes])
+        for (let k = 0; k < 15; k += 1) if (order[k] == null) order[k] = rest.pop()
+        spot = []
+        order.forEach((n, k) => { spot[n] = spots[k] })
+      } else spot = [null, ...shuffle(rack())]
       const make = (n, to) => {
         const look = looks[n]
         const b = fromBubbles && look.i != null && look.i >= 0 ? bubbles[look.i] : null
         // (the cue ball: what the thrown bubble was, clearing as it goes)
         return { n, look, x: to.x, y: to.y, vx: 0, vy: 0, in: false, sink: null, from: b, delay: Math.random() * 140 }
       }
-      g.balls = [make(0, HEAD), ...looks.slice(1).map((l, k) => make(k + 1, spots[k]))]
+      g.balls = [make(0, HEAD), ...looks.slice(1).map((l, k) => make(k + 1, spot[k + 1]))]
       if (!fromBubbles && wasEl) wasEl.style.display = 'none'
       g.state = fromBubbles ? 'intro' : 'aim'
       g.t0 = performance.now()
       g.shots = 0
       g.stroke = null; g.follow = null
+      g.turn = 0; g.groups = [null, null]; g.breakShot = true; g.firstHit = null
     }
     setUp(true)
 
@@ -332,6 +451,27 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
     const cue = () => g.balls[0]
     const potted = () => g.balls.filter((b) => b.n > 0 && b.in).length
     const total = looks.length - 1
+    // 8-ball: how many of a kind are still on the table; what a player has
+    // to hit first; and the score, as the bar shows it
+    const leftOf = (kind) => g.balls.filter((b) => kindOf(b.n) === kind && !b.in).length
+    const targetFor = (p) => (g.groups[p] ? (leftOf(g.groups[p]) === 0 ? 'eight' : g.groups[p]) : 'open')
+    const tally = () => ({
+      potted: potted(),
+      turn: g.turn,
+      groups: [...g.groups],
+      left: g.groups.map((k) => (k ? leftOf(k) : null)),
+    })
+    // a ball put back on a spot, or the nearest place along the table's
+    // middle line that is clear of the others
+    const respot = (ball, at) => {
+      let x = at.x
+      for (let k = 0; k < 60; k += 1) {
+        const tryX = at.x + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * R * 2.1
+        if (tryX < R || tryX > TW - R) continue
+        if (g.balls.every((b) => b === ball || b.in || Math.hypot(b.x - tryX, b.y - at.y) > R * 2.1)) { x = tryX; break }
+      }
+      Object.assign(ball, { x, y: at.y, vx: 0, vy: 0, in: false, sink: null })
+    }
 
     // Physics, in small steps so a fast ball cannot pass through another
     const physics = (dt) => {
@@ -356,6 +496,8 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
             const d = Math.hypot(nx, ny)
             if (d >= R * 2 || d === 0) continue
             nx /= d; ny /= d
+            // (the first ball the white ball meets, for 8-ball's rules)
+            if (!g.firstHit && (a.n === 0 || c.n === 0)) g.firstHit = a.n === 0 ? c : a
             const push = (R * 2 - d) / 2
             a.x -= nx * push; a.y -= ny * push; c.x += nx * push; c.y += ny * push
             const vrel = (c.vx - a.vx) * nx + (c.vy - a.vy) * ny
@@ -500,18 +642,74 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       if (c.in) {
         // back on the spot, or the nearest place along the line clear of the others
         g.shots += 1
-        let x = HEAD.x
-        for (let k = 0; k < 40; k += 1) {
-          const tryX = HEAD.x + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * R * 2.1
-          if (g.balls.every((b) => b === c || b.in || Math.hypot(b.x - tryX, b.y - HEAD.y) > R * 2.1)) { x = tryX; break }
-        }
-        Object.assign(c, { x, y: HEAD.y, vx: 0, vy: 0, in: false, sink: null })
+        respot(c, HEAD)
         note = 'Scratch! +1 shot'
       }
       g.pottedThisShot = []
       const done = potted() === total
       g.state = done ? 'won' : 'aim'
       setHud((h) => ({ ...h, shots: g.shots, potted: potted(), note: done ? '' : note, won: done }))
+    }
+
+    // 8-ball, once everything has stopped: was it a foul, did the 8 go
+    // down, who has which kind, and whose turn it is now
+    const endOfTurn = () => {
+      const c = cue(), me = g.turn, you = 1 - me
+      const pots = g.pottedThisShot.filter((b) => b.n > 0)
+      g.pottedThisShot = []
+      const eightIn = pots.some((b) => b.n === 8)
+      const wasBreak = g.breakShot
+      g.breakShot = false
+      let foul = ''
+      // (what the player did, said without them: "missed everything")
+      if (!g.firstHit) foul = 'missed everything'
+      else {
+        const k = kindOf(g.firstHit.n), t = g.target
+        if (t === 'open' ? k === 'eight' : k !== t) foul = `hit ${k === 'eight' ? eightName : k === 'solids' ? 'a solid' : 'a stripe'} first`
+      }
+      if (c.in) foul = 'put the white ball in'
+      if (eightIn && !wasBreak) {
+        const won = !foul && g.target === 'eight'
+        g.state = 'won'
+        const why = won ? `${player(me)} sank ${eightName}.`
+          : foul && kindOf(g.firstHit?.n) !== 'eight' ? `${player(me)} sank ${eightName} but ${foul}.`
+          : `${player(me)} sank ${eightName} too early.`
+        setHud((h) => ({ ...h, ...tally(), won: true, winner: `${player(won ? me : you)} wins!`, why, note: '' }))
+        return
+      }
+      const said = []
+      if (eightIn) { respot(g.balls[8], FOOT); said.push(`${eightName} went in on the break, and back on its spot.`) }
+      // the first to sink one (without a foul) has that kind
+      if (!g.groups[me] && !foul) {
+        const first = pots.find((b) => b.n !== 8)
+        if (first) {
+          const k = kindOf(first.n)
+          g.groups[me] = k; g.groups[you] = k === 'solids' ? 'stripes' : 'solids'
+          said.push(`${player(me)} has ${k}.`)
+        }
+      }
+      const mine = g.groups[me]
+      const scored = !foul && pots.some((b) => b.n !== 8 && kindOf(b.n) === mine)
+      if (!scored) g.turn = you
+      if (foul) {
+        // the other player has the white ball, to put down anywhere
+        if (c.in) respot(c, HEAD)
+        g.state = 'place'
+        said.unshift(`Foul, ${player(me)} ${foul}.`)
+        said.push(`${player(g.turn)}, the white ball is yours: ${PLACE}.`)
+      } else {
+        g.state = 'aim'
+        const names = pots.filter((b) => b.n !== 8).map((b) => b.look.label || 'a ball')
+        if (names.length) said.unshift(names.length > 2 ? `${names.length} in!` : `${names.join(' and ')} in.`)
+        said.push(scored ? `${player(me)} again.` : `${player(g.turn)}'s turn.`)
+      }
+      setHud((h) => ({ ...h, ...tally(), note: said.join(' ') }))
+    }
+    // the white ball in hand, put down where the pointer is, if it fits there
+    const placeCue = (p) => {
+      const c = cue()
+      const x = Math.max(R, Math.min(TW - R, p.x)), y = Math.max(R, Math.min(TH - R, p.y))
+      if (g.balls.every((b) => b === c || b.in || b.sink || Math.hypot(b.x - x, b.y - y) > R * 2.05)) { c.x = x; c.y = y }
     }
 
     const shoot = (pull) => {
@@ -521,6 +719,8 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       g.state = 'rolling'
       g.follow = { t0: performance.now() }
       g.stroke = null
+      g.firstHit = null
+      g.target = eightBall ? targetFor(g.turn) : 'open'
       setHud((h) => ({ ...h, shots: g.shots, note: '' }))
     }
 
@@ -539,7 +739,7 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
 
       if (g.state === 'rolling') {
         physics(dt)
-        if (!moving() && g.balls.every((b) => !b.sink)) endOfShot()
+        if (!moving() && g.balls.every((b) => !b.sink)) { if (eightBall) endOfTurn(); else endOfShot() }
       }
       // the cue on the pointer's side of the ball, pointing through it
       if ((g.state === 'aim' && !g.nudged) || g.state === 'stroke') aimFrom(g.pointer)
@@ -573,11 +773,15 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
           const k = Math.min(1, (t - b.sink.t0) / 220)
           const p = toScreen(b.sink.x + (b.sink.p.x - b.sink.x) * k, b.sink.y + (b.sink.p.y - b.sink.y) * k)
           put(el, p.x, p.y, 1 - k * 0.45, 1 - k)
-          if (k >= 1) { b.in = true; b.sink = null; if (b.n > 0) setHud((h) => ({ ...h, potted: potted() })) }
+          if (k >= 1) { b.in = true; b.sink = null; if (b.n > 0) setHud((h) => ({ ...h, ...tally() })) }
           continue
         }
-        put(el, at.x, at.y)
+        // (the white ball in hand: lifted a little, until it is put down)
+        if (g.state === 'place' && b.n === 0) put(el, at.x, at.y, 1.08, 0.8)
+        else put(el, at.x, at.y)
       }
+      const cursor = g.state === 'place' ? 'grab' : ''
+      if (canvas.style.cursor !== cursor) canvas.style.cursor = cursor
       if (g.state !== 'intro' && wasEl && wasEl.style.display !== 'none') wasEl.style.display = 'none'
       if (g.state === 'intro' && intro >= 1) g.state = 'aim'
       setView()
@@ -644,6 +848,7 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       } else {
         if (locked) return
         p = at(e)
+        if (g.state === 'place') { placeCue(p); return }
       }
       if (g.nudged && g.pointer && Math.hypot(p.x - g.pointer.x, p.y - g.pointer.y) > 0.8) g.nudged = false
       if (!g.nudged || !g.pointer) g.pointer = p
@@ -654,6 +859,13 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       g.stroke.pull = Math.max(0, Math.min(MAX_PULL, Math.hypot(p.x - c.x, p.y - c.y) - g.stroke.base))
     }
     const onDown = (e) => {
+      if (e.button === 0 && g.state === 'place') {
+        // put down: aimed from here on
+        placeCue(at(e))
+        g.pointer = null
+        g.state = 'aim'
+        return
+      }
       if (e.button !== 0 || g.state !== 'aim') return
       canvas.setPointerCapture(e.pointerId)
       const p = at(e)
@@ -694,7 +906,7 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
     g.rerack = () => {
       setUp(false)
       g.pottedThisShot = []
-      setHud((h) => ({ ...h, shots: 0, potted: 0, note: 'New rack', won: false }))
+      setHud(freshHud(mode, 'New rack'))
     }
     return () => {
       cancelAnimationFrame(raf)
@@ -708,7 +920,7 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('resize', layout)
     }
-  }, [bubbles, extras])
+  }, [bubbles, extras, mode, eight])
 
   // The home page's title and the bar step aside while the table is up
   useEffect(() => {
@@ -740,7 +952,18 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       <div ref={ballsRef} className="pool-balls" aria-hidden="true" />
       <canvas ref={canvasRef} className="pool-table" />
       <div className="pool-hud">
-        <span className="pool-score">Shots <b>{hud.shots}</b> · <b>{hud.potted}</b>/{total} in</span>
+        {mode === 'eight' ? (
+          <span className="pool-score pool-players">
+            {[0, 1].map((p) => (
+              <span key={p} className={`pool-player${hud.turn === p && !hud.won ? ' pool-player-up' : ''}`}>
+                {player(p)}
+                {hud.groups[p] && <> · {hud.left[p] ? <>{hud.groups[p]} <b>{hud.left[p]}</b></> : 'on the 8'}</>}
+              </span>
+            ))}
+          </span>
+        ) : (
+          <span className="pool-score">Shots <b>{hud.shots}</b> · <b>{hud.potted}</b>/{total} in</span>
+        )}
         <span className="pool-note" aria-live="polite">{hud.note}</span>
         <span className="pool-buttons">
           <button type="button" className={`pool-button${guide ? ' pool-button-on' : ''}`} aria-pressed={guide} onClick={toggleGuide}>
@@ -752,10 +975,11 @@ export default function PoolGame({ bubbles, extras = [], onClose }) {
       </div>
       {hud.won && (
         <div className="pool-won glass nav-glass">
-          <h2>You cleared the table!</h2>
-          <p>{hud.shots} {hud.shots === 1 ? 'shot' : 'shots'}</p>
+          <h2>{mode === 'eight' ? hud.winner : 'You cleared the table!'}</h2>
+          <p>{mode === 'eight' ? hud.why : `${hud.shots} ${hud.shots === 1 ? 'shot' : 'shots'}`}</p>
           <div className="pool-buttons">
             <button type="button" className="pool-button" onClick={() => game.current?.rerack()}>Play again</button>
+            <button type="button" className="pool-button" onClick={switchMode}>{mode === 'eight' ? 'Play solo' : 'Play 2 players'}</button>
             <button type="button" className="pool-button" onClick={leave}>Back</button>
           </div>
         </div>
