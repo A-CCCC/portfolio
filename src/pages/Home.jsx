@@ -4,6 +4,7 @@ import { contact } from '../data/site-copy'
 import { TYPE, HERO_TOP, TITLE_GAP } from '../styles/type'
 import useFadeIn from '../hooks/useFadeIn'
 import ProjectBubbles from '../components/ProjectBubbles'
+import TanksInvite from '../components/TanksInvite'
 import Portrait from '../components/Portrait'
 import { featured, current, completed } from '../data/projects'
 import { describe } from '../data/site-copy'
@@ -51,6 +52,8 @@ export default function Home() {
         paddingTop: HERO_TOP,
       }}>
         <ProjectBubbles />
+        {/* (left still for ten seconds: a game of tanks offered) */}
+        <TanksInvite />
         <h1 className="glass-title" data-text="Alex's Design Portfolio" style={{
           position: 'relative',
           zIndex: 1,

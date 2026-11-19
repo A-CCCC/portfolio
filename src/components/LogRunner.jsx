@@ -546,11 +546,11 @@ export default function LogRunner() {
             is where this returns to rather than the site at large. */}
         <p style={{ textAlign: 'center', marginTop: 28 }}>
           <Link
-            to="/games"
+            to="/minigames"
             className="hub-link"
             style={{ color: 'var(--text-muted)', fontSize: TYPE.small }}
           >
-            Back to games
+            Back to minigames
           </Link>
         </p>
       </div>

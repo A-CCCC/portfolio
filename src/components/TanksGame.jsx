@@ -22,6 +22,7 @@ import { Link } from 'react-router-dom'
 import { TYPE } from '../styles/type'
 import { useIsTouch, useIsShort } from '../hooks/useIsPhone'
 import * as R from './tanks-rules'
+import { floorPaper } from './wallpaper'
 
 const S = 40                          // px a square, before the screen's own scaling
 // The arena seen as Wii Play's is, from above and in front, the camera
@@ -217,6 +218,17 @@ export default function TanksGame() {
         },
       }
     }
+    // The floor: a stretch of the site's own wallpaper (as the home page and
+    // the hubs wear it), somewhere on the pattern this visit wears, the
+    // arena's shape; drawn again for the other theme
+    let floorImg = null
+    const floorAt = { x: Math.random() * 400 - 400, y: Math.random() * 1000 }
+    const loadFloor = () => {
+      const dark = pal.dark
+      const img = new Image()
+      img.onload = () => { if (pal.dark === dark) floorImg = img }
+      img.src = floorPaper(dark, floorAt.x, floorAt.y, 400, (400 * R.ROWS) / R.COLS, R.COLS * S * 2, R.ROWS * S * 2)
+    }
     let dpr = 1
     const fit = () => {
       const up = uprightRef.current
@@ -227,12 +239,14 @@ export default function TanksGame() {
       const r = Math.min(3, (window.devicePixelRatio || 1) * Math.max(1, shown / v.w))
       canvas.width = Math.round(v.w * r); canvas.height = Math.round(v.h * r)
       dpr = r
+      const was = pal?.dark
       pal = palette()
+      if (was !== pal.dark) loadFloor()
     }
     fit()
     window.addEventListener('resize', fit)
     // (the theme switched while playing: the colours again)
-    const themeWatch = new MutationObserver(() => { pal = palette() })
+    const themeWatch = new MutationObserver(() => { const was = pal.dark; pal = palette(); if (was !== pal.dark) loadFloor() })
     themeWatch.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
 
     // --- the game around the rules: rounds, lives, and what is shown ---
@@ -371,8 +385,15 @@ export default function TanksGame() {
       plane(0)
       ctx.fillStyle = pal.bg
       ctx.fillRect(0, 0, R.COLS, R.ROWS)
-      ctx.fillStyle = rgba(pal.a, pal.dark ? 0.07 : 0.16)
-      ctx.fillRect(0, 0, R.COLS, R.ROWS)
+      if (floorImg) {
+        ctx.drawImage(floorImg, 0, 0, R.COLS, R.ROWS)
+        // softened, so what is on it reads first
+        ctx.fillStyle = rgba(pal.bg, pal.dark ? 0.32 : 0.38)
+        ctx.fillRect(0, 0, R.COLS, R.ROWS)
+      } else {
+        ctx.fillStyle = rgba(pal.a, pal.dark ? 0.07 : 0.16)
+        ctx.fillRect(0, 0, R.COLS, R.ROWS)
+      }
       ctx.fillStyle = rgba(pal.text, 0.07)
       for (let y = 1; y < R.ROWS; y += 1) for (let x = 1; x < R.COLS; x += 1) ctx.fillRect(x - 0.03, y - 0.03, 0.06, 0.06)
       for (const m of w.marks) {
@@ -414,8 +435,7 @@ export default function TanksGame() {
 
     // A block (or a run of the wall round the arena), seen: its front, the
     // face towards the camera, darker, and its top, lit, with a crisp rim
-    // round the top's open edges and along the foot of its front, the line
-    // a shell turns back at. `open` says which of its sides face open floor.
+    // along the foot of its front, the line a shell turns back at. `open` says which of its sides face open floor.
     const looks = () => {
       const top = ctx.createLinearGradient(0, 0, view().w / S, view().h / S)
       top.addColorStop(0, rgba(pal.a, 0.97)); top.addColorStop(1, rgba(pal.b, 0.97))
@@ -466,13 +486,10 @@ export default function TanksGame() {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'
       if (!open.right && open.seamRight) ctx.fillRect(p1.x - 0.015, p0.y + 0.1, 0.03, p1.y - p0.y - 0.2)
       if (!open.near && open.seamNear) ctx.fillRect(p0.x + 0.1, p1.y - 0.015, p1.x - p0.x - 0.2, 0.03)
-      ctx.strokeStyle = look.rim; ctx.lineWidth = 0.06; ctx.lineCap = 'square'
-      ctx.beginPath()
-      if (open.far) { ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p0.y) }
-      if (open.near) { ctx.moveTo(p0.x, p1.y); ctx.lineTo(p1.x, p1.y) }
-      if (open.left) { ctx.moveTo(p0.x, p0.y); ctx.lineTo(p0.x, p1.y) }
-      if (open.right) { ctx.moveTo(p1.x, p0.y); ctx.lineTo(p1.x, p1.y) }
-      ctx.stroke()
+      // (no outline round the top: its edges told by the light along the
+      // far and left ones, a little shade along the right, and the front)
+      ctx.fillStyle = rgba(pal.shadow, pal.dark ? 0.25 : 0.12)
+      if (open.right) ctx.fillRect(p1.x - 0.05, p0.y, 0.05, p1.y - p0.y)
     }
     // a block of the arena's, by its square: which of its sides, as seen,
     // face open floor
@@ -1058,8 +1075,8 @@ export default function TanksGame() {
         </div>
         {!full && (
           <p style={{ marginTop: short ? 14 : 20 }}>
-            <Link to="/games" className="hub-link" style={{ color: 'var(--text-muted)', fontSize: TYPE.small }}>
-              Back to games
+            <Link to="/" className="hub-link" style={{ color: 'var(--text-muted)', fontSize: TYPE.small }}>
+              Back to home
             </Link>
           </p>
         )}

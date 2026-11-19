@@ -70,7 +70,7 @@ export default function NotFound() {
       {/* (each pill reaches 16px past its box each side: .count-link's margin) */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '34px 46px', justifyContent: 'center' }}>
         {pill('/', 'Back to home', linksOpacity)}
-        {pill('/games', 'Or play something while you are here', eggOpacity)}
+        {pill('/minigames', 'Or play something while you are here', eggOpacity)}
       </div>
     </div>
   )

@@ -508,6 +508,16 @@ export function wallRegion(host, x, y, w, h, wPx, hPx, dark) {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 
+// A stretch of the wallpaper on its own, for a floor rather than a page (the
+// tank game's arena, TanksGame.jsx): the pattern this visit wears, the
+// window x, y, w, h of it (in its own units, a page 400 across), drawn
+// wPx by hPx — without the bands across titles, which belong to pages
+export function floorPaper(dark, x, y, w, h, wPx, hPx) {
+  const pat = PATTERNS[nextPattern()]
+  const host = { __pattern: { ...pat, shapes: pat.shapes.filter((s) => !s.hero) }, __unit: 1, __fs: 96 }
+  return `data:image/svg+xml,${encodeURIComponent(svgOf(host, dark ? DARK : LIGHT, x, y, w, h, wPx, hPx))}`
+}
+
 // The same part of it as a panel of glass over it shows it (.about-panel):
 // blurred as the panel's backdrop blurs it, its colour lifted as the panel
 // lifts it, under the panel's wash of the page's own colour — for letters on

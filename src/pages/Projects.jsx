@@ -16,11 +16,11 @@ const SECTIONS = [
     items: clashRoyale,
     blurb: 'Highly detailed models I built using reference images from the video game Clash Royale.',
     cover: asset('/thumbnails/skeleton-barrel.webp'),
-    // Clicking the barrel is the only way to the games page. The box is where
+    // Clicking the barrel is the only way to the minigames page. The box is where
     // the barrel actually sits in its render — left, top, width, height, as
     // percentages — so the rest of the frame stays as unclickable as every
     // other cover on the site.
-    secret: '/games',
+    secret: '/minigames',
     secretBox: [27.5, 16.5, 45.1, 67.0],
   },
   {

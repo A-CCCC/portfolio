@@ -43,7 +43,7 @@ const CarKeyHolder = page(() => import('./pages/solutions/convenience/CarKeyHold
 const KetchupExtruder = page(() => import('./pages/solutions/convenience/KetchupExtruder'))
 const NotFound = page(() => import('./pages/NotFound'))
 // Not in the navbar: easter eggs for anyone who finds them.
-const Games = page(() => import('./pages/Games'))
+const Minigames = page(() => import('./pages/Minigames'))
 const LogRunner = page(() => import('./components/LogRunner'))
 const BarrelDrop = page(() => import('./components/BarrelDrop'))
 const SnakeGame = page(() => import('./components/SnakeGame'))
@@ -72,7 +72,7 @@ export default function App() {
       <ScrollToTop />
       <ShareNavigate />
       <ThemeToggle />
-      {/* the way into the games, cracked open (see the component) */}
+      {/* the way into the minigames, cracked open (see the component) */}
       <EggCrack />
       {/* Nothing in the moment a page is still being fetched */}
       <Suspense fallback={null}>
@@ -118,7 +118,9 @@ export default function App() {
         <Route path="/solutions/convenience/ketchup-extruder" element={<KetchupExtruder />} />
         <Route path="/solutions/convenience/moth-trap" element={<MothTrap />} />
         {/* Anything unmatched — mistyped, or a page that has been removed */}
-        <Route path="/games" element={<Loads><Games /></Loads>} />
+        <Route path="/minigames" element={<Loads><Minigames /></Loads>} />
+        {/* (the minigames' old address) */}
+        <Route path="/games" element={<Navigate to="/minigames" replace />} />
         <Route path="/log" element={<Loads><LogRunner /></Loads>} />
         <Route path="/barrel" element={<Loads><BarrelDrop /></Loads>} />
         <Route path="/snake" element={<Loads><SnakeGame /></Loads>} />

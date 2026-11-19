@@ -1,12 +1,12 @@
-// src/pages/Games.jsx
+// src/pages/Minigames.jsx
 //
 // Not in the navbar and not linked from anywhere obvious: the way in is the
 // Skeleton Barrel on the projects hub. Anyone who lands here found it.
 //
-// The three games sit on the same cards as the listings on the Services page:
+// The three minigames sit on the same cards as the listings on the Services page:
 // the model in a tinted disc, a name, a line, and the way on. Each one also
 // shows what the person at this browser has managed, which is the only thing
-// a hub for games can say that a list of names cannot.
+// a hub for minigames can say that a list of names cannot.
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import useFadeIn from '../hooks/useFadeIn'
@@ -14,7 +14,7 @@ import { useIsShort } from '../hooks/useIsPhone'
 import { TYPE } from '../styles/type'
 import asset from '../lib-asset'
 
-const GAMES = [
+const MINIGAMES = [
   {
     title: 'The Log Game',
     path: '/log',
@@ -55,7 +55,7 @@ const useBests = () => {
   useEffect(() => {
     try {
       const found = {}
-      GAMES.forEach((game) => {
+      MINIGAMES.forEach((game) => {
         const score = Number(localStorage.getItem(game.best)) || 0
         if (score > 0) found[game.best] = score
       })
@@ -65,7 +65,7 @@ const useBests = () => {
   return bests
 }
 
-export default function Games() {
+export default function Minigames() {
   const titleOpacity = useFadeIn(100)
   const introOpacity = useFadeIn(500)
   const listOpacity = useFadeIn(900)
@@ -89,7 +89,7 @@ export default function Games() {
       padding: short ? '70px 24px 18px' : '120px var(--gutter) 80px',
       textAlign: 'center',
     }}>
-      <h1 className="glass-title" data-text="Games" style={{
+      <h1 className="glass-title" data-text="Minigames" style={{
         fontSize: TYPE.pageTitle,
         fontWeight: 'bold',
         letterSpacing: '-0.01em',
@@ -97,7 +97,7 @@ export default function Games() {
         opacity: titleOpacity,
         transition: 'opacity 1.5s ease',
       }}>
-        Games
+        Minigames
       </h1>
 
       {/* on a pill of glass, as Services' line is (.text-chip) */}
@@ -108,7 +108,7 @@ export default function Games() {
         opacity: introOpacity,
         transition: 'opacity 1.5s ease',
       }}>
-        You found an Easter egg! Try out these games made with my models.
+        You found an Easter egg! Try out these minigames made with my models.
       </p>
 
       {/* Three across where there is room, one under another where there is
@@ -122,7 +122,7 @@ export default function Games() {
         opacity: listOpacity,
         transition: 'opacity 1.5s ease',
       }}>
-        {GAMES.map((game) => (
+        {MINIGAMES.map((game) => (
           // The whole card is the control, as on Services: there is nothing
           // else on it to press, so a picture that navigates is no trap.
           <Link

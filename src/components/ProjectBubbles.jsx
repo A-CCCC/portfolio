@@ -189,11 +189,11 @@ const RARE_PATHS = []
 const RARE_CHANCE = 1 / 8      // roughly one page load in eight
 const isRare = (project) => RARE_PATHS.includes(project.path)
 
-// A way into the hidden games, turning up in a project's place now and again.
+// A way into the hidden minigames, turning up in a project's place now and again.
 // Rare enough to be a find rather than a fixture: about one load in twelve, and
 // then in whichever bubble the shuffle happens to give it.
-const GAMES_BUBBLE = { path: '/games', label: 'Games', icon: true }
-const GAMES_CHANCE = 1 / 12
+const MINIGAMES_BUBBLE = { path: '/minigames', label: 'Minigames', icon: true }
+const MINIGAMES_CHANCE = 1 / 12
 
 const ALWAYS_PATHS = ['/solutions/convenience/backup-camera-wiper']
 // The pop, in two beats: the bubble swells, then bursts — and from the
@@ -372,8 +372,8 @@ function drawCast(slots) {
 
   // Takes a slot rather than adding one, so the ring keeps its shape. Rolled
   // after the draw, so which project it displaces is down to the shuffle.
-  if (Math.random() < GAMES_CHANCE) {
-    cast[Math.floor(Math.random() * cast.length)] = GAMES_BUBBLE
+  if (Math.random() < MINIGAMES_CHANCE) {
+    cast[Math.floor(Math.random() * cast.length)] = MINIGAMES_BUBBLE
   }
   return cast
 }

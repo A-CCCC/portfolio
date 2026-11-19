@@ -1,26 +1,26 @@
 // src/components/EggCrack.jsx
 //
-// The way into the games is an easter egg, so it arrives as one. A link to
-// the games — the bubble that turns up now and again, the one hidden on the
+// The way into the minigames is an easter egg, so it arrives as one. A link to
+// the minigames — the bubble that turns up now and again, the one hidden on the
 // Projects hub, the one on the missing page — puts an egg in the middle of
 // the screen while the page fades away behind it; the egg wobbles, harder
 // and harder, a crack runs round it, and it bursts: the two halves fly apart
-// and the games open out from where it was.
+// and the minigames open out from where it was.
 //
-// Not between the games themselves, which are already inside it, and not for
+// Not between the minigames themselves, which are already inside it, and not for
 // anyone with motion turned down: those links simply go.
 import { useEffect, useId, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-const GAMES = '/games'
+const MINIGAMES = '/minigames'
 // Pages already inside the egg
-const INSIDE = ['/games', '/log', '/barrel', '/snake', '/loading']
+const INSIDE = ['/minigames', '/games', '/log', '/barrel', '/snake', '/loading']
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '')
 
 // The beats, from the click (see .egg-* in the stylesheet)
 const CRACK_AT = 900      // in (0.3s) and the wobble (0.6s) done
-const OPEN_AT = 1050      // the crack drawn; the games put in under the curtain
-const DONE_AT = 1750      // the halves gone and the games uncovered
+const OPEN_AT = 1050      // the crack drawn; the minigames put in under the curtain
+const DONE_AT = 1750      // the halves gone and the minigames uncovered
 
 // One egg, cut in two along the crack. The same drawing in each half, each
 // clipped to its side of the zigzag.
@@ -65,7 +65,7 @@ function Half({ clip }) {
 export default function EggCrack() {
   // Held in a ref: the router hands out a new navigate whenever the page
   // changes, and an effect keyed on it re-ran mid-egg — clearing the timer
-  // that takes the egg away, which left it over the games for good.
+  // that takes the egg away, which left it over the minigames for good.
   const navigateRef = useRef(useNavigate())
   navigateRef.current = useNavigate()
   const { pathname } = useLocation()
@@ -83,7 +83,7 @@ export default function EggCrack() {
       const url = new URL(a.href, window.location.href)
       if (url.origin !== window.location.origin) return
       const path = url.pathname.slice(BASE.length).replace(/\/$/, '') || '/'
-      if (path !== GAMES || INSIDE.includes(here.current)) return
+      if (path !== MINIGAMES || INSIDE.includes(here.current)) return
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
       // Taken from everything else that would act on it — the bubble's own
       // pop, the page's sweeps — before they see it
@@ -93,7 +93,7 @@ export default function EggCrack() {
       setPhase('shake')
       timers.current = [
         setTimeout(() => setPhase('crack'), CRACK_AT),
-        setTimeout(() => { setPhase('open'); navigateRef.current(GAMES) }, OPEN_AT),
+        setTimeout(() => { setPhase('open'); navigateRef.current(MINIGAMES) }, OPEN_AT),
         setTimeout(() => { setPhase(null); timers.current = [] }, DONE_AT),
       ]
     }
@@ -123,7 +123,7 @@ export default function EggCrack() {
 }
 
 // The egg as an icon: painted as the big one is — its colours, the wavy
-// band and the dots in white, a shine — for the games' bubble.
+// band and the dots in white, a shine — for the minigames' bubble.
 export function EggIcon({ size = 24, className, style }) {
   const id = useId()
   return (
