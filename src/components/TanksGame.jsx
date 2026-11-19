@@ -602,13 +602,16 @@ export default function TanksGame() {
         ctx.beginPath(); ctx.arc(m.x, m.y, 0.3, 0, Math.PI * 2); ctx.fill()
       }
     }
-    // A shell, flying at the height of the barrels, its shadow on the floor
-    const SHELL_Z = 0.38
+    // A shell, flying low over the floor, its shadow just under it: low
+    // enough that where it is drawn is where it is on the floor, which is
+    // what it hits by (a shell up at the barrels' height looked to pass
+    // over tanks it was about to hit)
+    const SHELL_Z = 0.1
     const drawShell = (s) => {
       const a = Math.atan2(s.vy, s.vx)
       plane(0)
       ctx.fillStyle = rgba(pal.shadow, 0.28)
-      ctx.beginPath(); ctx.ellipse(s.x + 0.06, s.y + 0.1, 0.15, 0.07, a, 0, Math.PI * 2); ctx.fill()
+      ctx.beginPath(); ctx.ellipse(s.x + 0.025, s.y + 0.04, 0.15, 0.07, a, 0, Math.PI * 2); ctx.fill()
       plane(SHELL_Z)
       ctx.translate(s.x, s.y); ctx.rotate(a)
       if (s.fast) {
