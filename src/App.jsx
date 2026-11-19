@@ -47,6 +47,7 @@ const Games = page(() => import('./pages/Games'))
 const LogRunner = page(() => import('./components/LogRunner'))
 const BarrelDrop = page(() => import('./components/BarrelDrop'))
 const SnakeGame = page(() => import('./components/SnakeGame'))
+const TanksGame = page(() => import('./components/TanksGame'))
 const Loading = page(() => import('./pages/Loading'))
 
 // The router's navigate, for the page transitions (page-sweep.js), which
@@ -121,6 +122,8 @@ export default function App() {
         <Route path="/log" element={<Loads><LogRunner /></Loads>} />
         <Route path="/barrel" element={<Loads><BarrelDrop /></Loads>} />
         <Route path="/snake" element={<Loads><SnakeGame /></Loads>} />
+        {/* Not linked from anywhere yet: reached by a way in still to come */}
+        <Route path="/tanks" element={<Loads><TanksGame /></Loads>} />
 
         {/* The same screen with nothing behind it, for anyone who finds it. */}
         <Route path="/loading" element={<Loading />} />

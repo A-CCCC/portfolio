@@ -3614,3 +3614,69 @@ html.theme-snap .glass.nav-glass.theme-orb {
 .pool-won h2 { margin: 0 0 6px; font-size: 28px; }
 .pool-won p { margin: 0 0 18px; opacity: 0.8; }
 .pool-won .pool-buttons { flex-wrap: wrap; }
+
+/* Glass Tanks (TanksGame.jsx): the words over the arena between rounds */
+.tanks-banner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  padding: 16px;
+}
+.tanks-banner-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 30px;
+  border-radius: 24px;
+  text-align: center;
+  color: var(--text);
+  animation: pool-ask-in 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+  max-width: 100%;
+}
+.tanks-banner-card strong { font-size: clamp(22px, 4vw, 34px); line-height: 1.1; }
+.tanks-banner-card > span { font-size: 15px; opacity: 0.85; }
+.tanks-kinds { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; font-size: 14px; }
+.tanks-kinds > span { display: inline-flex; align-items: center; gap: 6px; }
+.tanks-kinds i { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.8); }
+.tanks-arena { box-shadow: 0 18px 40px -22px var(--lg-shade, rgba(0, 0, 0, 0.4)); }
+.tanks-stick {
+  position: fixed;
+  z-index: 30;
+  width: 104px;
+  height: 104px;
+  margin: -52px 0 0 -52px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  background: color-mix(in srgb, var(--bg) 35%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 20px -8px var(--lg-shade, rgba(0, 0, 0, 0.4));
+  pointer-events: none;
+}
+.tanks-stick i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--hue-1) 80%, white);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6), 0 3px 10px -3px rgba(0, 0, 0, 0.35);
+}
+.tanks-stick-aim i { background: color-mix(in srgb, #e0484f 80%, white); }
+/* full screen: the browser's own, or the window covered where it has none */
+.tanks-stage.tanks-full {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  background: var(--bg);
+  padding: 12px 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.tanks-stage:fullscreen { background: var(--bg); }
